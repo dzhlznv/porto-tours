@@ -48,9 +48,9 @@ export const pageContent = {
     }
   ],
   gallery: [
-  { src: g1, alt: 'View over Porto rooftops at golden hour' },
-  { src: g2, alt: 'Historic and modern architecture in Porto' },
-  { src: g3, alt: 'Porto riverside promenade toward the ocean' },
-  { src: g4, alt: 'Quiet Porto street with local cafés' }
+  { src: '/src/assets/gallery-1.jpg', alt: 'View over Porto rooftops at golden hour' },
+  { src: '/src/assets/gallery-2.jpg', alt: 'Historic and modern architecture in Porto' },
+  { src: '/src/assets/gallery-3.jpg', alt: 'Porto riverside promenade toward the ocean' },
+  { src: '/src/assets/gallery-4.jpg', alt: 'Quiet Porto street with local cafés' }
 ]
 };
