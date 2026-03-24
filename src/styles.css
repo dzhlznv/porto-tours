@@ -227,11 +227,15 @@ h1 {
 
 /* editorial сдвиг — ключевой момент */
 .gallery-grid > *:nth-child(2) {
-  margin-top: 2.5rem;
+  margin-top: 3rem;
+}
+
+.gallery-grid > *:nth-child(3) {
+  margin-top: -1rem;
 }
 
 .gallery-grid > *:nth-child(4) {
-  margin-top: 1.5rem;
+  margin-top: 2rem;
 }
 
 .gallery-card {
