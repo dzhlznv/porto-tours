@@ -358,3 +358,23 @@ h1 {
     transition: none;
   }
 }
+/* MOBILE GALLERY SCROLL */
+@media (max-width: 768px) {
+  .gallery-grid {
+    display: flex;
+    overflow-x: auto;
+    gap: 12px;
+    padding-bottom: 8px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .gallery-grid > * {
+    flex: 0 0 85%;
+    scroll-snap-align: start;
+  }
+
+  .gallery-grid::-webkit-scrollbar {
+    display: none;
+  }
+}
