@@ -1,3 +1,4 @@
+import React from 'react';
 export function Section({ title, children, id }) {
   return (
     <section id={id} className="section">
