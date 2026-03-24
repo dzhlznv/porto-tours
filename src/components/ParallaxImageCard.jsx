@@ -1,3 +1,4 @@
+import React from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 
 const MAX_SHIFT = 16;
