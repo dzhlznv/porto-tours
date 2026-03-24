@@ -1,56 +1,56 @@
 export const pageContent = {
   hero: {
-    title: 'A day in Porto with a local',
+    title: 'A personal day in Porto, shaped around you',
     subtitle:
-      'No routes, no scripts — just a real day in Porto, with a sense of the city as it is now.',
+      'This is not a classic tour. It is a day designed around your pace, your curiosities, and the kind of city moments you actually enjoy.',
     supportingLine:
-      'From specialty coffee to quiet streets, conversations, and the rhythm of everyday life.',
+      'Give me a few inputs, and I’ll shape a day in Porto around what you love.',
     cta: 'Join the waitlist',
-    note: 'Small, informal, and not for everyone.'
+    note: 'Donation-based, intentionally small, and only around 12 days each year.'
   },
   whatThisIs:
-    'This is not a tour in the usual sense. It is a shared day in Porto through places that feel alive right now — coffee counters, side streets, viewpoints, and pauses in between. There is no fixed scenario, just a thoughtful day shaped by the city and the people in it.',
-  exampleDays: [
-    {
-      title: 'Morning coffee and walk',
-      description:
-        'We begin with good coffee, then drift through quieter streets while the city opens slowly.'
-    },
-    {
-      title: 'Slow afternoon in the city',
-      description:
-        'A relaxed rhythm of small places, simple food, and space to notice what makes Porto feel like Porto.'
-    },
-    {
-      title: 'Sunset and conversation',
-      description:
-        'As the light changes, we stop somewhere calm and talk — about the city, life here, and whatever feels meaningful.'
-    }
-  ],
-  whoItsFor: [
-    'People who enjoy observing cities',
-    'Those who like coffee, walking, and conversation',
-    'Not for people who want a checklist tour'
-  ],
+    'Think of this as a thoughtful local experience, not a scripted route. We begin with your interests, then shape the day around atmosphere, neighborhoods, and places that feel alive in real Porto.',
+  classicDay:
+    'A classic day often starts with specialty coffee, then unusual angles of the city that most visitors miss. We can drift along the river toward the ocean, contrast modern and historical Porto, stop in local places, and taste interesting wines from the region. It is everything you already love in city travel, but in Porto, with its own special charm.',
+  dayShapingLine:
+    'Share a few preferences before we meet, and I’ll tailor the rhythm, stops, and mood of the day for you.',
   about:
-    'I’m not a guide. I’m someone who lives here, pays attention, and enjoys sharing Porto in a calm, human way. If this sounds like your pace, you’re welcome to join.',
+    'I’ve been living in Porto for the past few years and exploring it beyond the obvious — through neighborhoods, cafés, viewpoints, service, atmosphere, and the feeling of everyday life in the city.',
+  motivation:
+    'This is not a business in the traditional sense. It’s something I do because it genuinely makes me happy: sharing a city I love with interesting people.',
+  donation:
+    'This is donation-based. There is no fixed price — just a contribution that feels right to you.',
+  scarcity: 'I only do around 12 days like this per year.',
+  whoItsFor: [
+    'Curious travelers who care more about feel than checklists.',
+    'People who enjoy coffee, long walks, local details, and good conversation.',
+    'Anyone who wants Porto to be personal, not generic.'
+  ],
   faq: [
     {
-      question: 'Is this a tour?',
+      question: 'Is this a guided tour?',
       answer:
-        'Not really. Think of it as spending a day with someone local, without a fixed script.'
+        'Not in the traditional sense. It is a personalized day with a local perspective, shaped around your interests.'
     },
     {
-      question: 'How many people?',
-      answer: 'Very small groups, usually one to four people.'
+      question: 'How does pricing work?',
+      answer:
+        'It is donation-based. You contribute what feels fair to you after the experience.'
     },
     {
-      question: 'What language?',
-      answer: 'English, with Portuguese available when helpful.'
+      question: 'How many people join?',
+      answer: 'Usually one to four people so the day can stay calm and flexible.'
     },
     {
-      question: 'How do I join?',
-      answer: 'Use the form below. I’ll reply with next steps and available dates.'
+      question: 'How do I book one of the days?',
+      answer:
+        'Use the form below. I’ll reply with availability and a few questions so I can shape the day around you.'
     }
+  ],
+  gallery: [
+    { src: '/src/assets/gallery-1.jpg', alt: 'View over Porto rooftops at golden hour' },
+    { src: '/src/assets/gallery-2.jpg', alt: 'Historic and modern architecture in Porto' },
+    { src: '/src/assets/gallery-3.jpg', alt: 'Porto riverside promenade toward the ocean' },
+    { src: '/src/assets/gallery-4.jpg', alt: 'Quiet Porto street with local cafés' }
   ]
 };
