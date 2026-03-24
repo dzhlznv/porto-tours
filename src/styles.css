@@ -370,7 +370,7 @@ h1 {
   }
 
   .gallery-grid > * {
-    flex: 0 0 85%;
+    flex: 0 0 78%;
     scroll-snap-align: start;
   }
 
