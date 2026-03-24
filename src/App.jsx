@@ -1,3 +1,5 @@
+import heroImg from './assets/hero.jpg';
+import aboutImg from './assets/about.jpg';
 import React, { useState } from 'react';
 import { pageContent } from './content';
 import { Section } from './components/Section';
@@ -42,7 +44,7 @@ function App() {
             </a>
             <p className="hero-note">{pageContent.hero.note}</p>
           </div>
-          <FramedImage src="/src/assets/hero.jpg" alt="A cinematic Porto city moment" className="hero-image" />
+          <FramedImage src={heroImg} alt="A cinematic Porto city moment" className="hero-image" />
         </section>
 
         <Section title="What this is" id="what-this-is">
@@ -62,7 +64,7 @@ function App() {
               <p className="pill-line">{pageContent.donation}</p>
               <p className="pill-line">{pageContent.scarcity}</p>
             </div>
-            <FramedImage src="/src/assets/about.jpg" alt="Neighborhood view in Porto" className="about-image" />
+            <FramedImage src={aboutImg} alt="Neighborhood view in Porto" className="about-image" />
           </div>
         </Section>
 
