@@ -399,21 +399,22 @@ h1 {
   }
 
   .gallery-grid > * {
-  flex: 0 0 78%;
-  scroll-snap-align: center;
-  margin-top: 0 !important;
-}
+    flex: 0 0 78%;
+    scroll-snap-align: center;
+    margin-top: 0 !important;
+  }
 
   .gallery-grid::-webkit-scrollbar {
     display: none;
   }
-}
-.gallery-swipe-hint {
-  margin-top: 10px;
-  text-align: center;
-  font-size: 13px;
-  letter-spacing: 0.04em;
-  color: #7a7a7a;
+
+  .gallery-swipe-hint {
+    margin-top: 10px;
+    text-align: center;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    color: #7a7a7a;
+  }
 }
 
 @media (min-width: 769px) {
