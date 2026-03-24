@@ -1,3 +1,4 @@
+import React from 'react';
 export function ExampleCard({ title, description }) {
   return (
     <article className="example-card">
