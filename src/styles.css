@@ -399,9 +399,10 @@ h1 {
   }
 
   .gallery-grid > * {
-    flex: 0 0 78%;
-    scroll-snap-align: center;
-  }
+  flex: 0 0 78%;
+  scroll-snap-align: center;
+  margin-top: 0 !important;
+}
 
   .gallery-grid::-webkit-scrollbar {
     display: none;
