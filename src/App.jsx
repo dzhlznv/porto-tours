@@ -85,6 +85,7 @@ function App() {
               <ParallaxImageCard key={image.src} src={image.src} alt={image.alt} />
             ))}
           </div>
+          <p className="gallery-swipe-hint">Swipe to explore →</p>
         </Section>
 
         <Section title="FAQ" id="faq">
