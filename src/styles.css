@@ -364,14 +364,16 @@ h1 {
     display: flex;
     overflow-x: auto;
     gap: 12px;
-    padding-bottom: 8px;
+    padding: 0 20px 12px;
+    margin: 0 -20px;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
   }
 
   .gallery-grid > * {
     flex: 0 0 78%;
-    scroll-snap-align: start;
+    scroll-snap-align: center;
   }
 
   .gallery-grid::-webkit-scrollbar {
