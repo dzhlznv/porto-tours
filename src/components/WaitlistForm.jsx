@@ -8,22 +8,19 @@ const initialFormState = {
 
 export function WaitlistForm() {
   const [formData, setFormData] = useState(initialFormState);
-  const [submitted, setSubmitted] = useState(false);
 
   function handleChange(event) {
     const { name, value } = event.target;
     setFormData((current) => ({ ...current, [name]: value }));
   }
 
-  function handleSubmit(event) {
-    event.preventDefault();
-    setSubmitted(true);
-    setFormData(initialFormState);
-  }
-
   return (
     <div className="form-wrap">
-      <form className="waitlist-form" onSubmit={handleSubmit}>
+      <form
+        className="waitlist-form"
+        action="https://formspree.io/f/mdawqqvp"
+        method="POST"
+      >
         <label>
           Name
           <input
@@ -61,12 +58,6 @@ export function WaitlistForm() {
 
         <button type="submit">Join the waitlist</button>
       </form>
-
-      {submitted ? (
-        <p className="success-message">
-          Thank you — your note is in. I’ll be in touch soon.
-        </p>
-      ) : null}
     </div>
   );
 }
