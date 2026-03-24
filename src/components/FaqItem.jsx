@@ -1,3 +1,4 @@
+import React from 'react';
 export function FaqItem({ question, answer }) {
   return (
     <details className="faq-item">
