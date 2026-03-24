@@ -387,35 +387,43 @@ h1 {
 }
 /* MOBILE GALLERY SCROLL */
 @media (max-width: 768px) {
+
+  /* воздух между текстом и галереей */
   .gallery-grid {
     display: flex;
     overflow-x: auto;
     gap: 12px;
     padding: 0 20px 12px;
-    margin: 0 -20px;
+    margin: 20px -20px 0; /* ← ВАЖНО: отступ сверху */
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
-  }
-
-  .gallery-grid > * {
-    flex: 0 0 78%;
-    scroll-snap-align: center;
-    margin-top: 0 !important;
   }
 
   .gallery-grid::-webkit-scrollbar {
     display: none;
   }
 
+  .gallery-grid > * {
+    flex: 0 0 82%;
+    scroll-snap-align: center;
+    margin-top: 0 !important; /* убираем десктопные сдвиги */
+  }
+
+  /* чуть воздуха снизу секции (чтобы Safari не съедал) */
+  #gallery {
+    padding-bottom: 32px;
+  }
+
+  /* текст-подсказка */
   .gallery-swipe-hint {
-  margin-top: 20px;
-  margin-bottom: 32px;
-  text-align: center;
-  font-size: 12px;
-  letter-spacing: 0.06em;
-  color: #9a9a9a;
-}
+    margin-top: 18px;
+    margin-bottom: 0;
+    text-align: center;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    color: #9a9a9a;
+  }
 }
 
 @media (min-width: 769px) {
