@@ -1,3 +1,7 @@
+import g1 from './assets/gallery-1.jpg';
+import g2 from './assets/gallery-2.jpg';
+import g3 from './assets/gallery-3.jpg';
+import g4 from './assets/gallery-4.jpg';
 export const pageContent = {
   hero: {
     title: 'A personal day in Porto, shaped around you',
@@ -48,9 +52,9 @@ export const pageContent = {
     }
   ],
   gallery: [
-  { src: '/src/assets/gallery-1.jpg', alt: 'View over Porto rooftops at golden hour' },
-  { src: '/src/assets/gallery-2.jpg', alt: 'Historic and modern architecture in Porto' },
-  { src: '/src/assets/gallery-3.jpg', alt: 'Porto riverside promenade toward the ocean' },
-  { src: '/src/assets/gallery-4.jpg', alt: 'Quiet Porto street with local cafés' }
+  { src: g1, alt: 'View over Porto rooftops at golden hour' },
+  { src: g2, alt: 'Historic and modern architecture in Porto' },
+  { src: g3, alt: 'Porto riverside promenade toward the ocean' },
+  { src: g4, alt: 'Quiet Porto street with local cafés' }
 ]
 };
