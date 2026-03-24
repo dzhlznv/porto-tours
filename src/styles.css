@@ -380,3 +380,16 @@ h1 {
     display: none;
   }
 }
+.gallery-swipe-hint {
+  margin-top: 10px;
+  text-align: center;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: #7a7a7a;
+}
+
+@media (min-width: 769px) {
+  .gallery-swipe-hint {
+    display: none;
+  }
+}
