@@ -1,5 +1,4 @@
-import React from 'react';
-import { useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { trackEvent } from '../lib/analytics';
 
 const initialFormState = {
