@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-const MAX_SHIFT = 16;
+const MAX_SHIFT = 12;
 
 export function ParallaxImageCard({ src, alt, onClick }) {
   const cardRef = useRef(null);
@@ -63,20 +63,22 @@ export function ParallaxImageCard({ src, alt, onClick }) {
       onClick={onClick}
       aria-label={`Open image: ${alt}`}
     >
-      {!hasImageError ? (
-        <img
-          src={src}
-          alt={alt}
-          className="gallery-image"
-          loading="lazy"
-          onError={() => setHasImageError(true)}
-          style={{ transform: `translateY(${offset}px)` }}
-        />
-      ) : (
-        <div className="gallery-placeholder" role="img" aria-label={alt}>
-          <span>Image placeholder</span>
-        </div>
-      )}
+      <div className="gallery-media">
+        {!hasImageError ? (
+          <img
+            src={src}
+            alt={alt}
+            className="gallery-image"
+            loading="lazy"
+            onError={() => setHasImageError(true)}
+            style={{ transform: `translateY(${offset}px) scale(1.12)` }}
+          />
+        ) : (
+          <div className="gallery-placeholder" role="img" aria-label={alt}>
+            <span>Image placeholder</span>
+          </div>
+        )}
+      </div>
     </button>
   );
 }
