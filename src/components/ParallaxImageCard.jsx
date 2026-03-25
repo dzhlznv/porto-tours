@@ -8,6 +8,11 @@ export function ParallaxImageCard({ src, alt, onClick }) {
   const [hasImageError, setHasImageError] = useState(false);
 
   useEffect(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+      setOffset(0);
+      return undefined;
+    }
+
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     const isMobile = window.matchMedia('(max-width: 900px)');
 
