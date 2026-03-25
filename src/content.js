@@ -100,44 +100,44 @@ import g99 from './assets/gallery-99.jpg'
 import g100 from './assets/gallery-100.jpg'
 export const pageContent = {
   hero: {
-    title: 'Discover Porto through a local story, shaped around you',
+    title: 'A personal Porto day, thoughtfully shaped around you',
     subtitle:
-      'This is not a classic tour. It is a thoughtful day built around your pace, your curiosities, and the city moments you remember long after the trip.',
+      'Not a group tour — just one day in Porto designed around your pace, your curiosities, and the kind of moments that stay with you.',
     supportingLine:
-      'Share a few preferences, and I’ll design a Porto day that feels personal from the first coffee to the final viewpoint.',
+      'Share a few preferences, and I’ll shape a calm, tailored route from first coffee to final sunset view.',
     cta: 'Join the waitlist',
     note: 'Donation-based, intentionally small, and only around 12 days each year.'
   },
   whatThisIs:
-    'Think of this as a thoughtful local experience, not a scripted route. We begin with your interests, then shape the day around atmosphere, neighborhoods, and places that feel alive in real Porto.',
+    'Think of this as a personal city day with Dmitri, not a scripted route. We start from your interests, then move through neighborhoods, cafés, and small places that feel like real Porto.',
   classicDay:
-    'A classic day often starts with specialty coffee, then unusual angles of the city that most visitors miss. We can drift along the river toward the ocean, contrast modern and historical Porto, stop in local places, and taste interesting wines from the region. It is everything you already love in city travel, but in Porto, with its own special charm.',
+    'A day often begins with good coffee, then unfolds through lesser-known streets, river light, and a few favorite stops chosen for your mood. We might pair old and modern Porto, walk toward the ocean, and end with a relaxed wine moment from the region.',
   dayShapingLine:
-    'Share a few preferences before we meet, and I’ll tailor the rhythm, stops, and mood of the day for you.',
+    'Before we meet, I’ll ask a few questions so the rhythm, stops, and atmosphere fit you naturally.',
   about:
-    'I’ve been living in Porto for the past few years and exploring it beyond the obvious — through neighborhoods, cafés, viewpoints, service, atmosphere, and the feeling of everyday life in the city.',
+    'I’m Dmitri. I’m 37, I’ve worked in digital marketing for over 10 years, and I’ve lived in four countries while visiting more than 20.',
   personalStory:
-    'I first came for a short stay and kept extending it: one neighborhood walk became many, then friendships with café owners, winemakers, and locals who showed me the quieter side of the city. That slow discovery is what I now share with guests.',
+    'After moving to Porto more than two years ago, I started building my life between local and expat circles. The idea for these small city days came from that: sharing the Porto I genuinely love with people who enjoy places with heart.',
   motivation:
-    'This is not a business in the traditional sense. It’s something I do because it genuinely makes me happy: sharing a city I love with interesting people.',
+    'If we spend a day together, expect warm conversation, thoughtful pacing, and a host who listens well and adapts easily to your style.',
   donation:
-    'This is donation-based. There is no fixed price — just a contribution that feels right to you.',
+    'It is donation-based: no fixed fee, simply a contribution that feels fair to you afterward.',
   scarcity: 'I only do around 12 days like this per year.',
   whoItsFor: [
-    'Curious travelers who care more about feel than checklists.',
-    'People who enjoy coffee, long walks, local details, and good conversation.',
-    'Anyone who wants Porto to be personal, not generic.'
+    'Curious travelers who value atmosphere and conversation more than ticking sights off a list.',
+    'People who enjoy coffee, unhurried walks, design, local details, and subtle city contrasts.',
+    'Those who want to spend a day with a thoughtful local host, not follow a standard tour format.'
   ],
   faq: [
     {
       question: 'Is this a guided tour?',
       answer:
-        'Not in the traditional sense. It is a personalized day with a local perspective, shaped around your interests.'
+        'Not in the traditional sense. It is a personal Porto day hosted by Dmitri, shaped around your interests and pace.'
     },
     {
       question: 'How does pricing work?',
       answer:
-        'It is donation-based. You contribute what feels fair to you after the experience.'
+        'The day is donation-based. Afterward, you contribute what feels fair for the time, care, and experience.'
     },
     {
       question: 'How many people join?',
