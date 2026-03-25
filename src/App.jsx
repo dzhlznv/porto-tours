@@ -143,8 +143,8 @@ function App() {
               <p>{pageContent.about}</p>
               <p className="section-follow-up">{pageContent.personalStory}</p>
               <p className="section-follow-up">{pageContent.motivation}</p>
-              <p className="pill-line donation-line">{pageContent.donation}</p>
-              <p className="pill-line scarcity-line">{pageContent.scarcity}</p>
+              <p className="pill-line">{pageContent.donation}</p>
+              <p className="pill-line">{pageContent.scarcity}</p>
             </div>
             <FramedImage src={aboutImg} alt="Neighborhood view in Porto" className="about-image" />
           </div>
