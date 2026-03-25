@@ -1,6 +1,5 @@
-import React from 'react';
-import { useState } from 'react';
-import { track } from '@vercel/analytics';
+import { useRef, useState } from 'react';
+import { trackEvent } from '../lib/analytics';
 
 const initialFormState = {
   name: '',
@@ -12,6 +11,7 @@ export function WaitlistForm() {
   const [formData, setFormData] = useState(initialFormState);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState('idle');
+  const isSubmittingRef = useRef(false);
 
   function handleChange(event) {
     const { name, value } = event.target;
@@ -21,10 +21,11 @@ export function WaitlistForm() {
   async function handleSubmit(event) {
     event.preventDefault();
 
-    if (isSubmitting) {
+    if (isSubmittingRef.current) {
       return;
     }
 
+    isSubmittingRef.current = true;
     setIsSubmitting(true);
     setSubmitStatus('idle');
 
@@ -44,12 +45,13 @@ export function WaitlistForm() {
         throw new Error('Form submission failed.');
       }
 
-      track('form_submit', { location: 'contact_form' });
+      trackEvent('waitlist_submit_success', { location: 'contact_form' });
       setFormData(initialFormState);
       setSubmitStatus('success');
     } catch (error) {
       setSubmitStatus('error');
     } finally {
+      isSubmittingRef.current = false;
       setIsSubmitting(false);
     }
   }
