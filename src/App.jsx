@@ -1,13 +1,11 @@
-import React from 'react'
 import heroImg from './assets/hero.jpg';
 import aboutImg from './assets/about.jpg';
-import { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { pageContent } from './content';
 import { Section } from './components/Section';
 import { FaqItem } from './components/FaqItem';
 import { WaitlistForm } from './components/WaitlistForm';
 import { ParallaxImageCard } from './components/ParallaxImageCard';
-import { initAnalyticsContext, trackEvent } from './lib/analytics';
 
 function FramedImage({ src, alt, className }) {
   const [hasImageError, setHasImageError] = useState(false);
@@ -34,41 +32,18 @@ function FramedImage({ src, alt, className }) {
 function App() {
   const INITIAL_GALLERY_COUNT = 12;
   const GALLERY_BATCH_SIZE = 9;
-  const supportsMatchMedia = typeof window !== 'undefined' && typeof window.matchMedia === 'function';
-  const [isMobileGallery, setIsMobileGallery] = useState(() =>
-    supportsMatchMedia ? window.matchMedia('(max-width: 768px)').matches : false
-  );
+  const [isMobileGallery, setIsMobileGallery] = useState(() => window.matchMedia('(max-width: 768px)').matches);
   const [visibleGalleryCount, setVisibleGalleryCount] = useState(INITIAL_GALLERY_COUNT);
   const [activeGalleryIndex, setActiveGalleryIndex] = useState(null);
 
   React.useEffect(() => {
-    initAnalyticsContext();
-  }, []);
-
-  React.useEffect(() => {
-  useEffect(() => {
-    if (!supportsMatchMedia) {
-      return undefined;
-    }
-
     const mediaQuery = window.matchMedia('(max-width: 768px)');
     const handleChange = () => setIsMobileGallery(mediaQuery.matches);
     handleChange();
+    mediaQuery.addEventListener('change', handleChange);
 
-    if (typeof mediaQuery.addEventListener === 'function') {
-      mediaQuery.addEventListener('change', handleChange);
-    } else {
-      mediaQuery.addListener(handleChange);
-    }
-
-    return () => {
-      if (typeof mediaQuery.removeEventListener === 'function') {
-        mediaQuery.removeEventListener('change', handleChange);
-      } else {
-        mediaQuery.removeListener(handleChange);
-      }
-    };
-  }, [supportsMatchMedia]);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
 
   const visibleGalleryItems = useMemo(
     () => (isMobileGallery ? pageContent.gallery : pageContent.gallery.slice(0, visibleGalleryCount)),
@@ -76,7 +51,7 @@ function App() {
   );
   const hasMoreGalleryItems = !isMobileGallery && visibleGalleryCount < pageContent.gallery.length;
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (activeGalleryIndex === null) {
       return undefined;
     }
@@ -111,16 +86,7 @@ function App() {
             <h1>{pageContent.hero.title}</h1>
             <p className="hero-subtitle">{pageContent.hero.subtitle}</p>
             <p className="hero-supporting">{pageContent.hero.supportingLine}</p>
-            <a
-              className="cta"
-              href="#join"
-              onClick={(event) =>
-                trackEvent('cta_click', {
-                  location: 'hero',
-                  label: event.currentTarget.textContent?.trim()
-                })
-              }
-            >
+            <a className="cta" href="#join">
               {pageContent.hero.cta}
             </a>
             <p className="hero-note">{pageContent.hero.note}</p>
@@ -143,8 +109,8 @@ function App() {
               <p>{pageContent.about}</p>
               <p className="section-follow-up">{pageContent.personalStory}</p>
               <p className="section-follow-up">{pageContent.motivation}</p>
-              <p className="pill-line">{pageContent.donation}</p>
-              <p className="pill-line">{pageContent.scarcity}</p>
+              <p className="pill-line donation-line">{pageContent.donation}</p>
+              <p className="pill-line scarcity-line">{pageContent.scarcity}</p>
             </div>
             <FramedImage src={aboutImg} alt="Neighborhood view in Porto" className="about-image" />
           </div>
