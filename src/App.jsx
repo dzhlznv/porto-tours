@@ -1,6 +1,6 @@
 import heroImg from './assets/hero.jpg';
 import aboutImg from './assets/about.jpg';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { pageContent } from './content';
 import { Section } from './components/Section';
 import { FaqItem } from './components/FaqItem';
@@ -30,6 +30,20 @@ function FramedImage({ src, alt, className }) {
 }
 
 function App() {
+  const INITIAL_GALLERY_COUNT = 12;
+  const GALLERY_BATCH_SIZE = 9;
+  const [visibleGalleryCount, setVisibleGalleryCount] = useState(INITIAL_GALLERY_COUNT);
+
+  const visibleGalleryItems = useMemo(
+    () => pageContent.gallery.slice(0, visibleGalleryCount),
+    [visibleGalleryCount]
+  );
+  const hasMoreGalleryItems = visibleGalleryCount < pageContent.gallery.length;
+
+  const handleViewMorePhotos = () => {
+    setVisibleGalleryCount((count) => Math.min(count + GALLERY_BATCH_SIZE, pageContent.gallery.length));
+  };
+
   return (
     <div className="page-shell">
       <main className="page-content">
@@ -82,10 +96,22 @@ function App() {
             A quiet visual edit of Porto — calm frames, small details, and city texture.
           </p>
           <div className="gallery-grid">
-            {pageContent.gallery.map((image) => (
+            {visibleGalleryItems.map((image) => (
               <ParallaxImageCard key={image.src} src={image.src} alt={image.alt} />
             ))}
           </div>
+          {hasMoreGalleryItems ? (
+            <div className="gallery-actions">
+              <button
+                type="button"
+                className="gallery-more-button"
+                onClick={handleViewMorePhotos}
+                aria-label="View more photos"
+              >
+                View more photos
+              </button>
+            </div>
+          ) : null}
           <p className="gallery-swipe-hint">Swipe to explore →</p>
         </Section>
 
