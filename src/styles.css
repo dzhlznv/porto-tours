@@ -358,12 +358,17 @@ h1 {
 .faq-item {
   border-bottom: 1px solid var(--line);
   padding: 0.85rem 0;
+  list-style: none;
 }
 
 .faq-item summary {
   list-style: none;
   cursor: pointer;
   font-size: 1.03rem;
+}
+
+.faq-item summary::marker {
+  content: '';
 }
 
 .faq-item summary::-webkit-details-marker {
@@ -459,6 +464,7 @@ h1 {
   .gallery-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1.05rem;
+    margin-top: 1.25rem;
   }
 }
 
