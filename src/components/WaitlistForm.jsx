@@ -46,6 +46,7 @@ export function WaitlistForm() {
         throw new Error('Form submission failed.');
       }
 
+      trackEvent('form_submit', { location: 'contact_form' });
       track('waitlist_submit_success', { location: 'contact_form' });
       trackEvent('waitlist_submit_success', { location: 'contact_form' });
       setFormData(initialFormState);
@@ -101,7 +102,16 @@ export function WaitlistForm() {
           />
         </label>
 
-        <button type="submit" disabled={isSubmitting}>
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          onClick={(event) =>
+            trackEvent('cta_click', {
+              location: 'form',
+              label: event.currentTarget.textContent?.trim()
+            })
+          }
+        >
           {isSubmitting ? 'Submitting...' : 'Join the waitlist'}
         </button>
 
