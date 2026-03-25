@@ -32,13 +32,46 @@ function FramedImage({ src, alt, className }) {
 function App() {
   const INITIAL_GALLERY_COUNT = 12;
   const GALLERY_BATCH_SIZE = 9;
+  const [isMobileGallery, setIsMobileGallery] = useState(() => window.matchMedia('(max-width: 768px)').matches);
   const [visibleGalleryCount, setVisibleGalleryCount] = useState(INITIAL_GALLERY_COUNT);
+  const [activeGalleryIndex, setActiveGalleryIndex] = useState(null);
+
+  React.useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 768px)');
+    const handleChange = () => setIsMobileGallery(mediaQuery.matches);
+    handleChange();
+    mediaQuery.addEventListener('change', handleChange);
+
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
 
   const visibleGalleryItems = useMemo(
-    () => pageContent.gallery.slice(0, visibleGalleryCount),
-    [visibleGalleryCount]
+    () => (isMobileGallery ? pageContent.gallery : pageContent.gallery.slice(0, visibleGalleryCount)),
+    [isMobileGallery, visibleGalleryCount]
   );
-  const hasMoreGalleryItems = visibleGalleryCount < pageContent.gallery.length;
+  const hasMoreGalleryItems = !isMobileGallery && visibleGalleryCount < pageContent.gallery.length;
+
+  React.useEffect(() => {
+    if (activeGalleryIndex === null) {
+      return undefined;
+    }
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setActiveGalleryIndex(null);
+      }
+      if (event.key === 'ArrowRight') {
+        setActiveGalleryIndex((index) => (index + 1) % visibleGalleryItems.length);
+      }
+      if (event.key === 'ArrowLeft') {
+        setActiveGalleryIndex((index) => (index - 1 + visibleGalleryItems.length) % visibleGalleryItems.length);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeGalleryIndex, visibleGalleryItems.length]);
 
   const handleViewMorePhotos = () => {
     setVisibleGalleryCount((count) => Math.min(count + GALLERY_BATCH_SIZE, pageContent.gallery.length));
@@ -93,11 +126,16 @@ function App() {
 
         <Section title="Porto gallery" id="gallery">
           <p className="gallery-intro">
-            A quiet visual edit of Porto — calm frames, small details, and city texture.
+            Porto through my eyes — calm details, quiet corners, and the atmosphere that makes this city feel like home.
           </p>
           <div className="gallery-grid">
-            {visibleGalleryItems.map((image) => (
-              <ParallaxImageCard key={image.src} src={image.src} alt={image.alt} />
+            {visibleGalleryItems.map((image, index) => (
+              <ParallaxImageCard
+                key={image.src}
+                src={image.src}
+                alt={image.alt}
+                onClick={() => setActiveGalleryIndex(index)}
+              />
             ))}
           </div>
           {hasMoreGalleryItems ? (
@@ -113,6 +151,48 @@ function App() {
             </div>
           ) : null}
           <p className="gallery-swipe-hint">Swipe to explore →</p>
+
+          {activeGalleryIndex !== null ? (
+            <div className="gallery-lightbox" role="dialog" aria-modal="true" aria-label="Enlarged gallery image">
+              <button
+                type="button"
+                className="gallery-lightbox-close"
+                onClick={() => setActiveGalleryIndex(null)}
+                aria-label="Close enlarged photo view"
+              >
+                ×
+              </button>
+              <button
+                type="button"
+                className="gallery-lightbox-nav gallery-lightbox-prev"
+                onClick={() =>
+                  setActiveGalleryIndex((index) => (index - 1 + visibleGalleryItems.length) % visibleGalleryItems.length)
+                }
+                aria-label="View previous image"
+              >
+                ‹
+              </button>
+              <img
+                src={visibleGalleryItems[activeGalleryIndex].src}
+                alt={visibleGalleryItems[activeGalleryIndex].alt}
+                className="gallery-lightbox-image"
+              />
+              <button
+                type="button"
+                className="gallery-lightbox-nav gallery-lightbox-next"
+                onClick={() => setActiveGalleryIndex((index) => (index + 1) % visibleGalleryItems.length)}
+                aria-label="View next image"
+              >
+                ›
+              </button>
+              <button
+                type="button"
+                className="gallery-lightbox-backdrop"
+                onClick={() => setActiveGalleryIndex(null)}
+                aria-label="Close lightbox background"
+              />
+            </div>
+          ) : null}
         </Section>
 
         <Section title="FAQ" id="faq">

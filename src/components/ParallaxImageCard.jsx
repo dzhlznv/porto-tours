@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 
 const MAX_SHIFT = 16;
 
-export function ParallaxImageCard({ src, alt }) {
+export function ParallaxImageCard({ src, alt, onClick }) {
   const cardRef = useRef(null);
   const [offset, setOffset] = useState(0);
   const [hasImageError, setHasImageError] = useState(false);
@@ -56,7 +56,13 @@ export function ParallaxImageCard({ src, alt }) {
   }, []);
 
   return (
-    <figure className="gallery-card" ref={cardRef}>
+    <button
+      type="button"
+      className="gallery-card gallery-card-button"
+      ref={cardRef}
+      onClick={onClick}
+      aria-label={`Open image: ${alt}`}
+    >
       {!hasImageError ? (
         <img
           src={src}
@@ -71,6 +77,6 @@ export function ParallaxImageCard({ src, alt }) {
           <span>Image placeholder</span>
         </div>
       )}
-    </figure>
+    </button>
   );
 }
