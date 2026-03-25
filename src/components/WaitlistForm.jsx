@@ -1,4 +1,5 @@
-import { useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
+import { track } from '@vercel/analytics';
 import { trackEvent } from '../lib/analytics';
 
 const initialFormState = {
@@ -46,6 +47,8 @@ export function WaitlistForm() {
       }
 
       trackEvent('form_submit', { location: 'contact_form' });
+      track('waitlist_submit_success', { location: 'contact_form' });
+      trackEvent('waitlist_submit_success', { location: 'contact_form' });
       setFormData(initialFormState);
       setSubmitStatus('success');
     } catch (error) {
