@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-const MAX_SHIFT = 12;
+const MAX_SHIFT = 16;
 
 export function ParallaxImageCard({ src, alt, onClick }) {
   const cardRef = useRef(null);
@@ -8,6 +8,11 @@ export function ParallaxImageCard({ src, alt, onClick }) {
   const [hasImageError, setHasImageError] = useState(false);
 
   useEffect(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+      setOffset(0);
+      return undefined;
+    }
+
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     const isMobile = window.matchMedia('(max-width: 900px)');
 
@@ -63,22 +68,20 @@ export function ParallaxImageCard({ src, alt, onClick }) {
       onClick={onClick}
       aria-label={`Open image: ${alt}`}
     >
-      <div className="gallery-media">
-        {!hasImageError ? (
-          <img
-            src={src}
-            alt={alt}
-            className="gallery-image"
-            loading="lazy"
-            onError={() => setHasImageError(true)}
-            style={{ transform: `translateY(${offset}px) scale(1.12)` }}
-          />
-        ) : (
-          <div className="gallery-placeholder" role="img" aria-label={alt}>
-            <span>Image placeholder</span>
-          </div>
-        )}
-      </div>
+      {!hasImageError ? (
+        <img
+          src={src}
+          alt={alt}
+          className="gallery-image"
+          loading="lazy"
+          onError={() => setHasImageError(true)}
+          style={{ transform: `translateY(${offset}px)` }}
+        />
+      ) : (
+        <div className="gallery-placeholder" role="img" aria-label={alt}>
+          <span>Image placeholder</span>
+        </div>
+      )}
     </button>
   );
 }

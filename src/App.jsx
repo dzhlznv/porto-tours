@@ -1,7 +1,7 @@
 import React from 'react'
 import heroImg from './assets/hero.jpg';
 import aboutImg from './assets/about.jpg';
-import React, { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { pageContent } from './content';
 import { Section } from './components/Section';
 import { FaqItem } from './components/FaqItem';
@@ -33,18 +33,36 @@ function FramedImage({ src, alt, className }) {
 function App() {
   const INITIAL_GALLERY_COUNT = 12;
   const GALLERY_BATCH_SIZE = 9;
-  const [isMobileGallery, setIsMobileGallery] = useState(() => window.matchMedia('(max-width: 768px)').matches);
+  const supportsMatchMedia = typeof window !== 'undefined' && typeof window.matchMedia === 'function';
+  const [isMobileGallery, setIsMobileGallery] = useState(() =>
+    supportsMatchMedia ? window.matchMedia('(max-width: 768px)').matches : false
+  );
   const [visibleGalleryCount, setVisibleGalleryCount] = useState(INITIAL_GALLERY_COUNT);
   const [activeGalleryIndex, setActiveGalleryIndex] = useState(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
+    if (!supportsMatchMedia) {
+      return undefined;
+    }
+
     const mediaQuery = window.matchMedia('(max-width: 768px)');
     const handleChange = () => setIsMobileGallery(mediaQuery.matches);
     handleChange();
-    mediaQuery.addEventListener('change', handleChange);
 
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, []);
+    if (typeof mediaQuery.addEventListener === 'function') {
+      mediaQuery.addEventListener('change', handleChange);
+    } else {
+      mediaQuery.addListener(handleChange);
+    }
+
+    return () => {
+      if (typeof mediaQuery.removeEventListener === 'function') {
+        mediaQuery.removeEventListener('change', handleChange);
+      } else {
+        mediaQuery.removeListener(handleChange);
+      }
+    };
+  }, [supportsMatchMedia]);
 
   const visibleGalleryItems = useMemo(
     () => (isMobileGallery ? pageContent.gallery : pageContent.gallery.slice(0, visibleGalleryCount)),
@@ -52,7 +70,7 @@ function App() {
   );
   const hasMoreGalleryItems = !isMobileGallery && visibleGalleryCount < pageContent.gallery.length;
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (activeGalleryIndex === null) {
       return undefined;
     }
