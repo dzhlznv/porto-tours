@@ -305,6 +305,7 @@ h1 {
   display: grid;
   place-items: center;
   padding: 1rem;
+  --lightbox-control-edge-offset: clamp(0.9rem, 2.2vw, 1.5rem);
 }
 
 .gallery-lightbox-backdrop {
@@ -327,38 +328,54 @@ h1 {
 .gallery-lightbox-nav {
   position: absolute;
   z-index: 2;
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  background: rgba(24, 29, 29, 0.6);
-  color: #fff;
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.84);
   cursor: pointer;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  transition: color 0.2s ease, opacity 0.2s ease;
+  opacity: 0.9;
+}
+
+.gallery-lightbox-close:hover,
+.gallery-lightbox-close:focus-visible,
+.gallery-lightbox-nav:hover,
+.gallery-lightbox-nav:focus-visible {
+  color: rgba(255, 255, 255, 0.97);
+  opacity: 1;
+}
+
+.gallery-lightbox-close:active,
+.gallery-lightbox-nav:active {
+  opacity: 0.72;
 }
 
 .gallery-lightbox-close {
-  top: 1rem;
-  right: 1rem;
-  width: 2.6rem;
-  height: 2.6rem;
-  border-radius: 999px;
-  font-size: 1.55rem;
+  top: var(--lightbox-control-edge-offset);
+  right: var(--lightbox-control-edge-offset);
+  width: 2.75rem;
+  height: 2.75rem;
+  font-size: 2rem;
   line-height: 1;
 }
 
 .gallery-lightbox-nav {
   top: 50%;
   transform: translateY(-50%);
-  width: 2.8rem;
-  height: 2.8rem;
-  border-radius: 999px;
-  font-size: 2rem;
-  line-height: 0.8;
+  width: 3rem;
+  height: 3rem;
+  font-size: 2.75rem;
+  line-height: 1;
 }
 
 .gallery-lightbox-prev {
-  left: 1rem;
+  left: var(--lightbox-control-edge-offset);
 }
 
 .gallery-lightbox-next {
-  right: 1rem;
+  right: var(--lightbox-control-edge-offset);
 }
 
 .faq-list {
