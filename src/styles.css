@@ -268,7 +268,6 @@ h1 {
   border: 1px solid var(--line);
   background: #dfdbd1;
   min-height: 14.5rem;
-  isolation: isolate;
 }
 
 .gallery-card-button {
@@ -283,19 +282,9 @@ h1 {
   height: 100%;
   min-height: 14.5rem;
   object-fit: cover;
-  object-position: center;
   display: block;
   transition: transform 300ms ease-out;
   will-change: transform;
-  transform-origin: center;
-}
-
-.gallery-media {
-  min-height: 14.5rem;
-  height: 100%;
-  overflow: hidden;
-  border-radius: inherit;
-  background: inherit;
 }
 
 .gallery-placeholder {
@@ -544,7 +533,6 @@ h1 {
   }
 
   .gallery-card,
-  .gallery-media,
   .gallery-image,
   .gallery-placeholder {
     min-height: 18.5rem;
