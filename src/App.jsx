@@ -56,10 +56,11 @@ function App() {
           <p className="section-follow-up">{pageContent.dayShapingLine}</p>
         </Section>
 
-        <Section title="About me" id="about">
+        <Section title="About" id="about">
           <div className="about-layout">
             <div>
               <p>{pageContent.about}</p>
+              <p className="section-follow-up">{pageContent.personalStory}</p>
               <p className="section-follow-up">{pageContent.motivation}</p>
               <p className="pill-line">{pageContent.donation}</p>
               <p className="pill-line">{pageContent.scarcity}</p>
