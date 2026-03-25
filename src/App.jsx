@@ -1,3 +1,4 @@
+import React from 'react'
 import heroImg from './assets/hero.jpg';
 import aboutImg from './assets/about.jpg';
 import { useEffect, useMemo, useState } from 'react';
@@ -6,6 +7,7 @@ import { Section } from './components/Section';
 import { FaqItem } from './components/FaqItem';
 import { WaitlistForm } from './components/WaitlistForm';
 import { ParallaxImageCard } from './components/ParallaxImageCard';
+import { initAnalyticsContext, trackEvent } from './lib/analytics';
 
 function FramedImage({ src, alt, className }) {
   const [hasImageError, setHasImageError] = useState(false);
@@ -39,6 +41,11 @@ function App() {
   const [visibleGalleryCount, setVisibleGalleryCount] = useState(INITIAL_GALLERY_COUNT);
   const [activeGalleryIndex, setActiveGalleryIndex] = useState(null);
 
+  React.useEffect(() => {
+    initAnalyticsContext();
+  }, []);
+
+  React.useEffect(() => {
   useEffect(() => {
     if (!supportsMatchMedia) {
       return undefined;
@@ -104,7 +111,16 @@ function App() {
             <h1>{pageContent.hero.title}</h1>
             <p className="hero-subtitle">{pageContent.hero.subtitle}</p>
             <p className="hero-supporting">{pageContent.hero.supportingLine}</p>
-            <a className="cta" href="#join">
+            <a
+              className="cta"
+              href="#join"
+              onClick={(event) =>
+                trackEvent('cta_click', {
+                  location: 'hero',
+                  label: event.currentTarget.textContent?.trim()
+                })
+              }
+            >
               {pageContent.hero.cta}
             </a>
             <p className="hero-note">{pageContent.hero.note}</p>
