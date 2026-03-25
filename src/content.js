@@ -4,11 +4,11 @@ import g3 from './assets/gallery-3.jpg';
 import g4 from './assets/gallery-4.jpg';
 export const pageContent = {
   hero: {
-    title: 'A personal day in Porto, shaped around you',
+    title: 'Discover Porto through a local story, shaped around you',
     subtitle:
-      'This is not a classic tour. It is a day designed around your pace, your curiosities, and the kind of city moments you actually enjoy.',
+      'This is not a classic tour. It is a thoughtful day built around your pace, your curiosities, and the city moments you remember long after the trip.',
     supportingLine:
-      'Give me a few inputs, and I’ll shape a day in Porto around what you love.',
+      'Share a few preferences, and I’ll design a Porto day that feels personal from the first coffee to the final viewpoint.',
     cta: 'Join the waitlist',
     note: 'Donation-based, intentionally small, and only around 12 days each year.'
   },
@@ -20,6 +20,8 @@ export const pageContent = {
     'Share a few preferences before we meet, and I’ll tailor the rhythm, stops, and mood of the day for you.',
   about:
     'I’ve been living in Porto for the past few years and exploring it beyond the obvious — through neighborhoods, cafés, viewpoints, service, atmosphere, and the feeling of everyday life in the city.',
+  personalStory:
+    'I first came for a short stay and kept extending it: one neighborhood walk became many, then friendships with café owners, winemakers, and locals who showed me the quieter side of the city. That slow discovery is what I now share with guests.',
   motivation:
     'This is not a business in the traditional sense. It’s something I do because it genuinely makes me happy: sharing a city I love with interesting people.',
   donation:
