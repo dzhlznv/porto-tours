@@ -1,3 +1,4 @@
+import React from 'react'
 import heroImg from './assets/hero.jpg';
 import aboutImg from './assets/about.jpg';
 import React, { useMemo, useState } from 'react';
