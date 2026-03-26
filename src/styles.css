@@ -32,7 +32,7 @@ body {
   min-height: 100vh;
   display: flex;
   justify-content: center;
-  padding: 2rem 1.25rem 5.5rem;
+  padding: 2rem 1.25rem 2.75rem;
 }
 
 .page-content {
@@ -598,9 +598,43 @@ h1 {
   padding-bottom: 112px;
 }
 
+.site-footer {
+  border-top: 1px solid var(--line);
+  padding: 1.75rem 0 1.25rem;
+  text-align: center;
+  font-size: 0.84rem;
+  color: var(--ink-soft);
+}
+
+.site-footer p {
+  margin: 0;
+}
+
+.footer-primary {
+  color: var(--ink-strong);
+  opacity: 0.88;
+}
+
+.footer-secondary {
+  margin-top: 0.45rem !important;
+  opacity: 0.76;
+}
+
+.footer-secondary a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.16em;
+}
+
+.footer-tertiary {
+  margin-top: 0.45rem !important;
+  opacity: 0.72;
+  font-size: 0.78rem;
+}
+
 @media (min-width: 820px) {
   .page-shell {
-    padding: 4rem 2.1rem 6.6rem;
+    padding: 4rem 2.1rem 3.4rem;
   }
 
   .hero {

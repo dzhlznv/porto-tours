@@ -237,6 +237,14 @@ function App() {
         <Section title="Join the waitlist" id="join">
           <WaitlistForm />
         </Section>
+
+        <footer className="site-footer" aria-label="Site footer">
+          <p className="footer-primary">© Dmitrii Zheleznov</p>
+          <p className="footer-secondary">
+            All rights reserved · <a href="#">Privacy</a> · <a href="#">Cookies</a>
+          </p>
+          <p className="footer-tertiary">Photos and content © Dmitrii Zheleznov</p>
+        </footer>
       </main>
     </div>
   );
