@@ -59,7 +59,7 @@ summary {
 }
 
 .hero {
-  padding: 3.2rem 0 3rem;
+  padding: 2.6rem 0 2.3rem;
   display: grid;
   gap: 1.8rem;
 }
@@ -89,23 +89,23 @@ h1 {
 }
 
 .hero-clarity-block {
-  margin-top: 1.4rem;
+  margin-top: 1rem;
 }
 
 .hero-subtitle {
-  margin: 1.35rem 0 0;
+  margin: 1rem 0 0;
   font-size: clamp(1.02rem, 1.35vw, 1.16rem);
   line-height: 1.78;
   color: var(--ink-strong);
 }
 
 .hero-supporting {
-  margin: 1rem 0 0;
+  margin: 0.75rem 0 0;
   color: var(--ink);
 }
 
 .cta {
-  margin-top: 1.9rem;
+  margin-top: 1.5rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -641,7 +641,7 @@ h1 {
     grid-template-columns: 1.25fr 1fr;
     align-items: center;
     gap: 2rem;
-    padding: 4.5rem 0 3.4rem;
+    padding: 3.3rem 0 2.6rem;
   }
 
   .section {
@@ -662,6 +662,12 @@ h1 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1.05rem;
     margin-top: 1.25rem;
+  }
+}
+
+@media (max-width: 520px) {
+  .hero {
+    padding: 2rem 0 1.9rem;
   }
 }
 
