@@ -632,6 +632,68 @@ h1 {
   font-size: 0.78rem;
 }
 
+
+
+.legal-page {
+  width: min(100%, 700px);
+}
+
+.back-home-link {
+  display: inline-block;
+  margin: 1rem 0 1.6rem;
+  color: var(--ink-soft);
+  text-decoration: underline;
+  text-underline-offset: 0.16em;
+  font-size: 0.92rem;
+}
+
+.legal-content {
+  border-top: 1px solid var(--line);
+  padding-top: 2rem;
+}
+
+.legal-content h1,
+.legal-content h2 {
+  font-family: 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', serif;
+  font-weight: 500;
+  color: var(--ink-strong);
+  letter-spacing: -0.013em;
+}
+
+.legal-content h1 {
+  margin: 0;
+  font-size: clamp(2rem, 5.4vw, 3.2rem);
+  line-height: 1.1;
+}
+
+.legal-content h2 {
+  margin: 0;
+  font-size: clamp(1.2rem, 2.3vw, 1.52rem);
+  line-height: 1.28;
+}
+
+.legal-content p {
+  margin: 0;
+  max-width: 65ch;
+}
+
+.legal-content header p {
+  margin-top: 1rem;
+}
+
+.legal-section {
+  margin-top: 2rem;
+}
+
+.legal-section p {
+  margin-top: 0.65rem;
+}
+
+.legal-closing {
+  margin-top: 2.4rem !important;
+  color: var(--ink-soft);
+}
+
 @media (min-width: 820px) {
   .page-shell {
     padding: 4rem 2.1rem 3.4rem;

@@ -29,7 +29,32 @@ function FramedImage({ src, alt, className }) {
   );
 }
 
-function App() {
+function LegalPage({ title, intro, sections, closingLine }) {
+  return (
+    <div className="page-shell">
+      <main className="page-content legal-page">
+        <a className="back-home-link" href="/">
+          Back to home
+        </a>
+        <article className="legal-content" aria-labelledby="legal-title">
+          <header>
+            <h1 id="legal-title">{title}</h1>
+            <p>{intro}</p>
+          </header>
+          {sections.map((section) => (
+            <section key={section.title} className="legal-section" aria-labelledby={`${title}-${section.title}`}>
+              <h2 id={`${title}-${section.title}`}>{section.title}</h2>
+              <p>{section.text}</p>
+            </section>
+          ))}
+          <p className="legal-closing">{closingLine}</p>
+        </article>
+      </main>
+    </div>
+  );
+}
+
+function HomePage() {
   const INITIAL_GALLERY_COUNT = 12;
   const GALLERY_BATCH_SIZE = 9;
   const [isMobileGallery, setIsMobileGallery] = useState(() => window.matchMedia('(max-width: 768px)').matches);
@@ -241,13 +266,95 @@ function App() {
         <footer className="site-footer" aria-label="Site footer">
           <p className="footer-primary">© Dmitrii Zheleznov</p>
           <p className="footer-secondary">
-            All rights reserved · <a href="#">Privacy</a> · <a href="#">Cookies</a>
+            All rights reserved · <a href="/privacy">Privacy</a> · <a href="/cookies">Cookies</a>
           </p>
           <p className="footer-tertiary">Photos and content © Dmitrii Zheleznov</p>
         </footer>
       </main>
     </div>
   );
+}
+
+function App() {
+  const path = window.location.pathname.replace(/\/+$/, '') || '/';
+
+  if (path === '/privacy') {
+    return (
+      <LegalPage
+        title="Privacy"
+        intro="This website is designed to keep things simple and personal. If you share your details through the contact form, they are only used to reply to you and help arrange your Porto day."
+        sections={[
+          {
+            title: 'Information you choose to share',
+            text: 'When you fill in the contact form, you may share information such as your name, email address, preferred month, and anything else you choose to include in your message.',
+          },
+          {
+            title: 'How your information is used',
+            text: 'Your information is used only to read your message, reply personally, and, if relevant, help arrange a day in Porto. It is not sold or shared for unrelated marketing purposes.',
+          },
+          {
+            title: 'Form handling',
+            text: 'Messages submitted through the contact form are processed using Formspree, which helps deliver them securely. By submitting the form, your information may also be processed by Formspree for the purpose of handling your message.',
+          },
+          {
+            title: 'Analytics and basic website data',
+            text: 'This website may use simple analytics or technical logs to understand visits and improve the experience. This may include basic information such as browser type, device type, pages visited, and general usage patterns.',
+          },
+          {
+            title: 'Data retention',
+            text: 'Personal information is only kept for as long as it is reasonably useful for communication or planning. If you would like your message or details removed, you can get in touch.',
+          },
+          {
+            title: 'Your choices',
+            text: 'If you would like to ask about the information you shared, request its removal, or contact the site owner about privacy, you can do so by email.',
+          },
+          {
+            title: 'Contact',
+            text: 'For privacy-related questions, please contact: dmitrii@porto2you.com',
+          },
+        ]}
+        closingLine="This page may be updated from time to time if the website changes."
+      />
+    );
+  }
+
+  if (path === '/cookies') {
+    return (
+      <LegalPage
+        title="Cookies"
+        intro="This website aims to use only what is necessary to make the experience work smoothly and understand basic visit patterns."
+        sections={[
+          {
+            title: 'What cookies are',
+            text: 'Cookies are small text files stored on your device that help websites function properly, remember settings, or understand how visitors use a site.',
+          },
+          {
+            title: 'How this website may use cookies',
+            text: 'This website may use basic cookies or similar technologies for simple functionality, form handling, performance, and analytics. The goal is to keep the site working well and understand how it is being used.',
+          },
+          {
+            title: 'Analytics',
+            text: 'If analytics tools are enabled, they may collect general usage information such as pages viewed, time on site, device type, browser type, and approximate location data. This information is used in aggregate to improve the site.',
+          },
+          {
+            title: 'Third-party services',
+            text: 'Some parts of the site may rely on third-party services, such as Formspree for contact form submissions. These services may use their own cookies or technical tools as part of providing their functionality.',
+          },
+          {
+            title: 'Managing cookies',
+            text: 'Most browsers allow you to control or disable cookies through their settings. If you prefer, you can remove stored cookies or block them entirely in your browser.',
+          },
+          {
+            title: 'Contact',
+            text: 'If you have questions about cookies on this website, please contact: dmitrii@porto2you.com',
+          },
+        ]}
+        closingLine="This page may be updated if the tools or services used on the site change."
+      />
+    );
+  }
+
+  return <HomePage />;
 }
 
 export default App;
