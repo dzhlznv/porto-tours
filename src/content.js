@@ -159,6 +159,16 @@ export const pageContent = {
       description: 'After the day, I can share a concise list so you can revisit what resonated most.'
     }
   ],
+  testimonial: {
+    title: 'What people say',
+    quote:
+      'One of those rare experiences that stays with you — not because of what you see, but how you see it.',
+    quoteSecond:
+      'We ended up following many of Dimitri’s suggestions — from small local places to long walks through the city — and kept coming back to the ones that felt truly ours.',
+    quoteThird:
+      'Looking back, we couldn’t have been more fortunate to meet on our very first evening in Porto.',
+    author: '— Patrick, Germany'
+  },
   waitlistTrust: [
     'Limited to 12 carefully curated days per year.',
     'I reply personally within 48 hours.'
