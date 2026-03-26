@@ -227,11 +227,6 @@ function App() {
 
         <Section title="Join the waitlist" id="join">
           <WaitlistForm />
-          <p className="waitlist-trust-note">
-            {pageContent.waitlistTrust[0]}
-            <br />
-            {pageContent.waitlistTrust[1]}
-          </p>
         </Section>
       </main>
     </div>
