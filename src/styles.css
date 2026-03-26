@@ -284,6 +284,8 @@ h1 {
 .testimonial-quote {
   line-height: 1.84;
   font-style: italic;
+  font-size: 1.04rem;
+  color: var(--ink-strong);
 }
 
 .testimonial-quote + .testimonial-quote {
@@ -584,7 +586,8 @@ h1 {
 }
 
 #what-people-say {
-  padding: clamp(5rem, 9vw, 6.9rem) 0;
+  padding-top: clamp(5rem, 8vw, 6.25rem);
+  padding-bottom: clamp(3rem, 6vw, 4rem);
 }
 
 #join {
