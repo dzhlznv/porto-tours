@@ -121,11 +121,9 @@ export const pageContent = {
   dayShapingLine:
     'Before we meet, I’ll ask a few questions so the rhythm, stops, and atmosphere fit you naturally.',
   about:
-    'I’m Dmitri, 37, and for the last three-plus years Porto has been home — not all at once, but through long walks, neighborhood cafés, and those quiet corners that only reveal themselves when you stop rushing.',
-  personalStory:
-    'After living in four countries, visiting more than twenty, and spending over a decade in digital marketing, I learned to notice the small signals that make a place feel real. Here, I kept following that instinct: old and new streets, local habits, and everyday details that rarely make it into guidebooks.',
+    'I’m Dmitri, and Porto has been my home for the past few years — learned slowly through long walks, neighborhood cafés, and quiet corners away from the rush.',
   motivation:
-    'These days I move naturally between local and expat worlds, and I like sharing Porto with people who see cities in a similar way — slowly, with curiosity, and with space to let the day unfold.',
+    'After living across several countries and working in digital for over a decade, I now host days for curious travelers who prefer depth, atmosphere, and a calm pace.',
   donation:
     'It is donation-based: no fixed fee, simply a contribution that feels fair to you afterward.',
   scarcity: 'I only do around 12 days like this per year.',

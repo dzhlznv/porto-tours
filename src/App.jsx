@@ -84,12 +84,14 @@ function App() {
           <div className="hero-copy">
             <p className="eyebrow">Porto, Portugal · Personal city day</p>
             <h1>{pageContent.hero.title}</h1>
-            <ul className="hero-clarity-list" aria-label="Experience format">
-              {pageContent.hero.clarityPoints.map((point) => (
-                <li key={point}>{point}</li>
-              ))}
-            </ul>
             <p className="hero-subtitle">{pageContent.hero.subtitle}</p>
+            <div className="hero-clarity-block">
+              <ul className="hero-clarity-list" aria-label="Experience format">
+                {pageContent.hero.clarityPoints.map((point) => (
+                  <li key={point}>{point}</li>
+                ))}
+              </ul>
+            </div>
             <p className="hero-supporting">{pageContent.hero.supportingLine}</p>
             <a className="cta" href="#join">
               {pageContent.hero.cta}
@@ -99,8 +101,15 @@ function App() {
           <FramedImage src={heroImg} alt="A cinematic Porto city moment" className="hero-image" />
         </section>
 
-        <Section title="What this is" id="what-this-is">
-          <p>{pageContent.whatThisIs}</p>
+        <Section title="About" id="about">
+          <div className="about-layout">
+            <div>
+              <p>{pageContent.about}</p>
+              <p className="section-follow-up">{pageContent.motivation}</p>
+              <p className="pill-line donation-line">{pageContent.donation}</p>
+            </div>
+            <FramedImage src={aboutImg} alt="Neighborhood view in Porto" className="about-image" />
+          </div>
         </Section>
 
         <Section title="What this day includes" id="what-day-includes">
@@ -114,22 +123,14 @@ function App() {
           </div>
         </Section>
 
+        <Section title="What this is" id="what-this-is">
+          <p>{pageContent.whatThisIs}</p>
+        </Section>
+
         <Section title="A classic day, reimagined" id="classic-day">
           <p>{pageContent.classicDay}</p>
           <p className="section-follow-up">{pageContent.dayShapingLine}</p>
-        </Section>
-
-        <Section title="About" id="about">
-          <div className="about-layout">
-            <div>
-              <p>{pageContent.about}</p>
-              <p className="section-follow-up">{pageContent.personalStory}</p>
-              <p className="section-follow-up">{pageContent.motivation}</p>
-              <p className="pill-line donation-line">{pageContent.donation}</p>
-              <p className="pill-line scarcity-line">{pageContent.scarcity}</p>
-            </div>
-            <FramedImage src={aboutImg} alt="Neighborhood view in Porto" className="about-image" />
-          </div>
+          <p className="pill-line scarcity-line">{pageContent.scarcity}</p>
         </Section>
 
         <Section title="Who this is for" id="who-its-for">
