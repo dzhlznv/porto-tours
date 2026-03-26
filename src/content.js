@@ -120,12 +120,13 @@ export const pageContent = {
     'A day often begins with good coffee, then unfolds through lesser-known streets, river light, and a few favorite stops chosen for your mood. We might pair old and modern Porto, walk toward the ocean, and end with a relaxed wine moment from the region.',
   dayShapingLine:
     'Before we meet, I’ll ask a few questions so the rhythm, stops, and atmosphere fit you naturally.',
-  about:
-    'I’m Dmitri, and Porto has been my home for the past few years — learned slowly through long walks, neighborhood cafés, and quiet corners away from the rush.',
-  motivation:
-    'After living across several countries and working in digital for over a decade, I now host days for curious travelers who prefer depth, atmosphere, and a calm pace.',
+  aboutParagraphs: [
+    'I’m Dmitri, 37, and for the past three-plus years Porto has been home — not all at once, but through long walks, neighborhood cafés, and quiet corners that only reveal themselves when you stop rushing.',
+    'After living in four countries, visiting more than twenty, and spending over a decade in digital marketing, I learned to notice the small signals that make a place feel real. Here, I kept following that instinct — through old and new streets, local habits, and everyday details that rarely make it into guidebooks.',
+    'These days I move naturally between local and expat worlds, and I like sharing Porto with people who see cities in a similar way — slowly, with curiosity, and with space to let the day unfold.'
+  ],
   donation:
-    'It is donation-based: no fixed fee, simply a contribution that feels fair to you afterward.',
+    'It’s donation-based — no fixed fee, just a contribution that feels fair to you afterward.',
   scarcity: 'I only do around 12 days like this per year.',
   whoItsFor: [
     'Curious travelers who value atmosphere and conversation more than ticking sights off a list.',

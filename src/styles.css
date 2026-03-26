@@ -178,6 +178,36 @@ h1 {
   max-width: 72ch;
 }
 
+.about-copy {
+  max-width: 62ch;
+}
+
+.about-paragraph {
+  line-height: 1.74;
+}
+
+.about-paragraph + .about-paragraph {
+  margin-top: 1rem !important;
+}
+
+.about-emphasis {
+  margin-top: 1.25rem;
+  border-left: 1px solid color-mix(in srgb, var(--line-strong) 68%, white);
+  padding: 0.3rem 0 0.35rem 0.78rem;
+}
+
+.about-emphasis p {
+  margin: 0;
+  font-size: 0.93rem;
+  line-height: 1.58;
+  color: var(--ink-strong);
+}
+
+.about-emphasis p + p {
+  margin-top: 0.45rem;
+  color: var(--ink-soft);
+}
+
 .section-follow-up {
   margin-top: 0.9rem !important;
   color: var(--ink-soft);
@@ -198,20 +228,6 @@ h1 {
   color: var(--ink-strong);
   font-size: 0.92rem;
   line-height: 1.55;
-}
-
-.donation-line {
-  margin-top: 1rem !important;
-  font-weight: 500;
-  font-size: 0.89rem;
-  color: color-mix(in srgb, var(--ink-strong) 84%, white);
-}
-
-.scarcity-line {
-  margin-top: 0.45rem !important;
-  color: var(--ink-soft);
-  border-left-color: color-mix(in srgb, var(--line) 62%, white);
-  font-size: 0.9rem;
 }
 
 .soft-list {
@@ -547,7 +563,7 @@ h1 {
 }
 
 #join {
-  padding-bottom: 6.4rem;
+  padding-bottom: 112px;
 }
 
 @media (min-width: 820px) {

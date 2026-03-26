@@ -103,10 +103,16 @@ function App() {
 
         <Section title="About" id="about">
           <div className="about-layout">
-            <div>
-              <p>{pageContent.about}</p>
-              <p className="section-follow-up">{pageContent.motivation}</p>
-              <p className="pill-line donation-line">{pageContent.donation}</p>
+            <div className="about-copy">
+              {pageContent.aboutParagraphs.map((paragraph) => (
+                <p key={paragraph} className="about-paragraph">
+                  {paragraph}
+                </p>
+              ))}
+              <div className="about-emphasis">
+                <p>{pageContent.donation}</p>
+                <p>{pageContent.scarcity}</p>
+              </div>
             </div>
             <FramedImage src={aboutImg} alt="Neighborhood view in Porto" className="about-image" />
           </div>
@@ -130,7 +136,6 @@ function App() {
         <Section title="A classic day, reimagined" id="classic-day">
           <p>{pageContent.classicDay}</p>
           <p className="section-follow-up">{pageContent.dayShapingLine}</p>
-          <p className="pill-line scarcity-line">{pageContent.scarcity}</p>
         </Section>
 
         <Section title="Who this is for" id="who-its-for">
