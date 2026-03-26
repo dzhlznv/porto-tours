@@ -276,6 +276,26 @@ h1 {
   color: color-mix(in srgb, var(--ink-soft) 82%, white);
 }
 
+.testimonial-wrap {
+  max-width: 62ch;
+  margin: 0 auto;
+}
+
+.testimonial-quote {
+  line-height: 1.84;
+  font-style: italic;
+}
+
+.testimonial-quote + .testimonial-quote {
+  margin-top: 0.85rem !important;
+}
+
+.testimonial-author {
+  margin-top: 1.15rem !important;
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+}
+
 @media (hover: hover) {
   .includes-card:hover {
     transform: translateY(-2px);
@@ -563,6 +583,10 @@ h1 {
   padding-top: 3.8rem;
 }
 
+#what-people-say {
+  padding: clamp(5rem, 9vw, 6.9rem) 0;
+}
+
 #join {
   padding-bottom: 112px;
 }
@@ -658,6 +682,11 @@ h1 {
     font-size: 12px;
     letter-spacing: 0.06em;
     color: #9a9a9a;
+  }
+
+  .testimonial-wrap {
+    max-width: 60ch;
+    padding: 0 0.2rem;
   }
 }
 
