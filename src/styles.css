@@ -742,3 +742,42 @@ h1 {
     display: none;
   }
 }
+
+
+.legal-shell {
+  padding-top: 2.5rem;
+}
+
+.legal-page {
+  width: min(100%, 760px);
+}
+
+.legal-back-link {
+  display: inline-block;
+  margin-bottom: 1.15rem;
+  color: var(--ink-soft);
+  text-decoration: none;
+}
+
+.legal-back-link:hover,
+.legal-back-link:focus-visible {
+  color: var(--ink-strong);
+  text-decoration: underline;
+  text-underline-offset: 0.16em;
+}
+
+.legal-section {
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.legal-section h1 {
+  margin-top: 0.65rem;
+  margin-bottom: 1.15rem;
+  max-width: 100%;
+  font-size: clamp(2rem, 5vw, 2.6rem);
+}
+
+.legal-section p + p {
+  margin-top: 0.95rem;
+}
