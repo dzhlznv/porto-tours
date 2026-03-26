@@ -610,24 +610,8 @@ h1 {
   margin: 0;
 }
 
-.footer-primary {
-  color: var(--ink-strong);
-  opacity: 0.88;
-}
-
-.footer-secondary {
-  margin-top: 0.45rem !important;
-  opacity: 0.76;
-}
-
-.footer-secondary a {
-  color: inherit;
-  text-decoration: underline;
-  text-underline-offset: 0.16em;
-}
 
 .footer-tertiary {
-  margin-top: 0.45rem !important;
   opacity: 0.72;
   font-size: 0.78rem;
 }
