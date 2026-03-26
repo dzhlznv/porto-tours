@@ -101,6 +101,12 @@ import g100 from './assets/gallery-100.jpg'
 export const pageContent = {
   hero: {
     title: 'A personal Porto day, thoughtfully shaped around you',
+    clarityPoints: [
+      'Private 1:1 or in a very small group (max 3–4 people)',
+      '6–8 unhurried hours',
+      'A personal route shaped after a short pre-call',
+      'Donation-based, limited to 12 days per year'
+    ],
     subtitle:
       'Not a group tour — just one day in Porto designed around your pace, your curiosities, and the kind of moments that stay with you.',
     supportingLine:
@@ -127,6 +133,36 @@ export const pageContent = {
     'Curious travelers who value atmosphere and conversation more than ticking sights off a list.',
     'People who enjoy coffee, unhurried walks, design, local details, and subtle city contrasts.',
     'Those who want to spend a day with a thoughtful local host, not follow a standard tour format.'
+  ],
+  dayIncludes: [
+    {
+      title: 'A route designed around you',
+      description: 'The day follows your rhythm, interests, and energy instead of a fixed script.'
+    },
+    {
+      title: 'Neighborhood stories beyond guidebooks',
+      description: 'Context, lived details, and local layers that rarely appear in standard itineraries.'
+    },
+    {
+      title: 'Slow coffee or wine moments',
+      description: 'Unhurried pauses in places chosen for atmosphere, not just convenience.'
+    },
+    {
+      title: 'Hidden viewpoints and quiet streets',
+      description: 'Corners of Porto where the city feels intimate, calm, and naturally cinematic.'
+    },
+    {
+      title: 'Cultural and architectural insights',
+      description: 'A thoughtful read of Porto’s contrasts, from everyday habits to urban form.'
+    },
+    {
+      title: 'Optional follow-up list of places we visited',
+      description: 'After the day, I can share a concise list so you can revisit what resonated most.'
+    }
+  ],
+  waitlistTrust: [
+    'Limited to 12 carefully curated days per year.',
+    'I reply personally within 48 hours.'
   ],
   faq: [
     {

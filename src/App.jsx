@@ -84,6 +84,11 @@ function App() {
           <div className="hero-copy">
             <p className="eyebrow">Porto, Portugal · Personal city day</p>
             <h1>{pageContent.hero.title}</h1>
+            <ul className="hero-clarity-list" aria-label="Experience format">
+              {pageContent.hero.clarityPoints.map((point) => (
+                <li key={point}>{point}</li>
+              ))}
+            </ul>
             <p className="hero-subtitle">{pageContent.hero.subtitle}</p>
             <p className="hero-supporting">{pageContent.hero.supportingLine}</p>
             <a className="cta" href="#join">
@@ -96,6 +101,17 @@ function App() {
 
         <Section title="What this is" id="what-this-is">
           <p>{pageContent.whatThisIs}</p>
+        </Section>
+
+        <Section title="What this day includes" id="what-day-includes">
+          <div className="includes-grid">
+            {pageContent.dayIncludes.map((item) => (
+              <article key={item.title} className="includes-card">
+                <h3>{item.title}</h3>
+                <p>{item.description}</p>
+              </article>
+            ))}
+          </div>
         </Section>
 
         <Section title="A classic day, reimagined" id="classic-day">
@@ -205,6 +221,11 @@ function App() {
 
         <Section title="Join the waitlist" id="join">
           <WaitlistForm />
+          <p className="waitlist-trust-note">
+            {pageContent.waitlistTrust[0]}
+            <br />
+            {pageContent.waitlistTrust[1]}
+          </p>
         </Section>
       </main>
     </div>
