@@ -32,7 +32,7 @@ body {
   min-height: 100vh;
   display: flex;
   justify-content: center;
-  padding: 2rem 1.25rem 5.5rem;
+  padding: 2rem 1.25rem 3.2rem;
 }
 
 .page-content {
@@ -59,7 +59,7 @@ summary {
 }
 
 .hero {
-  padding: 3.2rem 0 3rem;
+  padding: 2.3rem 0 2.5rem;
   display: grid;
   gap: 1.8rem;
 }
@@ -164,7 +164,7 @@ h1 {
 }
 
 .section {
-  padding: 3.1rem 0;
+  padding: 2.4rem 0;
   border-top: 1px solid var(--line);
 }
 
@@ -586,32 +586,32 @@ h1 {
 #what-this-is,
 #gallery,
 #faq {
-  padding-top: 3.8rem;
+  padding-top: 2.9rem;
 }
 
 #what-people-say {
-  padding-top: clamp(5rem, 8vw, 6.25rem);
-  padding-bottom: clamp(3rem, 6vw, 4rem);
+  padding-top: clamp(3.8rem, 6.6vw, 4.8rem);
+  padding-bottom: clamp(2.4rem, 5.1vw, 3.2rem);
 }
 
 #join {
-  padding-bottom: 112px;
+  padding-bottom: 62px;
 }
 
 @media (min-width: 820px) {
   .page-shell {
-    padding: 4rem 2.1rem 6.6rem;
+    padding: 4rem 2.1rem 3.8rem;
   }
 
   .hero {
     grid-template-columns: 1.25fr 1fr;
     align-items: center;
     gap: 2rem;
-    padding: 4.5rem 0 3.4rem;
+    padding: 3.2rem 0 2.8rem;
   }
 
   .section {
-    padding: 3.7rem 0;
+    padding: 2.8rem 0;
   }
 
   .about-layout {
