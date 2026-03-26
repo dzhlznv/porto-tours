@@ -129,15 +129,6 @@ function App() {
           </div>
         </Section>
 
-        <Section title={pageContent.testimonial.title} id="what-people-say">
-          <div className="testimonial-wrap">
-            <p className="testimonial-quote">{pageContent.testimonial.quote}</p>
-            <p className="testimonial-quote">{pageContent.testimonial.quoteSecond}</p>
-            <p className="testimonial-quote">{pageContent.testimonial.quoteThird}</p>
-            <p className="testimonial-author">{pageContent.testimonial.author}</p>
-          </div>
-        </Section>
-
         <Section title="What this is" id="what-this-is">
           <p>{pageContent.whatThisIs}</p>
         </Section>
@@ -231,6 +222,15 @@ function App() {
             {pageContent.faq.map((item) => (
               <FaqItem key={item.question} question={item.question} answer={item.answer} />
             ))}
+          </div>
+        </Section>
+
+        <Section title={pageContent.testimonial.title} id="what-people-say">
+          <div className="testimonial-wrap">
+            <p className="testimonial-quote">{pageContent.testimonial.quote}</p>
+            <p className="testimonial-quote">{pageContent.testimonial.quoteSecond}</p>
+            <p className="testimonial-quote">{pageContent.testimonial.quoteThird}</p>
+            <p className="testimonial-author">{pageContent.testimonial.author}</p>
           </div>
         </Section>
 
