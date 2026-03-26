@@ -253,27 +253,31 @@ h1 {
 .includes-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1.15rem;
+  gap: 1.4rem 1.25rem;
 }
 
 .includes-card {
   border: 1px solid var(--line);
-  border-radius: 17px;
+  border-radius: 19px;
   background: color-mix(in srgb, var(--paper-elevated) 55%, transparent);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-  padding: 1.2rem 1.25rem;
-  transition: transform 180ms ease;
+  padding: 1.4rem 1.4rem;
+  transition: transform 260ms ease;
 }
 
 .includes-card h3 {
   margin: 0;
-  font-size: 1.03rem;
-  font-weight: 600;
+  font-size: 1.1rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
 }
 
 .includes-card p {
-  margin-top: 0.45rem;
-  color: color-mix(in srgb, var(--ink-soft) 82%, white);
+  margin-top: 0.75rem;
+  font-size: 0.96rem;
+  line-height: 1.7;
+  color: color-mix(in srgb, var(--ink-soft) 84%, white);
 }
 
 .testimonial-wrap {
@@ -617,7 +621,7 @@ h1 {
 
   .includes-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1.3rem;
+    gap: 1.55rem 1.45rem;
   }
 
   .gallery-grid {
