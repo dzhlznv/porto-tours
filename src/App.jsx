@@ -1,6 +1,6 @@
 import heroImg from './assets/hero.jpg';
 import aboutImg from './assets/about.jpg';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { pageContent } from './content';
 import { Section } from './components/Section';
 import { FaqItem } from './components/FaqItem';
@@ -35,6 +35,13 @@ function App() {
   const [isMobileGallery, setIsMobileGallery] = useState(() => window.matchMedia('(max-width: 768px)').matches);
   const [visibleGalleryCount, setVisibleGalleryCount] = useState(INITIAL_GALLERY_COUNT);
   const [activeGalleryIndex, setActiveGalleryIndex] = useState(null);
+  const [activeAboutImageIndex, setActiveAboutImageIndex] = useState(0);
+  const aboutCarouselRef = useRef(null);
+
+  const aboutImages = [
+    { src: aboutImg, alt: 'Neighborhood view in Porto' },
+    { src: 'https://porto2you.com/assets/gallery-29', alt: 'Classic Porto street scene' },
+  ];
 
   React.useEffect(() => {
     const mediaQuery = window.matchMedia('(max-width: 768px)');
@@ -77,6 +84,24 @@ function App() {
     setVisibleGalleryCount((count) => Math.min(count + GALLERY_BATCH_SIZE, pageContent.gallery.length));
   };
 
+  const handleAboutCarouselScroll = (event) => {
+    const { scrollLeft, clientWidth } = event.currentTarget;
+    const nextIndex = Math.round(scrollLeft / clientWidth);
+    setActiveAboutImageIndex(Math.max(0, Math.min(nextIndex, aboutImages.length - 1)));
+  };
+
+  const scrollAboutCarousel = (direction) => {
+    const carouselNode = aboutCarouselRef.current;
+
+    if (!carouselNode) {
+      return;
+    }
+
+    const nextIndex = Math.max(0, Math.min(activeAboutImageIndex + direction, aboutImages.length - 1));
+    carouselNode.scrollTo({ left: nextIndex * carouselNode.clientWidth, behavior: 'smooth' });
+    setActiveAboutImageIndex(nextIndex);
+  };
+
   return (
     <div className="page-shell">
       <main className="page-content">
@@ -114,7 +139,48 @@ function App() {
                 <p>{pageContent.scarcity}</p>
               </div>
             </div>
-            <FramedImage src={aboutImg} alt="Neighborhood view in Porto" className="about-image" />
+            <div className="about-gallery">
+              <div className="about-carousel-shell">
+                <div
+                  className="about-carousel-track"
+                  ref={aboutCarouselRef}
+                  onScroll={handleAboutCarouselScroll}
+                  aria-label="About photo gallery"
+                >
+                  {aboutImages.map((image) => (
+                    <div className="about-carousel-slide" key={image.src}>
+                      <FramedImage src={image.src} alt={image.alt} className="about-image" />
+                    </div>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  className="about-carousel-arrow about-carousel-arrow-left"
+                  onClick={() => scrollAboutCarousel(-1)}
+                  disabled={activeAboutImageIndex === 0}
+                  aria-label="Show previous about image"
+                >
+                  ‹
+                </button>
+                <button
+                  type="button"
+                  className="about-carousel-arrow about-carousel-arrow-right"
+                  onClick={() => scrollAboutCarousel(1)}
+                  disabled={activeAboutImageIndex === aboutImages.length - 1}
+                  aria-label="Show next about image"
+                >
+                  ›
+                </button>
+              </div>
+              <div className="about-carousel-dots" aria-hidden="true">
+                {aboutImages.map((image, index) => (
+                  <span
+                    key={image.src}
+                    className={`about-carousel-dot ${index === activeAboutImageIndex ? 'is-active' : ''}`}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
         </Section>
 
