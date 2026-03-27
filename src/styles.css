@@ -257,6 +257,39 @@ h1 {
   color: var(--ink-soft);
 }
 
+.instagram-link {
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--line-strong) 74%, white);
+  color: var(--ink-soft);
+  opacity: 0.84;
+  text-decoration: none;
+  transition: opacity 180ms ease, transform 180ms ease, border-color 180ms ease, color 180ms ease;
+}
+
+.instagram-icon {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+@media (hover: hover) {
+  .instagram-link:hover,
+  .instagram-link:focus-visible {
+    opacity: 1;
+    transform: translateY(-1px);
+    border-color: color-mix(in srgb, var(--line-strong) 90%, var(--accent));
+    color: var(--ink-strong);
+  }
+}
+
+.about-instagram-link {
+  margin-top: 1rem;
+}
+
 .section-follow-up {
   margin-top: 0.9rem !important;
   color: var(--ink-soft);
@@ -650,9 +683,17 @@ h1 {
 .site-footer {
   border-top: 1px solid var(--line);
   padding: 1.75rem 0 1.25rem;
-  text-align: center;
   font-size: 0.84rem;
   color: var(--ink-soft);
+}
+
+.site-footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  width: 100%;
 }
 
 .site-footer p {
@@ -663,6 +704,11 @@ h1 {
 .footer-tertiary {
   opacity: 0.72;
   font-size: 0.78rem;
+}
+
+.footer-instagram-link {
+  width: 1.9rem;
+  height: 1.9rem;
 }
 
 @media (min-width: 820px) {
