@@ -478,6 +478,7 @@ function App() {
         </Section>
 
         <Section title="Join the waitlist" id="join">
+          <p className="waitlist-trust-note">No spam. I’ll only reach out when new dates open.</p>
           <WaitlistForm />
         </Section>
 

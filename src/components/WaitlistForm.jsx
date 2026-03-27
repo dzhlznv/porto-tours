@@ -1,11 +1,11 @@
 import React from 'react';
 import { useState } from 'react';
-import { useForm, ValidationError } from '@formspree/react';
+import { useForm } from '@formspree/react';
 
 const initialFormState = {
   name: '',
   email: '',
-  preferredMonth: ''
+  notes: ''
 };
 
 export function WaitlistForm() {
@@ -46,8 +46,6 @@ export function WaitlistForm() {
           />
         </label>
 
-        <ValidationError prefix="Name" field="name" errors={state.errors} />
-
         <label>
           Email
           <input
@@ -60,26 +58,16 @@ export function WaitlistForm() {
           />
         </label>
 
-        <ValidationError prefix="Email" field="email" errors={state.errors} />
-
         <label>
-          Preferred month (optional)
-          <input
-            type="text"
-            name="preferredMonth"
-            value={formData.preferredMonth}
+          Notes (optional)
+          <textarea
+            name="notes"
+            value={formData.notes}
             onChange={handleChange}
-            placeholder="e.g. September"
+            placeholder="anything you'd like to share"
+            rows={4}
           />
         </label>
-
-        <ValidationError
-          prefix="Preferred month"
-          field="preferredMonth"
-          errors={state.errors}
-        />
-
-        <ValidationError errors={state.errors} />
 
         <button type="submit" disabled={state.submitting}>
           {state.submitting ? 'Sending...' : 'Join the waitlist'}
