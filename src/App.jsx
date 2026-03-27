@@ -1,5 +1,6 @@
 import heroImg from './assets/hero.jpg';
 import aboutImg from './assets/about.jpg';
+import aboutGalleryImg from './assets/gallery-29.jpg';
 import React, { useMemo, useRef, useState } from 'react';
 import { pageContent } from './content';
 import { Section } from './components/Section';
@@ -40,7 +41,7 @@ function App() {
 
   const aboutImages = [
     { src: aboutImg, alt: 'Neighborhood view in Porto' },
-    { src: 'https://porto2you.com/assets/gallery-29', alt: 'Classic Porto street scene' },
+    { src: aboutGalleryImg, alt: 'Classic Porto street scene' },
   ];
 
   React.useEffect(() => {
