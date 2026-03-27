@@ -151,7 +151,7 @@ function App() {
                   {aboutImages.map((image) => (
                     <div className="about-carousel-slide" key={image.src}>
                       <div className="about-image-frame">
-                        <FramedImage src={image.src} alt={image.alt} className="about-image" />
+                        <FramedImage src={image.src} alt={image.alt} className="hero-image" />
                       </div>
                     </div>
                   ))}
