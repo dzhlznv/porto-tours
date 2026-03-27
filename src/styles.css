@@ -153,6 +153,81 @@ h1 {
   max-height: 23rem;
 }
 
+.about-gallery {
+  width: 100%;
+}
+
+.about-carousel-shell {
+  position: relative;
+}
+
+.about-carousel-track {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.about-carousel-track::-webkit-scrollbar {
+  display: none;
+}
+
+.about-carousel-slide {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+}
+
+.about-carousel-arrow {
+  display: none;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--line-strong) 60%, white);
+  background: color-mix(in srgb, var(--paper-elevated) 80%, transparent);
+  color: var(--ink-strong);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  font-size: 1.25rem;
+}
+
+.about-carousel-arrow:disabled {
+  opacity: 0.42;
+  cursor: default;
+}
+
+.about-carousel-arrow-left {
+  left: 0.65rem;
+}
+
+.about-carousel-arrow-right {
+  right: 0.65rem;
+}
+
+.about-carousel-dots {
+  margin-top: 0.65rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.38rem;
+}
+
+.about-carousel-dot {
+  width: 0.34rem;
+  height: 0.34rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ink-soft) 38%, white);
+}
+
+.about-carousel-dot.is-active {
+  background: color-mix(in srgb, var(--ink-strong) 72%, white);
+}
+
 .placeholder {
   display: grid;
   place-items: center;
@@ -635,6 +710,10 @@ h1 {
   .about-layout {
     grid-template-columns: 1.2fr 1fr;
     align-items: start;
+  }
+
+  .about-carousel-arrow {
+    display: inline-flex;
   }
 
   .includes-grid {
