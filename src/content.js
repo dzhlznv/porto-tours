@@ -117,9 +117,9 @@ export const pageContent = {
   whatThisIs:
     'Think of this as a personal city day with Dmitri, not a scripted route. We start from your interests, then move through neighborhoods, cafés, and small places that feel like real Porto.',
   classicDay:
-    'A day often begins with good coffee, then unfolds through lesser-known streets, river light, and a few favorite stops chosen for your mood. We might pair old and modern Porto, walk toward the ocean, and end with a relaxed wine moment from the region.',
+    'A day often begins with good coffee, then unfolds through Porto’s most beautiful routes — seen from a different angle. From the historic center to the bridges, the river, and the ocean, each route has its own rhythm and mood. We notice the light, textures, and azulejos, stop for food and wine, and let the day take its natural shape. I have a few routes in mind, and we choose what fits you best.',
   dayShapingLine:
-    'Before we meet, I’ll ask a few questions so the rhythm, stops, and atmosphere fit you naturally.',
+    'Along the way, a few hidden gems make it feel personal.',
   aboutParagraphs: [
     'I’m Dmitri, 37, and for the past three-plus years Porto has been home — not all at once, but through long walks, neighborhood cafés, and quiet corners that only reveal themselves when you stop rushing.',
     'After living in four countries, visiting more than twenty, and spending over a decade in digital marketing, I learned to notice the small signals that make a place feel real. Here, I kept following that instinct — through old and new streets, local habits, and everyday details that rarely make it into guidebooks.',
