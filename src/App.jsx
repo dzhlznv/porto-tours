@@ -30,7 +30,18 @@ function FramedImage({ src, alt, className }) {
   );
 }
 
+function InstagramIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" className="instagram-icon">
+      <rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" strokeWidth="1.6" />
+      <circle cx="12" cy="12" r="4.1" fill="none" stroke="currentColor" strokeWidth="1.6" />
+      <circle cx="17.1" cy="6.9" r="1.1" fill="currentColor" />
+    </svg>
+  );
+}
+
 function App() {
+  const instagramUrl = 'https://www.instagram.com/porto2u/';
   const INITIAL_GALLERY_COUNT = 12;
   const GALLERY_BATCH_SIZE = 9;
   const [isMobileGallery, setIsMobileGallery] = useState(() => window.matchMedia('(max-width: 768px)').matches);
@@ -183,6 +194,15 @@ function App() {
                 <p>{pageContent.donation}</p>
                 <p>{pageContent.scarcity}</p>
               </div>
+              <a
+                className="instagram-link about-instagram-link"
+                href={instagramUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
+              >
+                <InstagramIcon />
+              </a>
             </div>
             <div className="about-gallery">
               <div className="about-carousel-shell">
@@ -338,7 +358,18 @@ function App() {
         </Section>
 
         <footer className="site-footer" aria-label="Site footer">
-          <p className="footer-tertiary">Photos and content © Dmitrii Zheleznov</p>
+          <div className="site-footer-inner">
+            <p className="footer-tertiary">Photos and content © Dmitrii Zheleznov</p>
+            <a
+              className="instagram-link footer-instagram-link"
+              href={instagramUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram"
+            >
+              <InstagramIcon />
+            </a>
+          </div>
         </footer>
       </main>
     </div>
