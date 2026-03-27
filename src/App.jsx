@@ -37,7 +37,13 @@ function App() {
   const [visibleGalleryCount, setVisibleGalleryCount] = useState(INITIAL_GALLERY_COUNT);
   const [activeGalleryIndex, setActiveGalleryIndex] = useState(null);
   const [activeAboutImageIndex, setActiveAboutImageIndex] = useState(0);
+  const [isAboutDragging, setIsAboutDragging] = useState(false);
   const aboutCarouselRef = useRef(null);
+  const aboutDragRef = useRef({
+    isPointerDown: false,
+    startX: 0,
+    startScrollLeft: 0,
+  });
 
   const aboutImages = [
     { src: aboutImg, alt: 'Neighborhood view in Porto' },
@@ -91,16 +97,54 @@ function App() {
     setActiveAboutImageIndex(Math.max(0, Math.min(nextIndex, aboutImages.length - 1)));
   };
 
-  const scrollAboutCarousel = (direction) => {
-    const carouselNode = aboutCarouselRef.current;
+  const handleAboutPointerDown = (event) => {
+    const isDesktopPointer =
+      (event.pointerType === 'mouse' || event.pointerType === 'pen') &&
+      window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    if (!isDesktopPointer || event.button !== 0) {
+      return;
+    }
 
+    const carouselNode = aboutCarouselRef.current;
     if (!carouselNode) {
       return;
     }
 
-    const nextIndex = Math.max(0, Math.min(activeAboutImageIndex + direction, aboutImages.length - 1));
-    carouselNode.scrollTo({ left: nextIndex * carouselNode.clientWidth, behavior: 'smooth' });
-    setActiveAboutImageIndex(nextIndex);
+    aboutDragRef.current = {
+      isPointerDown: true,
+      startX: event.clientX,
+      startScrollLeft: carouselNode.scrollLeft,
+    };
+    setIsAboutDragging(true);
+    carouselNode.setPointerCapture(event.pointerId);
+  };
+
+  const handleAboutPointerMove = (event) => {
+    if (!aboutDragRef.current.isPointerDown) {
+      return;
+    }
+
+    const carouselNode = aboutCarouselRef.current;
+    if (!carouselNode) {
+      return;
+    }
+
+    const dragDistance = event.clientX - aboutDragRef.current.startX;
+    carouselNode.scrollLeft = aboutDragRef.current.startScrollLeft - dragDistance;
+  };
+
+  const stopAboutDragging = (event) => {
+    if (!aboutDragRef.current.isPointerDown) {
+      return;
+    }
+
+    const carouselNode = aboutCarouselRef.current;
+    aboutDragRef.current.isPointerDown = false;
+    setIsAboutDragging(false);
+
+    if (carouselNode && carouselNode.hasPointerCapture(event.pointerId)) {
+      carouselNode.releasePointerCapture(event.pointerId);
+    }
   };
 
   return (
@@ -143,9 +187,13 @@ function App() {
             <div className="about-gallery">
               <div className="about-carousel-shell">
                 <div
-                  className="about-carousel-track"
+                  className={`about-carousel-track ${isAboutDragging ? 'is-dragging' : ''}`}
                   ref={aboutCarouselRef}
                   onScroll={handleAboutCarouselScroll}
+                  onPointerDown={handleAboutPointerDown}
+                  onPointerMove={handleAboutPointerMove}
+                  onPointerUp={stopAboutDragging}
+                  onPointerCancel={stopAboutDragging}
                   aria-label="About photo gallery"
                 >
                   {aboutImages.map((image) => (
@@ -156,24 +204,6 @@ function App() {
                     </div>
                   ))}
                 </div>
-                <button
-                  type="button"
-                  className="about-carousel-arrow about-carousel-arrow-left"
-                  onClick={() => scrollAboutCarousel(-1)}
-                  disabled={activeAboutImageIndex === 0}
-                  aria-label="Show previous about image"
-                >
-                  ‹
-                </button>
-                <button
-                  type="button"
-                  className="about-carousel-arrow about-carousel-arrow-right"
-                  onClick={() => scrollAboutCarousel(1)}
-                  disabled={activeAboutImageIndex === aboutImages.length - 1}
-                  aria-label="Show next about image"
-                >
-                  ›
-                </button>
               </div>
               <div className="about-carousel-dots" aria-hidden="true">
                 {aboutImages.map((image, index) => (
