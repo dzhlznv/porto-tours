@@ -51,9 +51,10 @@ function App() {
   const [isAboutDragging, setIsAboutDragging] = useState(false);
   const aboutCarouselRef = useRef(null);
   const aboutDragRef = useRef({
-    isPointerDown: false,
+    isMouseDown: false,
     startX: 0,
     startScrollLeft: 0,
+    hasDragged: false,
   });
 
   const aboutImages = [
@@ -108,10 +109,33 @@ function App() {
     setActiveAboutImageIndex(Math.max(0, Math.min(nextIndex, aboutImages.length - 1)));
   };
 
-  const handleAboutPointerDown = (event) => {
-    const isDesktopPointer =
-      (event.pointerType === 'mouse' || event.pointerType === 'pen') &&
-      window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const stopAboutDragging = () => {
+    if (!aboutDragRef.current.isMouseDown) {
+      return;
+    }
+
+    const carouselNode = aboutCarouselRef.current;
+    aboutDragRef.current.isMouseDown = false;
+    setIsAboutDragging(false);
+
+    if (!carouselNode) {
+      return;
+    }
+
+    carouselNode.classList.remove('is-dragging');
+
+    if (aboutDragRef.current.hasDragged) {
+      const nextIndex = Math.round(carouselNode.scrollLeft / carouselNode.clientWidth);
+      const boundedIndex = Math.max(0, Math.min(nextIndex, aboutImages.length - 1));
+      carouselNode.scrollTo({
+        left: boundedIndex * carouselNode.clientWidth,
+        behavior: 'smooth',
+      });
+    }
+  };
+
+  const handleAboutMouseDown = (event) => {
+    const isDesktopPointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
     if (!isDesktopPointer || event.button !== 0) {
       return;
     }
@@ -122,16 +146,49 @@ function App() {
     }
 
     aboutDragRef.current = {
-      isPointerDown: true,
+      isMouseDown: true,
       startX: event.clientX,
       startScrollLeft: carouselNode.scrollLeft,
+      hasDragged: false,
     };
+
     setIsAboutDragging(true);
-    carouselNode.setPointerCapture(event.pointerId);
+    carouselNode.classList.add('is-dragging');
+    event.preventDefault();
   };
 
-  const handleAboutPointerMove = (event) => {
-    if (!aboutDragRef.current.isPointerDown) {
+  React.useEffect(() => {
+    const handleAboutMouseMove = (event) => {
+      if (!aboutDragRef.current.isMouseDown) {
+        return;
+      }
+
+      const carouselNode = aboutCarouselRef.current;
+      if (!carouselNode) {
+        return;
+      }
+
+      const dragDistance = event.clientX - aboutDragRef.current.startX;
+      if (Math.abs(dragDistance) > 3) {
+        aboutDragRef.current.hasDragged = true;
+      }
+      carouselNode.scrollLeft = aboutDragRef.current.startScrollLeft - dragDistance;
+      event.preventDefault();
+    };
+
+    const handleWindowMouseUp = () => stopAboutDragging();
+
+    window.addEventListener('mousemove', handleAboutMouseMove);
+    window.addEventListener('mouseup', handleWindowMouseUp);
+
+    return () => {
+      window.removeEventListener('mousemove', handleAboutMouseMove);
+      window.removeEventListener('mouseup', handleWindowMouseUp);
+    };
+  }, [aboutImages.length]);
+
+  const handleAboutMouseMove = (event) => {
+    if (!aboutDragRef.current.isMouseDown) {
       return;
     }
 
@@ -142,20 +199,7 @@ function App() {
 
     const dragDistance = event.clientX - aboutDragRef.current.startX;
     carouselNode.scrollLeft = aboutDragRef.current.startScrollLeft - dragDistance;
-  };
-
-  const stopAboutDragging = (event) => {
-    if (!aboutDragRef.current.isPointerDown) {
-      return;
-    }
-
-    const carouselNode = aboutCarouselRef.current;
-    aboutDragRef.current.isPointerDown = false;
-    setIsAboutDragging(false);
-
-    if (carouselNode && carouselNode.hasPointerCapture(event.pointerId)) {
-      carouselNode.releasePointerCapture(event.pointerId);
-    }
+    event.preventDefault();
   };
 
   return (
@@ -210,10 +254,10 @@ function App() {
                   className={`about-carousel-track ${isAboutDragging ? 'is-dragging' : ''}`}
                   ref={aboutCarouselRef}
                   onScroll={handleAboutCarouselScroll}
-                  onPointerDown={handleAboutPointerDown}
-                  onPointerMove={handleAboutPointerMove}
-                  onPointerUp={stopAboutDragging}
-                  onPointerCancel={stopAboutDragging}
+                  onMouseDown={handleAboutMouseDown}
+                  onMouseMove={handleAboutMouseMove}
+                  onMouseUp={stopAboutDragging}
+                  onMouseLeave={stopAboutDragging}
                   aria-label="About photo gallery"
                 >
                   {aboutImages.map((image) => (
