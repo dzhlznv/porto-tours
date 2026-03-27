@@ -748,6 +748,14 @@ h1 {
     user-select: none;
   }
 
+  .about-carousel-track.is-edge-left {
+    cursor: w-resize;
+  }
+
+  .about-carousel-track.is-edge-right {
+    cursor: e-resize;
+  }
+
   .about-carousel-slide {
     display: flex;
     justify-content: center;

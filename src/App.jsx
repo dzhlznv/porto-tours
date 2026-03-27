@@ -49,12 +49,14 @@ function App() {
   const [activeGalleryIndex, setActiveGalleryIndex] = useState(null);
   const [activeAboutImageIndex, setActiveAboutImageIndex] = useState(0);
   const [isAboutDragging, setIsAboutDragging] = useState(false);
+  const [aboutHoverZone, setAboutHoverZone] = useState('center');
   const aboutCarouselRef = useRef(null);
   const aboutDragRef = useRef({
     isMouseDown: false,
     startX: 0,
     startScrollLeft: 0,
     hasDragged: false,
+    suppressClick: false,
   });
 
   const aboutImages = [
@@ -109,12 +111,29 @@ function App() {
     setActiveAboutImageIndex(Math.max(0, Math.min(nextIndex, aboutImages.length - 1)));
   };
 
+  const scrollToAboutSlide = React.useCallback(
+    (index) => {
+      const carouselNode = aboutCarouselRef.current;
+      if (!carouselNode) {
+        return;
+      }
+
+      const boundedIndex = Math.max(0, Math.min(index, aboutImages.length - 1));
+      carouselNode.scrollTo({
+        left: boundedIndex * carouselNode.clientWidth,
+        behavior: 'smooth',
+      });
+    },
+    [aboutImages.length]
+  );
+
   const stopAboutDragging = () => {
     if (!aboutDragRef.current.isMouseDown) {
       return;
     }
 
     const carouselNode = aboutCarouselRef.current;
+    aboutDragRef.current.suppressClick = aboutDragRef.current.hasDragged;
     aboutDragRef.current.isMouseDown = false;
     setIsAboutDragging(false);
 
@@ -126,11 +145,7 @@ function App() {
 
     if (aboutDragRef.current.hasDragged) {
       const nextIndex = Math.round(carouselNode.scrollLeft / carouselNode.clientWidth);
-      const boundedIndex = Math.max(0, Math.min(nextIndex, aboutImages.length - 1));
-      carouselNode.scrollTo({
-        left: boundedIndex * carouselNode.clientWidth,
-        behavior: 'smooth',
-      });
+      scrollToAboutSlide(nextIndex);
     }
   };
 
@@ -150,6 +165,7 @@ function App() {
       startX: event.clientX,
       startScrollLeft: carouselNode.scrollLeft,
       hasDragged: false,
+      suppressClick: false,
     };
 
     setIsAboutDragging(true);
@@ -185,10 +201,30 @@ function App() {
       window.removeEventListener('mousemove', handleAboutMouseMove);
       window.removeEventListener('mouseup', handleWindowMouseUp);
     };
-  }, [aboutImages.length]);
+  }, [scrollToAboutSlide]);
 
   const handleAboutMouseMove = (event) => {
+    const isDesktopPointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    if (!isDesktopPointer) {
+      return;
+    }
+
     if (!aboutDragRef.current.isMouseDown) {
+      const carouselNode = aboutCarouselRef.current;
+      if (!carouselNode) {
+        return;
+      }
+
+      const rect = carouselNode.getBoundingClientRect();
+      const relativeX = event.clientX - rect.left;
+      const edgeThreshold = rect.width * 0.2;
+      if (relativeX <= edgeThreshold) {
+        setAboutHoverZone('left');
+      } else if (relativeX >= rect.width - edgeThreshold) {
+        setAboutHoverZone('right');
+      } else {
+        setAboutHoverZone('center');
+      }
       return;
     }
 
@@ -200,6 +236,42 @@ function App() {
     const dragDistance = event.clientX - aboutDragRef.current.startX;
     carouselNode.scrollLeft = aboutDragRef.current.startScrollLeft - dragDistance;
     event.preventDefault();
+  };
+
+  const handleAboutMouseEnter = () => {
+    setAboutHoverZone('center');
+  };
+
+  const handleAboutMouseLeave = () => {
+    setAboutHoverZone('center');
+    stopAboutDragging();
+  };
+
+  const handleAboutTrackClick = (event) => {
+    const isDesktopPointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    if (!isDesktopPointer) {
+      return;
+    }
+
+    if (aboutDragRef.current.suppressClick) {
+      aboutDragRef.current.suppressClick = false;
+      return;
+    }
+
+    const carouselNode = aboutCarouselRef.current;
+    if (!carouselNode) {
+      return;
+    }
+
+    const rect = carouselNode.getBoundingClientRect();
+    const relativeX = event.clientX - rect.left;
+    const edgeThreshold = rect.width * 0.2;
+
+    if (relativeX <= edgeThreshold) {
+      scrollToAboutSlide(activeAboutImageIndex - 1);
+    } else if (relativeX >= rect.width - edgeThreshold) {
+      scrollToAboutSlide(activeAboutImageIndex + 1);
+    }
   };
 
   return (
@@ -251,13 +323,17 @@ function App() {
             <div className="about-gallery">
               <div className="about-carousel-shell">
                 <div
-                  className={`about-carousel-track ${isAboutDragging ? 'is-dragging' : ''}`}
+                  className={`about-carousel-track ${isAboutDragging ? 'is-dragging' : ''} ${
+                    aboutHoverZone === 'left' ? 'is-edge-left' : ''
+                  } ${aboutHoverZone === 'right' ? 'is-edge-right' : ''}`}
                   ref={aboutCarouselRef}
                   onScroll={handleAboutCarouselScroll}
                   onMouseDown={handleAboutMouseDown}
                   onMouseMove={handleAboutMouseMove}
+                  onMouseEnter={handleAboutMouseEnter}
                   onMouseUp={stopAboutDragging}
-                  onMouseLeave={stopAboutDragging}
+                  onMouseLeave={handleAboutMouseLeave}
+                  onClick={handleAboutTrackClick}
                   aria-label="About photo gallery"
                 >
                   {aboutImages.map((image) => (
