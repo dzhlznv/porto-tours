@@ -373,7 +373,11 @@ function App() {
         </Section>
 
         <Section title="A classic day, reimagined" id="classic-day">
-          <p>{pageContent.classicDay}</p>
+          {pageContent.classicDayParagraphs.map((paragraph) => (
+            <p key={paragraph} className="classic-day-paragraph">
+              {paragraph}
+            </p>
+          ))}
           <p className="section-follow-up">{pageContent.dayShapingLine}</p>
         </Section>
 
