@@ -867,3 +867,17 @@ h1 {
     display: none;
   }
 }
+
+
+.map-page {
+  width: 100%;
+  min-height: 100dvh;
+  background: #0e1117;
+}
+
+.map-page-frame {
+  display: block;
+  width: 100%;
+  min-height: 100dvh;
+  border: 0;
+}
