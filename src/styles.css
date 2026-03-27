@@ -169,6 +169,12 @@ h1 {
   display: none;
 }
 
+.about-carousel-track.is-dragging {
+  cursor: grabbing;
+  scroll-snap-type: none;
+  scroll-behavior: auto;
+}
+
 .about-carousel-slide {
   flex: 0 0 100%;
   scroll-snap-align: start;
@@ -176,37 +182,6 @@ h1 {
 
 .about-image-frame {
   width: 100%;
-}
-
-.about-carousel-arrow {
-  display: none;
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 2rem;
-  height: 2rem;
-  border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--line-strong) 60%, white);
-  background: color-mix(in srgb, var(--paper-elevated) 80%, transparent);
-  color: var(--ink-strong);
-  cursor: pointer;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-  font-size: 1.25rem;
-}
-
-.about-carousel-arrow:disabled {
-  opacity: 0.42;
-  cursor: default;
-}
-
-.about-carousel-arrow-left {
-  left: 0.65rem;
-}
-
-.about-carousel-arrow-right {
-  right: 0.65rem;
 }
 
 .about-carousel-dots {
@@ -711,8 +686,9 @@ h1 {
     align-items: start;
   }
 
-  .about-carousel-arrow {
-    display: inline-flex;
+  .about-carousel-track {
+    cursor: grab;
+    user-select: none;
   }
 
   .about-carousel-slide {
