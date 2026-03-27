@@ -148,12 +148,6 @@ h1 {
   min-height: 17rem;
 }
 
-.about-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
 .about-gallery {
   width: 100%;
 }
@@ -182,7 +176,6 @@ h1 {
 
 .about-image-frame {
   width: 100%;
-  aspect-ratio: 9 / 16;
 }
 
 .about-carousel-arrow {
@@ -725,10 +718,6 @@ h1 {
   .about-carousel-slide {
     display: flex;
     justify-content: center;
-  }
-
-  .about-image-frame {
-    width: min(100%, calc(560px * 9 / 16));
   }
 
   .includes-grid {
