@@ -139,8 +139,8 @@ export const pageContent = {
       description: 'The day follows your rhythm, interests, and energy instead of a fixed script.'
     },
     {
-      title: 'Neighborhood stories beyond guidebooks',
-      description: 'Context, lived details, and local layers that rarely appear in standard itineraries.'
+      title: 'Seeing the city differently',
+      description: 'Not just where to go, but how to notice — light, details, and the small things that make Porto feel alive.'
     },
     {
       title: 'Slow coffee or wine moments',
@@ -151,8 +151,8 @@ export const pageContent = {
       description: 'Corners of Porto where the city feels intimate, calm, and naturally cinematic.'
     },
     {
-      title: 'Cultural and architectural insights',
-      description: 'A thoughtful read of Porto’s contrasts, from everyday habits to urban form.'
+      title: 'A local perspective, naturally shared',
+      description: 'No lectures — just observations, context, and moments that come up along the way.'
     },
     {
       title: 'Optional follow-up list of places we visited',
