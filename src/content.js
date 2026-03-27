@@ -116,8 +116,11 @@ export const pageContent = {
   },
   whatThisIs:
     'Think of this as a personal city day with Dmitri, not a scripted route. We start from your interests, then move through neighborhoods, cafés, and small places that feel like real Porto.',
-  classicDay:
-    'A day often begins with good coffee, then unfolds through Porto’s most beautiful routes — seen from a different angle. From the historic center to the bridges, the river, and the ocean, each route has its own rhythm and mood. We notice the light, textures, and azulejos, stop for food and wine, and let the day take its natural shape. I have a few routes in mind, and we choose what fits you best.',
+  classicDayParagraphs: [
+    'A day often begins with good coffee, then unfolds through Porto’s most beautiful routes — seen from a different angle.',
+    'From the historic center to the bridges, the river, and the ocean, each route has its own rhythm and mood.',
+    'We notice the light, textures, and azulejos, stop for food and wine, and let the day take its natural shape. I have a few routes in mind, and we choose what fits you best.'
+  ],
   dayShapingLine:
     'Along the way, a few hidden gems make it feel personal.',
   aboutParagraphs: [

@@ -305,6 +305,11 @@ h1 {
   color: var(--ink-soft);
 }
 
+.classic-day-paragraph + .classic-day-paragraph,
+.classic-day-paragraph + .section-follow-up {
+  margin-top: 1rem !important;
+}
+
 .about-layout {
   display: grid;
   gap: 1.15rem;
