@@ -13,22 +13,29 @@ function normalizePathname(pathname) {
   return trimmed || '/';
 }
 
+function NotFoundPage() {
+  return (
+    <main className="route-fallback" aria-label="Not found page">
+      <h1>404</h1>
+      <p>Page not found.</p>
+    </main>
+  );
+}
+
 function resolveRoute(pathname) {
   const normalizedPath = normalizePathname(pathname);
 
-  if (normalizedPath === '/home') {
+  if (normalizedPath === '/') {
     return <LandingPage />;
   }
 
-  if (normalizedPath === '/' || normalizedPath === '/map') {
+  if (normalizedPath === '/map') {
     return <MapPage />;
   }
 
-  return <MapPage />;
+  return <NotFoundPage />;
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    {resolveRoute(window.location.pathname)}
-  </React.StrictMode>
+  <React.StrictMode>{resolveRoute(window.location.pathname)}</React.StrictMode>
 );
