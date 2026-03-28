@@ -6,9 +6,10 @@ export function NotFound() {
       <main className="page-content not-found-content" role="main">
         <p className="eyebrow">Porto2You</p>
         <h1>Page not found</h1>
-        <p className="hero-subtitle">This street is not on the tour map yet.</p>
+        <p className="hero-subtitle">Looks like you took a wrong turn.</p>
+        <p className="hero-supporting">Let’s get you back to Porto.</p>
         <a className="cta" href="/">
-          Back to homepage
+          Back to Porto
         </a>
       </main>
     </div>
