@@ -53,7 +53,18 @@ function MapPage() {
     }, {});
   }, []);
 
-  const visiblePlaces = placesByCategory[activeCategory] ?? [];
+  const featuredPlaces = React.useMemo(() => portoGuidePlaces.filter((place) => place.featured), []);
+
+  const visiblePlaces = React.useMemo(() => {
+    if (activeCategory === 'Highlights') {
+      return featuredPlaces;
+    }
+
+    return placesByCategory[activeCategory] ?? [];
+  }, [activeCategory, featuredPlaces, placesByCategory]);
+
+  const highlightCardPlaces = React.useMemo(() => featuredPlaces.slice(0, 3), [featuredPlaces]);
+  const [highlightCardIndex, setHighlightCardIndex] = React.useState(0);
 
   const selectedPlace = React.useMemo(() => {
     return portoGuidePlaces.find((place) => place.id === selectedPlaceId) ?? visiblePlaces[0] ?? portoGuidePlaces[0];
@@ -72,6 +83,17 @@ function MapPage() {
 
     setViewport((current) => ({ ...current, lat: selectedPlace.lat, lng: selectedPlace.lng }));
   }, [selectedPlace?.id]);
+
+  React.useEffect(() => {
+    if (!highlightCardPlaces.length) {
+      return;
+    }
+
+    const clampedIndex = clamp(highlightCardIndex, 0, highlightCardPlaces.length - 1);
+    if (clampedIndex !== highlightCardIndex) {
+      setHighlightCardIndex(clampedIndex);
+    }
+  }, [highlightCardIndex, highlightCardPlaces]);
 
   React.useEffect(() => {
     const node = mapViewportRef.current;
@@ -175,6 +197,16 @@ function MapPage() {
     setViewport((current) => ({ ...current, zoom: clamp(current.zoom + zoomDelta, MIN_ZOOM, MAX_ZOOM) }));
   };
 
+  const activeHighlight = highlightCardPlaces[highlightCardIndex] ?? null;
+
+  const showPreviousHighlight = () => {
+    setHighlightCardIndex((current) => (current - 1 + highlightCardPlaces.length) % highlightCardPlaces.length);
+  };
+
+  const showNextHighlight = () => {
+    setHighlightCardIndex((current) => (current + 1) % highlightCardPlaces.length);
+  };
+
   return (
     <main className="map-page" aria-label="Porto2You curated guide map">
       <aside className="map-sidebar">
@@ -185,18 +217,22 @@ function MapPage() {
         </header>
 
         <nav className="map-category-list" aria-label="Map categories">
-          {mapCategories.map((category) => (
-            <button
-              key={category}
-              type="button"
-              className={`map-category-chip ${activeCategory === category ? 'is-active' : ''}`}
-              onClick={() => setActiveCategory(category)}
-            >
-              <span>{category}</span>
-              <small>{placesByCategory[category]?.length ?? 0}</small>
-            </button>
-          ))}
+          {mapCategories.map((category) => {
+            const categoryCount = category === 'Highlights' ? featuredPlaces.length : placesByCategory[category]?.length ?? 0;
+            return (
+              <button
+                key={category}
+                type="button"
+                className={`map-category-chip ${activeCategory === category ? 'is-active' : ''}`}
+                onClick={() => setActiveCategory(category)}
+              >
+                <span>{category}</span>
+                <small>{categoryCount}</small>
+              </button>
+            );
+          })}
         </nav>
+        {activeCategory === 'Highlights' ? <p className="map-start-hint">Start here</p> : null}
 
         <section className="map-place-list" aria-label={`${activeCategory} places`}>
           {visiblePlaces.map((place) => (
@@ -237,13 +273,41 @@ function MapPage() {
             <button
               key={marker.id}
               type="button"
-              className={`map-marker ${selectedPlace?.id === marker.id ? 'is-selected' : ''}`}
+              className={`map-marker ${marker.featured ? 'is-featured' : ''} ${
+                selectedPlace?.id === marker.id ? 'is-selected' : ''
+              }`}
               style={{ transform: `translate(${marker.x}px, ${marker.y}px)` }}
               onClick={() => setSelectedPlaceId(marker.id)}
               title={marker.name}
               aria-label={marker.name}
             />
           ))}
+
+          {activeHighlight ? (
+            <article className="map-highlights-card" aria-live="polite">
+              <div>
+                <p className="eyebrow">Featured · {highlightCardIndex + 1}/{highlightCardPlaces.length}</p>
+                <h3>{activeHighlight.name}</h3>
+                <p>{activeHighlight.description}</p>
+                <p className="map-highlights-card__category">{activeHighlight.category}</p>
+              </div>
+              <div className="map-highlights-card__actions">
+                <button type="button" onClick={showPreviousHighlight} aria-label="Show previous featured place">
+                  ←
+                </button>
+                <button
+                  type="button"
+                  className="map-highlights-card__focus"
+                  onClick={() => setSelectedPlaceId(activeHighlight.id)}
+                >
+                  View on map
+                </button>
+                <button type="button" onClick={showNextHighlight} aria-label="Show next featured place">
+                  →
+                </button>
+              </div>
+            </article>
+          ) : null}
 
           <div className="map-attribution">
             <span>Use wheel to zoom and drag to pan.</span>
