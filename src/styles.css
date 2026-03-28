@@ -867,3 +867,162 @@ h1 {
     display: none;
   }
 }
+
+.route-fallback {
+  min-height: 100vh;
+  display: grid;
+  place-content: center;
+  gap: 0.4rem;
+  text-align: center;
+  padding: 2rem;
+}
+
+.route-fallback h1,
+.route-fallback p {
+  margin: 0;
+}
+
+.map-page {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  background: #f8f8f8;
+}
+
+.map-sidebar {
+  border-right: 1px solid #e3e3e3;
+  padding: 1.2rem;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.map-title {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.map-subtitle {
+  margin: 0;
+  color: #5e6468;
+  font-size: 0.92rem;
+}
+
+.map-categories {
+  display: flex;
+  flex-direction: column;
+  gap: 0.48rem;
+}
+
+.map-category-item {
+  border: 1px solid #d8d8d8;
+  background: #fafafa;
+  color: #1e2428;
+  border-radius: 10px;
+  text-align: left;
+  padding: 0.58rem 0.7rem;
+  cursor: pointer;
+}
+
+.map-category-item.is-active {
+  border-color: #5f7f78;
+  background: #eef5f3;
+  color: #1a3731;
+}
+
+.map-canvas-wrap {
+  position: relative;
+  min-height: 100vh;
+}
+
+.map-canvas {
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+}
+
+.map-marker {
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: 999px;
+  background: #2f4f4a;
+  color: #ffffff;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+
+.map-helper {
+  margin: 0;
+  color: #5e6468;
+  font-size: 0.9rem;
+}
+
+.map-place-card {
+  margin-top: auto;
+  border: 1px solid #d8d8d8;
+  border-radius: 12px;
+  background: #f8f8f8;
+  padding: 0.8rem;
+}
+
+.map-place-card strong,
+.map-place-card p {
+  margin: 0;
+}
+
+.map-place-card p {
+  color: #5e6468;
+  margin-top: 0.3rem;
+}
+
+.map-token-warning {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 3;
+  background: #ffffff;
+  border: 1px solid #e2d4a4;
+  border-radius: 10px;
+  color: #6f5a11;
+  font-size: 0.85rem;
+  padding: 0.5rem 0.75rem;
+}
+
+@media (max-width: 900px) {
+  .map-page {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+
+  .map-sidebar {
+    border-right: none;
+    border-bottom: 1px solid #e3e3e3;
+    gap: 0.8rem;
+  }
+
+  .map-categories {
+    flex-direction: row;
+    overflow-x: auto;
+    padding-bottom: 0.3rem;
+  }
+
+  .map-category-item {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
+  .map-canvas-wrap,
+  .map-canvas {
+    min-height: 70vh;
+  }
+
+  .map-place-card {
+    margin-top: 0;
+  }
+}
