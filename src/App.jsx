@@ -7,6 +7,7 @@ import { Section } from './components/Section';
 import { FaqItem } from './components/FaqItem';
 import { WaitlistForm } from './components/WaitlistForm';
 import { ParallaxImageCard } from './components/ParallaxImageCard';
+import { NotFound } from './components/NotFound';
 
 function FramedImage({ src, alt, className }) {
   const [hasImageError, setHasImageError] = useState(false);
@@ -41,6 +42,12 @@ function InstagramIcon() {
 }
 
 function App() {
+  const pathname = window.location.pathname;
+  const normalizedPathname = pathname.endsWith('/') && pathname.length > 1 ? pathname.slice(0, -1) : pathname;
+
+  if (normalizedPathname !== '/') {
+    return <NotFound />;
+  }
   const instagramUrl = 'https://www.instagram.com/porto2u/';
   const INITIAL_GALLERY_COUNT = 12;
   const GALLERY_BATCH_SIZE = 9;
