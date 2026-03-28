@@ -2,8 +2,14 @@ import React from 'react';
 import { defaultMapCategory, mapCategories, portoGuidePlaces } from '../data/portoGuide';
 
 const TILE_SIZE = 256;
-const MIN_ZOOM = 11;
+const MIN_ZOOM = 12;
 const MAX_ZOOM = 17;
+const DEFAULT_VIEW_BOUNDS = {
+  southWest: { lat: 41.107, lng: -8.707 },
+  northEast: { lat: 41.193, lng: -8.552 },
+};
+const DEFAULT_VIEW_PADDING = 56;
+const CARTO_TILE_ATTRIBUTION = 'Map tiles by Carto, data © OpenStreetMap contributors';
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
@@ -26,6 +32,60 @@ function unproject(x, y, zoom) {
   return { lat, lng };
 }
 
+function getBoundsFromPlaces(places) {
+  if (!places.length) {
+    return null;
+  }
+
+  return places.reduce(
+    (bounds, place) => ({
+      minLat: Math.min(bounds.minLat, place.lat),
+      maxLat: Math.max(bounds.maxLat, place.lat),
+      minLng: Math.min(bounds.minLng, place.lng),
+      maxLng: Math.max(bounds.maxLng, place.lng),
+    }),
+    { minLat: places[0].lat, maxLat: places[0].lat, minLng: places[0].lng, maxLng: places[0].lng }
+  );
+}
+
+function mergeBounds(primaryBounds, fallbackBounds) {
+  if (!primaryBounds) {
+    return {
+      minLat: fallbackBounds.southWest.lat,
+      maxLat: fallbackBounds.northEast.lat,
+      minLng: fallbackBounds.southWest.lng,
+      maxLng: fallbackBounds.northEast.lng,
+    };
+  }
+
+  return {
+    minLat: Math.min(primaryBounds.minLat, fallbackBounds.southWest.lat),
+    maxLat: Math.max(primaryBounds.maxLat, fallbackBounds.northEast.lat),
+    minLng: Math.min(primaryBounds.minLng, fallbackBounds.southWest.lng),
+    maxLng: Math.max(primaryBounds.maxLng, fallbackBounds.northEast.lng),
+  };
+}
+
+function getViewportFromBounds(bounds, mapSize, padding = DEFAULT_VIEW_PADDING) {
+  const safeWidth = Math.max(1, mapSize.width - padding * 2);
+  const safeHeight = Math.max(1, mapSize.height - padding * 2);
+  const centerLat = (bounds.minLat + bounds.maxLat) / 2;
+  const centerLng = (bounds.minLng + bounds.maxLng) / 2;
+
+  for (let zoom = MAX_ZOOM; zoom >= MIN_ZOOM; zoom -= 1) {
+    const northWest = project(bounds.maxLat, bounds.minLng, zoom);
+    const southEast = project(bounds.minLat, bounds.maxLng, zoom);
+    const boundsPixelWidth = Math.abs(southEast.x - northWest.x);
+    const boundsPixelHeight = Math.abs(southEast.y - northWest.y);
+
+    if (boundsPixelWidth <= safeWidth && boundsPixelHeight <= safeHeight) {
+      return { lat: centerLat, lng: centerLng, zoom };
+    }
+  }
+
+  return { lat: centerLat, lng: centerLng, zoom: MIN_ZOOM };
+}
+
 function normalizeInstagramHandle(handle) {
   if (!handle) {
     return null;
@@ -40,7 +100,7 @@ function MapPage() {
     const featuredInCategory = portoGuidePlaces.find((place) => place.category === defaultMapCategory && place.featured);
     return featuredInCategory?.id ?? portoGuidePlaces[0]?.id;
   });
-  const [viewport, setViewport] = React.useState({ lat: 41.1496, lng: -8.6109, zoom: 13 });
+  const [viewport, setViewport] = React.useState({ lat: 41.1493, lng: -8.6236, zoom: 14 });
   const [mapSize, setMapSize] = React.useState({ width: 0, height: 0 });
 
   const mapViewportRef = React.useRef(null);
@@ -111,8 +171,17 @@ function MapPage() {
     return () => observer.disconnect();
   }, []);
 
+  React.useEffect(() => {
+    if (!mapSize.width || !mapSize.height || !visiblePlaces.length) {
+      return;
+    }
+
+    const categoryBounds = mergeBounds(getBoundsFromPlaces(visiblePlaces), DEFAULT_VIEW_BOUNDS);
+    const fittedViewport = getViewportFromBounds(categoryBounds, mapSize);
+    setViewport((current) => ({ ...current, ...fittedViewport }));
+  }, [activeCategory, mapSize.height, mapSize.width, visiblePlaces]);
+
   const centerPixels = project(viewport.lat, viewport.lng, viewport.zoom);
-  const worldSize = 2 ** viewport.zoom * TILE_SIZE;
 
   const leftWorld = centerPixels.x - mapSize.width / 2;
   const topWorld = centerPixels.y - mapSize.height / 2;
@@ -132,7 +201,7 @@ function MapPage() {
       const wrappedX = ((tx % (2 ** viewport.zoom)) + 2 ** viewport.zoom) % (2 ** viewport.zoom);
       tiles.push({
         key: `${viewport.zoom}-${tx}-${ty}`,
-        src: `https://tile.openstreetmap.org/${viewport.zoom}/${wrappedX}/${ty}.png`,
+        src: `https://a.basemaps.cartocdn.com/light_nolabels/${viewport.zoom}/${wrappedX}/${ty}.png`,
         x: tx * TILE_SIZE - leftWorld,
         y: ty * TILE_SIZE - topWorld,
       });
@@ -311,8 +380,8 @@ function MapPage() {
 
           <div className="map-attribution">
             <span>Use wheel to zoom and drag to pan.</span>
-            <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">
-              © OpenStreetMap contributors
+            <a href="https://carto.com/attributions" target="_blank" rel="noreferrer">
+              {CARTO_TILE_ATTRIBUTION}
             </a>
           </div>
         </div>
