@@ -4,6 +4,10 @@ import { defaultMapCategory, mapCategories, portoGuidePlaces } from '../data/por
 const TILE_SIZE = 256;
 const MIN_ZOOM = 11;
 const MAX_ZOOM = 17;
+const CLUSTER_MAX_DISTANCE_KM = 1.2;
+const CLUSTER_MIN_SIZE = 3;
+const CLUSTER_MAX_SIZE = 6;
+const CLUSTER_REVEAL_ZOOM = 15;
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
@@ -34,6 +38,72 @@ function normalizeInstagramHandle(handle) {
   return handle.replace('@', '').trim();
 }
 
+function getDistanceKm(a, b) {
+  const earthRadiusKm = 6371;
+  const dLat = ((b.lat - a.lat) * Math.PI) / 180;
+  const dLng = ((b.lng - a.lng) * Math.PI) / 180;
+  const lat1 = (a.lat * Math.PI) / 180;
+  const lat2 = (b.lat * Math.PI) / 180;
+
+  const haversine =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
+
+  return 2 * earthRadiusKm * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
+}
+
+function buildFeaturedClusters(featuredPlaces) {
+  const usedPlaceIds = new Set();
+  const clusters = [];
+
+  for (const seed of featuredPlaces) {
+    if (usedPlaceIds.has(seed.id)) {
+      continue;
+    }
+
+    const nearby = featuredPlaces
+      .filter((candidate) => !usedPlaceIds.has(candidate.id) && candidate.id !== seed.id)
+      .map((candidate) => ({
+        place: candidate,
+        distance: getDistanceKm(seed, candidate),
+      }))
+      .filter((entry) => entry.distance <= CLUSTER_MAX_DISTANCE_KM)
+      .sort((a, b) => a.distance - b.distance)
+      .map((entry) => entry.place);
+
+    const nextClusterPlaces = [seed, ...nearby].slice(0, CLUSTER_MAX_SIZE);
+    if (nextClusterPlaces.length < CLUSTER_MIN_SIZE) {
+      continue;
+    }
+
+    nextClusterPlaces.forEach((place) => usedPlaceIds.add(place.id));
+    const clusterLat = nextClusterPlaces.reduce((sum, place) => sum + place.lat, 0) / nextClusterPlaces.length;
+    const clusterLng = nextClusterPlaces.reduce((sum, place) => sum + place.lng, 0) / nextClusterPlaces.length;
+
+    clusters.push({
+      id: `cluster-${clusters.length + 1}`,
+      placeIds: nextClusterPlaces.map((place) => place.id),
+      places: nextClusterPlaces,
+      lat: clusterLat,
+      lng: clusterLng,
+    });
+  }
+
+  return {
+    clusters,
+    clusteredPlaceIds: usedPlaceIds,
+  };
+}
+
+function createPlaceholderImage(placeName) {
+  const label = encodeURIComponent((placeName ?? 'Porto').slice(0, 26));
+  return `https://placehold.co/260x170/e9e5dc/495451?text=${label}`;
+}
+
+function resolvePlaceImage(place) {
+  return place.image || createPlaceholderImage(place.name);
+}
+
 function MapPage() {
   const [activeCategory, setActiveCategory] = React.useState(defaultMapCategory);
   const [selectedPlaceId, setSelectedPlaceId] = React.useState(() => {
@@ -42,6 +112,7 @@ function MapPage() {
   });
   const [viewport, setViewport] = React.useState({ lat: 41.1496, lng: -8.6109, zoom: 13 });
   const [mapSize, setMapSize] = React.useState({ width: 0, height: 0 });
+  const [expandedClusterIds, setExpandedClusterIds] = React.useState([]);
 
   const mapViewportRef = React.useRef(null);
   const dragStateRef = React.useRef({ isDragging: false, startX: 0, startY: 0, centerPx: null });
@@ -63,6 +134,42 @@ function MapPage() {
     return placesByCategory[activeCategory] ?? [];
   }, [activeCategory, featuredPlaces, placesByCategory]);
 
+  const featuredClusterData = React.useMemo(() => {
+    const visibleFeaturedPlaces = visiblePlaces.filter((place) => place.featured);
+    return buildFeaturedClusters(visibleFeaturedPlaces);
+  }, [visiblePlaces]);
+
+  const clusterCards = React.useMemo(() => {
+    return featuredClusterData.clusters
+      .filter((cluster) => viewport.zoom < CLUSTER_REVEAL_ZOOM && !expandedClusterIds.includes(cluster.id))
+      .map((cluster) => {
+        const pixelPoint = project(cluster.lat, cluster.lng, viewport.zoom);
+        const images = cluster.places.map((place) => resolvePlaceImage(place));
+        const hasRealImage = cluster.places.some((place) => Boolean(place.image));
+        return {
+          ...cluster,
+          x: pixelPoint.x,
+          y: pixelPoint.y,
+          images,
+          hasRealImage,
+        };
+      });
+  }, [expandedClusterIds, featuredClusterData.clusters, viewport.zoom]);
+
+  const hiddenClusteredPlaceIds = React.useMemo(() => {
+    if (viewport.zoom >= CLUSTER_REVEAL_ZOOM) {
+      return new Set();
+    }
+
+    const hiddenIds = new Set();
+    featuredClusterData.clusters.forEach((cluster) => {
+      if (!expandedClusterIds.includes(cluster.id)) {
+        cluster.placeIds.forEach((placeId) => hiddenIds.add(placeId));
+      }
+    });
+    return hiddenIds;
+  }, [expandedClusterIds, featuredClusterData.clusters, viewport.zoom]);
+
   const highlightCardPlaces = React.useMemo(() => featuredPlaces.slice(0, 3), [featuredPlaces]);
   const [highlightCardIndex, setHighlightCardIndex] = React.useState(0);
 
@@ -75,6 +182,16 @@ function MapPage() {
       setSelectedPlaceId(visiblePlaces[0]?.id ?? portoGuidePlaces[0]?.id);
     }
   }, [activeCategory, selectedPlaceId, visiblePlaces]);
+
+  React.useEffect(() => {
+    setExpandedClusterIds([]);
+  }, [activeCategory]);
+
+  React.useEffect(() => {
+    if (viewport.zoom >= CLUSTER_REVEAL_ZOOM && expandedClusterIds.length) {
+      setExpandedClusterIds([]);
+    }
+  }, [expandedClusterIds.length, viewport.zoom]);
 
   React.useEffect(() => {
     if (!selectedPlace) {
@@ -112,7 +229,6 @@ function MapPage() {
   }, []);
 
   const centerPixels = project(viewport.lat, viewport.lng, viewport.zoom);
-  const worldSize = 2 ** viewport.zoom * TILE_SIZE;
 
   const leftWorld = centerPixels.x - mapSize.width / 2;
   const topWorld = centerPixels.y - mapSize.height / 2;
@@ -139,14 +255,22 @@ function MapPage() {
     }
   }
 
-  const mapMarkers = visiblePlaces.map((place) => {
-    const pixelPoint = project(place.lat, place.lng, viewport.zoom);
-    return {
-      ...place,
-      x: pixelPoint.x - leftWorld,
-      y: pixelPoint.y - topWorld,
-    };
-  });
+  const mapMarkers = visiblePlaces
+    .filter((place) => !hiddenClusteredPlaceIds.has(place.id))
+    .map((place) => {
+      const pixelPoint = project(place.lat, place.lng, viewport.zoom);
+      return {
+        ...place,
+        x: pixelPoint.x - leftWorld,
+        y: pixelPoint.y - topWorld,
+      };
+    });
+
+  const positionedClusterCards = clusterCards.map((cluster) => ({
+    ...cluster,
+    x: cluster.x - leftWorld,
+    y: cluster.y - topWorld,
+  }));
 
   const beginDrag = (event) => {
     if (event.button !== 0) {
@@ -205,6 +329,24 @@ function MapPage() {
 
   const showNextHighlight = () => {
     setHighlightCardIndex((current) => (current + 1) % highlightCardPlaces.length);
+  };
+
+  const handleClusterClick = (cluster) => {
+    setExpandedClusterIds((current) => {
+      if (current.includes(cluster.id)) {
+        return current;
+      }
+      return [...current, cluster.id];
+    });
+
+    setViewport((current) => ({
+      ...current,
+      lat: cluster.lat,
+      lng: cluster.lng,
+      zoom: clamp(Math.max(current.zoom + 2, CLUSTER_REVEAL_ZOOM), MIN_ZOOM, MAX_ZOOM),
+    }));
+
+    setSelectedPlaceId(cluster.placeIds[0] ?? selectedPlaceId);
   };
 
   return (
@@ -281,6 +423,31 @@ function MapPage() {
               title={marker.name}
               aria-label={marker.name}
             />
+          ))}
+
+          {positionedClusterCards.map((cluster) => (
+            <button
+              key={cluster.id}
+              type="button"
+              className={`map-cluster-card ${cluster.hasRealImage ? '' : 'is-fallback'}`}
+              style={{ transform: `translate(${cluster.x}px, ${cluster.y}px)` }}
+              onClick={() => handleClusterClick(cluster)}
+              title={`${cluster.places.length} featured places`}
+              aria-label={`${cluster.places.length} featured places in this area. Click to zoom in.`}
+            >
+              {cluster.hasRealImage ? (
+                <>
+                  <span className="map-cluster-card__count">{cluster.places.length}</span>
+                  <div className="map-cluster-card__images" aria-hidden="true">
+                    <img src={cluster.images[1] ?? cluster.images[0]} alt="" loading="lazy" className="is-secondary-left" />
+                    <img src={cluster.images[0]} alt="" loading="lazy" className="is-primary" />
+                    <img src={cluster.images[2] ?? cluster.images[0]} alt="" loading="lazy" className="is-secondary-right" />
+                  </div>
+                </>
+              ) : (
+                <span className="map-cluster-card__fallback-dot" aria-hidden="true" />
+              )}
+            </button>
           ))}
 
           {activeHighlight ? (
