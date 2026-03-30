@@ -8,6 +8,7 @@ const MAX_ZOOM = 17;
 const DEFAULT_TRANSITION_MS = 420;
 const MOBILE_BREAKPOINT_QUERY = '(max-width: 980px)';
 const MOBILE_SELECTED_PLACE_ZOOM = 15;
+const MOBILE_CATEGORY_PADDING = { x: 24, y: 28 };
 
 const CATEGORY_VIEWPORT_CONFIG = {
   'Classic Porto': {
@@ -174,6 +175,7 @@ function MapPage() {
   const animationFrameRef = React.useRef(null);
   const suppressSelectionRecenteringRef = React.useRef(false);
   const selectionSourceRef = React.useRef('initial');
+  const mobileMarkerFocusLockRef = React.useRef(false);
 
   const placesByCategory = React.useMemo(() => {
     return mapCategories.reduce((accumulator, category) => {
@@ -268,6 +270,9 @@ function MapPage() {
     if (!mapSize.width || !mapSize.height || !visiblePlaces.length) {
       return;
     }
+    if (isMobileLayout && mobileMarkerFocusLockRef.current) {
+      return;
+    }
 
     const categoryConfig = CATEGORY_VIEWPORT_CONFIG[activeCategory] ?? null;
     const relevantPlaces = visiblePlaces;
@@ -275,8 +280,8 @@ function MapPage() {
     const bounds = categoryConfig?.bounds ?? computeBoundsFromPlaces(relevantPlaces);
     const categoryTargetZoom = categoryConfig?.targetZoom ?? MIN_ZOOM;
     const nextViewport = fitBoundsToViewport(bounds, mapSize, {
-      paddingX: isMobileLayout ? 44 : mapSize.width > 1200 ? 140 : 96,
-      paddingY: isMobileLayout ? 52 : mapSize.height > 800 ? 120 : 90,
+      paddingX: isMobileLayout ? MOBILE_CATEGORY_PADDING.x : mapSize.width > 1200 ? 140 : 96,
+      paddingY: isMobileLayout ? MOBILE_CATEGORY_PADDING.y : mapSize.height > 800 ? 120 : 90,
       targetZoom: isMobileLayout ? Math.min(categoryTargetZoom + 1, MAX_ZOOM - 1) : categoryConfig?.targetZoom,
     });
 
@@ -294,10 +299,48 @@ function MapPage() {
   }, [activeCategory, animateViewportTo, isMobileLayout, mapSize.height, mapSize.width, visiblePlaces]);
 
   React.useEffect(() => {
+    if (!isMobileLayout || !selectedPlace) {
+      return;
+    }
+    if (selectionSourceRef.current !== 'marker') {
+      return;
+    }
+
+    mobileMarkerFocusLockRef.current = true;
+    suppressSelectionRecenteringRef.current = true;
+
+    animateViewportTo(
+      {
+        lat: selectedPlace.lat,
+        lng: selectedPlace.lng,
+        zoom: MOBILE_SELECTED_PLACE_ZOOM,
+      },
+      280
+    );
+
+    const releaseSuppressTimer = window.setTimeout(() => {
+      suppressSelectionRecenteringRef.current = false;
+    }, 320);
+
+    selectionSourceRef.current = 'initial';
+
+    return () => {
+      window.clearTimeout(releaseSuppressTimer);
+    };
+  }, [animateViewportTo, isMobileLayout, selectedPlace]);
+
+  React.useEffect(() => {
+    mobileMarkerFocusLockRef.current = false;
+  }, [activeCategory]);
+
+  React.useEffect(() => {
     if (!selectedPlace || !mapSize.width || !mapSize.height) {
       return;
     }
     if (suppressSelectionRecenteringRef.current) {
+      return;
+    }
+    if (isMobileLayout && mobileMarkerFocusLockRef.current) {
       return;
     }
 
@@ -316,12 +359,20 @@ function MapPage() {
       const nextCenterWorldX = markerWorld.x - (desiredX - mapSize.width / 2);
       const nextCenterWorldY = markerWorld.y - (desiredY - mapSize.height / 2);
       const nextCenter = unproject(nextCenterWorldX, nextCenterWorldY, viewport.zoom);
+      const centerDeltaLat = Math.abs(nextCenter.lat - viewport.lat);
+      const centerDeltaLng = Math.abs(nextCenter.lng - viewport.lng);
+      const nextZoom = Math.max(viewport.zoom, isMobileLayout ? MOBILE_SELECTED_PLACE_ZOOM : 13);
+      const zoomDelta = Math.abs(nextZoom - viewport.zoom);
+
+      if (centerDeltaLat < 0.00002 && centerDeltaLng < 0.00002 && zoomDelta < 0.01) {
+        return;
+      }
 
       animateViewportTo(
         {
           lat: nextCenter.lat,
           lng: nextCenter.lng,
-          zoom: Math.max(viewport.zoom, isMobileLayout ? MOBILE_SELECTED_PLACE_ZOOM : 13),
+          zoom: nextZoom,
         },
         320
       );
