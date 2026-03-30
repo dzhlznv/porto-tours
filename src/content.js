@@ -172,6 +172,14 @@ export const pageContent = {
       'Looking back, we couldn’t have been more fortunate to meet on our very first evening in Porto.',
     author: '— Patrick, Germany'
   },
+  whyIDoThis: {
+    label: 'About',
+    title: 'Why I do this',
+    paragraphs: [
+      'I started this not as a business, but as something I genuinely enjoy. Walking around Porto, discovering places, and sharing them with someone new feels like a perfect day to me.',
+      'It’s less about a “tour” and more about spending time together, seeing the city through a local perspective, and having a day that feels real, easy, and memorable.'
+    ]
+  },
   waitlistTrust: [
     'Limited to 12 carefully curated days per year.',
     'I reply personally within 48 hours.'

@@ -399,6 +399,22 @@ h1 {
   color: var(--ink-soft);
 }
 
+.why-i-do-this-copy {
+  max-width: 64ch;
+}
+
+.why-i-do-this-label {
+  margin-bottom: 0.65rem !important;
+}
+
+.why-i-do-this-paragraph {
+  line-height: 1.7;
+}
+
+.why-i-do-this-paragraph + .why-i-do-this-paragraph {
+  margin-top: 0.9rem !important;
+}
+
 @media (hover: hover) {
   .includes-card:hover {
     transform: translateY(-2px);

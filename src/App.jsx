@@ -484,6 +484,17 @@ function App() {
           </div>
         </Section>
 
+        <Section title={pageContent.whyIDoThis.title} id="why-i-do-this">
+          <div className="why-i-do-this-copy">
+            <p className="eyebrow why-i-do-this-label">{pageContent.whyIDoThis.label}</p>
+            {pageContent.whyIDoThis.paragraphs.map((paragraph) => (
+              <p key={paragraph} className="why-i-do-this-paragraph">
+                {paragraph}
+              </p>
+            ))}
+          </div>
+        </Section>
+
         <Section title="Join the waitlist" id="join">
           <p className="waitlist-trust-note">No spam. I’ll only reach out when new dates open.</p>
           <WaitlistForm />
