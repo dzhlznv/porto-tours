@@ -164,8 +164,11 @@ function MapPage() {
   const [mapSize, setMapSize] = React.useState({ width: 0, height: 0 });
 
   const mapViewportRef = React.useRef(null);
+  const viewportRef = React.useRef(viewport);
   const dragStateRef = React.useRef({ isDragging: false, startX: 0, startY: 0, centerPx: null });
   const animationFrameRef = React.useRef(null);
+  const hasInitialCategoryFrameRef = React.useRef(false);
+  const lastFramedCategoryRef = React.useRef(null);
 
   const placesByCategory = React.useMemo(() => {
     return mapCategories.reduce((accumulator, category) => {
@@ -191,6 +194,10 @@ function MapPage() {
     return portoGuidePlaces.find((place) => place.id === selectedPlaceId) ?? visiblePlaces[0] ?? portoGuidePlaces[0];
   }, [selectedPlaceId, visiblePlaces]);
 
+  React.useEffect(() => {
+    viewportRef.current = viewport;
+  }, [viewport]);
+
   const animateViewportTo = React.useCallback((target, duration = DEFAULT_TRANSITION_MS) => {
     if (!target) {
       return;
@@ -201,7 +208,7 @@ function MapPage() {
     }
 
     const start = performance.now();
-    const from = viewport;
+    const from = viewportRef.current;
     const to = {
       lat: clamp(target.lat, -85, 85),
       lng: target.lng,
@@ -230,7 +237,7 @@ function MapPage() {
     };
 
     animationFrameRef.current = requestAnimationFrame(tick);
-  }, [viewport]);
+  }, []);
 
   React.useEffect(() => {
     return () => {
@@ -251,6 +258,12 @@ function MapPage() {
       return;
     }
 
+    const isInitialFrame = !hasInitialCategoryFrameRef.current;
+    const isCategoryTransition = lastFramedCategoryRef.current !== activeCategory;
+    if (!isInitialFrame && !isCategoryTransition) {
+      return;
+    }
+
     const categoryConfig = CATEGORY_VIEWPORT_CONFIG[activeCategory] ?? null;
     const relevantPlaces =
       activeCategory === 'Highlights' ? visiblePlaces.filter((place) => place.featured).slice(0, 8) : visiblePlaces;
@@ -263,6 +276,8 @@ function MapPage() {
     });
 
     animateViewportTo(nextViewport, 460);
+    hasInitialCategoryFrameRef.current = true;
+    lastFramedCategoryRef.current = activeCategory;
   }, [activeCategory, animateViewportTo, mapSize.height, mapSize.width, visiblePlaces]);
 
   React.useEffect(() => {
@@ -270,32 +285,37 @@ function MapPage() {
       return;
     }
 
-    const markerWorld = project(selectedPlace.lat, selectedPlace.lng, viewport.zoom);
-    const centerWorld = project(viewport.lat, viewport.lng, viewport.zoom);
+    if (dragStateRef.current.isDragging) {
+      return;
+    }
+
+    const currentViewport = viewportRef.current;
+    const markerWorld = project(selectedPlace.lat, selectedPlace.lng, currentViewport.zoom);
+    const centerWorld = project(currentViewport.lat, currentViewport.lng, currentViewport.zoom);
     const selectedScreenX = markerWorld.x - centerWorld.x + mapSize.width / 2;
     const selectedScreenY = markerWorld.y - centerWorld.y + mapSize.height / 2;
 
     const desiredX = mapSize.width * 0.58;
     const desiredY = mapSize.height * 0.52;
 
-    const nearEdgeX = selectedScreenX < mapSize.width * 0.18 || selectedScreenX > mapSize.width * 0.88;
-    const nearEdgeY = selectedScreenY < mapSize.height * 0.16 || selectedScreenY > mapSize.height * 0.86;
+    const isVisibleX = selectedScreenX >= mapSize.width * 0.22 && selectedScreenX <= mapSize.width * 0.82;
+    const isVisibleY = selectedScreenY >= mapSize.height * 0.2 && selectedScreenY <= mapSize.height * 0.84;
 
-    if (nearEdgeX || nearEdgeY) {
+    if (!isVisibleX || !isVisibleY) {
       const nextCenterWorldX = markerWorld.x - (desiredX - mapSize.width / 2);
       const nextCenterWorldY = markerWorld.y - (desiredY - mapSize.height / 2);
-      const nextCenter = unproject(nextCenterWorldX, nextCenterWorldY, viewport.zoom);
+      const nextCenter = unproject(nextCenterWorldX, nextCenterWorldY, currentViewport.zoom);
 
       animateViewportTo(
         {
           lat: nextCenter.lat,
           lng: nextCenter.lng,
-          zoom: Math.max(viewport.zoom, 13),
+          zoom: Math.max(currentViewport.zoom, 13),
         },
         320
       );
     }
-  }, [animateViewportTo, mapSize.height, mapSize.width, selectedPlace, viewport.lat, viewport.lng, viewport.zoom]);
+  }, [animateViewportTo, mapSize.height, mapSize.width, selectedPlace]);
 
   React.useEffect(() => {
     if (!highlightCardPlaces.length) {
