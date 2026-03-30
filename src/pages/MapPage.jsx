@@ -160,7 +160,7 @@ function MapPage() {
     const featuredInCategory = portoGuidePlaces.find((place) => place.category === defaultMapCategory && place.featured);
     return featuredInCategory?.id ?? portoGuidePlaces[0]?.id;
   });
-  const [viewport, setViewport] = React.useState({ lat: 41.1463, lng: -8.6138, zoom: 13 });
+  const [viewport, setViewport] = React.useState({ lat: 41.15, lng: -8.61, zoom: 13 });
   const [mapSize, setMapSize] = React.useState({ width: 0, height: 0 });
 
   const mapViewportRef = React.useRef(null);
@@ -183,9 +183,6 @@ function MapPage() {
 
     return placesByCategory[activeCategory] ?? [];
   }, [activeCategory, featuredPlaces, placesByCategory]);
-
-  const highlightCardPlaces = React.useMemo(() => featuredPlaces.slice(0, 3), [featuredPlaces]);
-  const [highlightCardIndex, setHighlightCardIndex] = React.useState(0);
 
   const selectedPlace = React.useMemo(() => {
     return portoGuidePlaces.find((place) => place.id === selectedPlaceId) ?? visiblePlaces[0] ?? portoGuidePlaces[0];
@@ -298,17 +295,6 @@ function MapPage() {
   }, [animateViewportTo, mapSize.height, mapSize.width, selectedPlace, viewport.lat, viewport.lng, viewport.zoom]);
 
   React.useEffect(() => {
-    if (!highlightCardPlaces.length) {
-      return;
-    }
-
-    const clampedIndex = clamp(highlightCardIndex, 0, highlightCardPlaces.length - 1);
-    if (clampedIndex !== highlightCardIndex) {
-      setHighlightCardIndex(clampedIndex);
-    }
-  }, [highlightCardIndex, highlightCardPlaces]);
-
-  React.useEffect(() => {
     const node = mapViewportRef.current;
     if (!node) {
       return undefined;
@@ -419,16 +405,6 @@ function MapPage() {
     setViewport((current) => ({ ...current, zoom: clamp(current.zoom + zoomDelta, MIN_ZOOM, MAX_ZOOM) }));
   };
 
-  const activeHighlight = highlightCardPlaces[highlightCardIndex] ?? null;
-
-  const showPreviousHighlight = () => {
-    setHighlightCardIndex((current) => (current - 1 + highlightCardPlaces.length) % highlightCardPlaces.length);
-  };
-
-  const showNextHighlight = () => {
-    setHighlightCardIndex((current) => (current + 1) % highlightCardPlaces.length);
-  };
-
   return (
     <main className="map-page" aria-label="Porto2You curated guide map">
       <aside className="map-sidebar">
@@ -510,29 +486,23 @@ function MapPage() {
             </button>
           ))}
 
-          {activeHighlight ? (
-            <article className="map-highlights-card" aria-live="polite">
-              <div>
-                <p className="eyebrow">Featured · {highlightCardIndex + 1}/{highlightCardPlaces.length}</p>
-                <h3>{activeHighlight.name}</h3>
-                <p>{activeHighlight.description}</p>
-                <p className="map-highlights-card__category">{activeHighlight.category}</p>
-              </div>
-              <div className="map-highlights-card__actions">
-                <button type="button" onClick={showPreviousHighlight} aria-label="Show previous featured place">
-                  ←
-                </button>
-                <button
-                  type="button"
-                  className="map-highlights-card__focus"
-                  onClick={() => setSelectedPlaceId(activeHighlight.id)}
+          {selectedPlace ? (
+            <article className="map-details-panel" aria-live="polite">
+              <p className="eyebrow">{selectedPlace.category}</p>
+              <h2>{selectedPlace.name}</h2>
+              <p className="map-details-panel__area">{selectedPlace.area}</p>
+              <p>{selectedPlace.description}</p>
+              {selectedPlace.notes ? <p className="map-details-panel__notes">{selectedPlace.notes}</p> : null}
+              {selectedPlace.instagram ? (
+                <a
+                  className="map-details-panel__instagram"
+                  href={`https://instagram.com/${normalizeInstagramHandle(selectedPlace.instagram)}`}
+                  target="_blank"
+                  rel="noreferrer"
                 >
-                  View on map
-                </button>
-                <button type="button" onClick={showNextHighlight} aria-label="Show next featured place">
-                  →
-                </button>
-              </div>
+                  @{normalizeInstagramHandle(selectedPlace.instagram)}
+                </a>
+              ) : null}
             </article>
           ) : null}
 
@@ -544,29 +514,6 @@ function MapPage() {
           </div>
         </div>
 
-        {selectedPlace ? (
-          <article className="map-place-card" aria-live="polite">
-            <p className="eyebrow">{selectedPlace.category}</p>
-            <h2>{selectedPlace.name}</h2>
-            <p className="map-place-card__area">{selectedPlace.area}</p>
-            <p>{selectedPlace.description}</p>
-            <p className="map-place-card__notes">{selectedPlace.notes}</p>
-            <div className="map-place-card__meta">
-              <span>
-                {selectedPlace.lat.toFixed(4)}, {selectedPlace.lng.toFixed(4)}
-              </span>
-              {selectedPlace.instagram ? (
-                <a
-                  href={`https://instagram.com/${normalizeInstagramHandle(selectedPlace.instagram)}`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  @{normalizeInstagramHandle(selectedPlace.instagram)}
-                </a>
-              ) : null}
-            </div>
-          </article>
-        ) : null}
       </section>
     </main>
   );
