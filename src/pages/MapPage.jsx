@@ -2,7 +2,11 @@ import React from 'react';
 import { defaultMapCategory, mapCategories, portoGuidePlaces } from '../data/portoGuide';
 
 const TILE_SIZE = 256;
-const TILE_PROVIDER_URL = 'https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png';
+const MAPBOX_STYLE_ID = 'mapbox/light-v11';
+const MAPBOX_TOKEN =
+  import.meta.env.VITE_MAPBOX_TOKEN ??
+  (typeof process !== 'undefined' ? process.env.REACT_APP_MAPBOX_TOKEN : undefined) ??
+  '';
 const MIN_ZOOM = 11;
 const MAX_ZOOM = 17;
 const DEFAULT_TRANSITION_MS = 420;
@@ -307,6 +311,7 @@ function MapPage() {
   const zoomLevel = Math.round(viewport.zoom);
   const maxTileIndex = 2 ** zoomLevel;
   const tiles = [];
+  const retinaSuffix = typeof window !== 'undefined' && window.devicePixelRatio > 1 ? '@2x' : '';
 
   for (let tx = minTileX; tx <= maxTileX; tx += 1) {
     for (let ty = minTileY; ty <= maxTileY; ty += 1) {
@@ -315,9 +320,11 @@ function MapPage() {
       }
 
       const wrappedX = ((tx % maxTileIndex) + maxTileIndex) % maxTileIndex;
+      const tileSrc = `https://api.mapbox.com/styles/v1/${MAPBOX_STYLE_ID}/tiles/${zoomLevel}/${wrappedX}/${ty}${retinaSuffix}?access_token=${MAPBOX_TOKEN}`;
+
       tiles.push({
         key: `${zoomLevel}-${tx}-${ty}`,
-        src: TILE_PROVIDER_URL.replace('{z}', zoomLevel).replace('{x}', wrappedX).replace('{y}', ty),
+        src: tileSrc,
         x: tx * TILE_SIZE - leftWorld,
         y: ty * TILE_SIZE - topWorld,
       });
@@ -490,8 +497,8 @@ function MapPage() {
 
           <div className="map-attribution">
             <span>Use wheel to zoom and drag to pan.</span>
-            <a href="https://carto.com/attributions" target="_blank" rel="noreferrer">
-              © OpenStreetMap contributors © CARTO
+            <a href="https://www.mapbox.com/about/maps/" target="_blank" rel="noreferrer">
+              © Mapbox © OpenStreetMap
             </a>
           </div>
         </div>
