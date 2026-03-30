@@ -157,6 +157,7 @@ function MapPage() {
   const mapViewportRef = React.useRef(null);
   const dragStateRef = React.useRef({ isDragging: false, startX: 0, startY: 0, centerPx: null });
   const animationFrameRef = React.useRef(null);
+  const suppressSelectionRecenteringRef = React.useRef(false);
 
   const placesByCategory = React.useMemo(() => {
     return mapCategories.reduce((accumulator, category) => {
@@ -189,6 +190,11 @@ function MapPage() {
       lng: target.lng,
       zoom: clamp(Math.round(target.zoom), MIN_ZOOM, MAX_ZOOM),
     };
+
+    if (duration <= 0) {
+      setViewport(to);
+      return;
+    }
 
     if (from.zoom !== to.zoom) {
       setViewport((current) => ({ ...current, zoom: to.zoom }));
@@ -243,11 +249,24 @@ function MapPage() {
       targetZoom: categoryConfig?.targetZoom,
     });
 
-    animateViewportTo(nextViewport, 460);
+    suppressSelectionRecenteringRef.current = true;
+    animateViewportTo(nextViewport, 0);
+
+    const releaseSuppressTimer = window.setTimeout(() => {
+      suppressSelectionRecenteringRef.current = false;
+    }, 0);
+
+    return () => {
+      window.clearTimeout(releaseSuppressTimer);
+      suppressSelectionRecenteringRef.current = false;
+    };
   }, [activeCategory, animateViewportTo, mapSize.height, mapSize.width, visiblePlaces]);
 
   React.useEffect(() => {
     if (!selectedPlace || !mapSize.width || !mapSize.height) {
+      return;
+    }
+    if (suppressSelectionRecenteringRef.current) {
       return;
     }
 
