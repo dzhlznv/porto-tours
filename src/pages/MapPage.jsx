@@ -5,6 +5,11 @@ const TILE_SIZE = 256;
 const MIN_ZOOM = 11;
 const MAX_ZOOM = 17;
 const DEFAULT_TRANSITION_MS = 420;
+const PORTO_CENTER = { lat: 41.15, lng: -8.61 };
+const FALLBACK_VIEWPORT = { ...PORTO_CENTER, zoom: 12 };
+const SINGLE_PLACE_ZOOM = 15;
+const MAX_BOUNDS_LAT_SPAN = 0.11;
+const MAX_BOUNDS_LNG_SPAN = 0.16;
 
 const CATEGORY_VIEWPORT_CONFIG = {
   Highlights: {
@@ -121,9 +126,35 @@ function computeBoundsFromPlaces(places) {
   );
 }
 
+function isValidCoordinate(value, min, max) {
+  return Number.isFinite(value) && value >= min && value <= max;
+}
+
+function isValidPlaceCoordinate(place) {
+  return isValidCoordinate(place?.lat, -90, 90) && isValidCoordinate(place?.lng, -180, 180);
+}
+
+function clampBoundsToPorto(bounds) {
+  if (!bounds) {
+    return null;
+  }
+
+  const centerLat = (bounds.north + bounds.south) / 2;
+  const centerLng = (bounds.east + bounds.west) / 2;
+  const latHalfSpan = Math.min((bounds.north - bounds.south) / 2, MAX_BOUNDS_LAT_SPAN / 2);
+  const lngHalfSpan = Math.min((bounds.east - bounds.west) / 2, MAX_BOUNDS_LNG_SPAN / 2);
+
+  return {
+    north: centerLat + latHalfSpan,
+    south: centerLat - latHalfSpan,
+    east: centerLng + lngHalfSpan,
+    west: centerLng - lngHalfSpan,
+  };
+}
+
 function fitBoundsToViewport(bounds, mapSize, options = {}) {
   if (!bounds) {
-    return { lat: 41.1458, lng: -8.6139, zoom: 13 };
+    return FALLBACK_VIEWPORT;
   }
 
   const paddingX = options.paddingX ?? 72;
@@ -150,7 +181,7 @@ function fitBoundsToViewport(bounds, mapSize, options = {}) {
   return {
     lat,
     lng,
-    zoom: clamp(options.targetZoom ?? bestZoom, MIN_ZOOM, MAX_ZOOM),
+    zoom: clamp(options.targetZoom ?? bestZoom, options.minZoom ?? MIN_ZOOM, MAX_ZOOM),
   };
 }
 
@@ -166,6 +197,9 @@ function MapPage() {
   const mapViewportRef = React.useRef(null);
   const dragStateRef = React.useRef({ isDragging: false, startX: 0, startY: 0, centerPx: null });
   const animationFrameRef = React.useRef(null);
+  const viewportRef = React.useRef(viewport);
+  const lastViewportKeyRef = React.useRef('');
+  const skipCategoryViewportUntilRef = React.useRef(0);
 
   const placesByCategory = React.useMemo(() => {
     return mapCategories.reduce((accumulator, category) => {
@@ -183,6 +217,15 @@ function MapPage() {
 
     return placesByCategory[activeCategory] ?? [];
   }, [activeCategory, featuredPlaces, placesByCategory]);
+  const validVisiblePlaces = React.useMemo(
+    () => visiblePlaces.filter((place) => isValidPlaceCoordinate(place)),
+    [visiblePlaces]
+  );
+
+  const viewportBounds = React.useMemo(() => {
+    const rawBounds = computeBoundsFromPlaces(validVisiblePlaces);
+    return clampBoundsToPorto(rawBounds);
+  }, [validVisiblePlaces]);
 
   const highlightCardPlaces = React.useMemo(() => featuredPlaces.slice(0, 3), [featuredPlaces]);
   const [highlightCardIndex, setHighlightCardIndex] = React.useState(0);
@@ -201,7 +244,7 @@ function MapPage() {
     }
 
     const start = performance.now();
-    const from = viewport;
+    const from = viewportRef.current;
     const to = {
       lat: clamp(target.lat, -85, 85),
       lng: target.lng,
@@ -230,6 +273,10 @@ function MapPage() {
     };
 
     animationFrameRef.current = requestAnimationFrame(tick);
+  }, []);
+
+  React.useEffect(() => {
+    viewportRef.current = viewport;
   }, [viewport]);
 
   React.useEffect(() => {
@@ -247,23 +294,31 @@ function MapPage() {
   }, [activeCategory, selectedPlaceId, visiblePlaces]);
 
   React.useEffect(() => {
-    if (!mapSize.width || !mapSize.height || !visiblePlaces.length) {
+    if (!mapSize.width || !mapSize.height || performance.now() < skipCategoryViewportUntilRef.current) {
       return;
     }
 
-    const categoryConfig = CATEGORY_VIEWPORT_CONFIG[activeCategory] ?? null;
-    const relevantPlaces =
-      activeCategory === 'Highlights' ? visiblePlaces.filter((place) => place.featured).slice(0, 8) : visiblePlaces;
+    const placeIds = validVisiblePlaces.map((place) => place.id).join(',');
+    const viewportKey = `${activeCategory}|${placeIds}|${mapSize.width}x${mapSize.height}`;
+    if (viewportKey === lastViewportKeyRef.current) {
+      return;
+    }
+    lastViewportKeyRef.current = viewportKey;
 
-    const bounds = categoryConfig?.bounds ?? computeBoundsFromPlaces(relevantPlaces);
-    const nextViewport = fitBoundsToViewport(bounds, mapSize, {
-      paddingX: mapSize.width > 1200 ? 140 : 96,
-      paddingY: mapSize.height > 800 ? 120 : 90,
-      targetZoom: categoryConfig?.targetZoom,
-    });
+    let nextViewport = FALLBACK_VIEWPORT;
+    if (validVisiblePlaces.length === 1) {
+      const onlyPlace = validVisiblePlaces[0];
+      nextViewport = { lat: onlyPlace.lat, lng: onlyPlace.lng, zoom: SINGLE_PLACE_ZOOM };
+    } else if (validVisiblePlaces.length > 1 && viewportBounds) {
+      nextViewport = fitBoundsToViewport(viewportBounds, mapSize, {
+        paddingX: mapSize.width > 1200 ? 128 : 92,
+        paddingY: mapSize.height > 800 ? 110 : 84,
+        minZoom: 12,
+      });
+    }
 
     animateViewportTo(nextViewport, 460);
-  }, [activeCategory, animateViewportTo, mapSize.height, mapSize.width, visiblePlaces]);
+  }, [activeCategory, animateViewportTo, mapSize.height, mapSize.width, validVisiblePlaces, viewportBounds]);
 
   React.useEffect(() => {
     if (!selectedPlace || !mapSize.width || !mapSize.height) {
@@ -429,6 +484,27 @@ function MapPage() {
     setHighlightCardIndex((current) => (current + 1) % highlightCardPlaces.length);
   };
 
+  const handleSelectPlace = React.useCallback(
+    (placeId) => {
+      setSelectedPlaceId(placeId);
+      const targetPlace = visiblePlaces.find((place) => place.id === placeId);
+      if (!targetPlace || !isValidPlaceCoordinate(targetPlace)) {
+        return;
+      }
+
+      skipCategoryViewportUntilRef.current = performance.now() + 750;
+      animateViewportTo(
+        {
+          lat: targetPlace.lat,
+          lng: targetPlace.lng,
+          zoom: Math.max(SINGLE_PLACE_ZOOM - 1, viewportRef.current.zoom),
+        },
+        360
+      );
+    },
+    [animateViewportTo, visiblePlaces]
+  );
+
   return (
     <main className="map-page" aria-label="Porto2You curated guide map">
       <aside className="map-sidebar">
@@ -446,7 +522,10 @@ function MapPage() {
                 key={category}
                 type="button"
                 className={`map-category-chip ${activeCategory === category ? 'is-active' : ''}`}
-                onClick={() => setActiveCategory(category)}
+                onClick={() => {
+                  lastViewportKeyRef.current = '';
+                  setActiveCategory(category);
+                }}
               >
                 <span>{category}</span>
                 <small>{categoryCount}</small>
@@ -462,7 +541,7 @@ function MapPage() {
               key={place.id}
               type="button"
               className={`map-place-row ${selectedPlace?.id === place.id ? 'is-selected' : ''}`}
-              onClick={() => setSelectedPlaceId(place.id)}
+              onClick={() => handleSelectPlace(place.id)}
             >
               <strong>{place.name}</strong>
               <span>{place.area}</span>
@@ -501,7 +580,7 @@ function MapPage() {
                 selectedPlace?.id === marker.id ? 'is-selected' : ''
               }`}
               style={{ transform: `translate(${marker.x}px, ${marker.y}px)` }}
-              onClick={() => setSelectedPlaceId(marker.id)}
+              onClick={() => handleSelectPlace(marker.id)}
               title={marker.name}
               aria-label={marker.name}
             >
@@ -522,11 +601,11 @@ function MapPage() {
                 <button type="button" onClick={showPreviousHighlight} aria-label="Show previous featured place">
                   ←
                 </button>
-                <button
-                  type="button"
-                  className="map-highlights-card__focus"
-                  onClick={() => setSelectedPlaceId(activeHighlight.id)}
-                >
+                  <button
+                    type="button"
+                    className="map-highlights-card__focus"
+                    onClick={() => handleSelectPlace(activeHighlight.id)}
+                  >
                   View on map
                 </button>
                 <button type="button" onClick={showNextHighlight} aria-label="Show next featured place">
