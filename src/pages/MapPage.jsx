@@ -4,9 +4,75 @@ import { defaultMapCategory, mapCategories, portoGuidePlaces } from '../data/por
 const TILE_SIZE = 256;
 const MIN_ZOOM = 11;
 const MAX_ZOOM = 17;
+const DEFAULT_TRANSITION_MS = 420;
+
+const CATEGORY_VIEWPORT_CONFIG = {
+  Highlights: {
+    bounds: {
+      north: 41.168,
+      south: 41.127,
+      west: -8.648,
+      east: -8.584,
+    },
+    targetZoom: 13,
+  },
+  'Classic Porto': {
+    bounds: {
+      north: 41.1538,
+      south: 41.1368,
+      west: -8.6205,
+      east: -8.6002,
+    },
+    targetZoom: 14,
+  },
+  Gaia: {
+    bounds: {
+      north: 41.1495,
+      south: 41.121,
+      west: -8.671,
+      east: -8.596,
+    },
+    targetZoom: 13,
+  },
+  'Beaches & Ocean': {
+    bounds: {
+      north: 41.193,
+      south: 41.116,
+      west: -8.709,
+      east: -8.645,
+    },
+    targetZoom: 12,
+  },
+  Parks: {
+    bounds: {
+      north: 41.186,
+      south: 41.132,
+      west: -8.688,
+      east: -8.567,
+    },
+    targetZoom: 12,
+  },
+};
+
+const CATEGORY_MARKER_TONES = {
+  Highlights: 'marker-sage',
+  'Classic Porto': 'marker-clay',
+  Gaia: 'marker-indigo',
+  'Beaches & Ocean': 'marker-ocean',
+  Parks: 'marker-green',
+  'Breakfast & Brunch': 'marker-sand',
+  Coffee: 'marker-umber',
+  'Food & Wine': 'marker-wine',
+  'Street Food': 'marker-apricot',
+  Shopping: 'marker-slate',
+};
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
+}
+
+function easeOutCubic(progress) {
+  return 1 - (1 - progress) ** 3;
 }
 
 function project(lat, lng, zoom) {
@@ -34,17 +100,72 @@ function normalizeInstagramHandle(handle) {
   return handle.replace('@', '').trim();
 }
 
+function computeBoundsFromPlaces(places) {
+  if (!places.length) {
+    return null;
+  }
+
+  return places.reduce(
+    (accumulator, place) => ({
+      north: Math.max(accumulator.north, place.lat),
+      south: Math.min(accumulator.south, place.lat),
+      east: Math.max(accumulator.east, place.lng),
+      west: Math.min(accumulator.west, place.lng),
+    }),
+    {
+      north: -90,
+      south: 90,
+      east: -180,
+      west: 180,
+    }
+  );
+}
+
+function fitBoundsToViewport(bounds, mapSize, options = {}) {
+  if (!bounds) {
+    return { lat: 41.1458, lng: -8.6139, zoom: 13 };
+  }
+
+  const paddingX = options.paddingX ?? 72;
+  const paddingY = options.paddingY ?? 72;
+  const safeWidth = Math.max((mapSize.width || 1200) - paddingX * 2, 220);
+  const safeHeight = Math.max((mapSize.height || 800) - paddingY * 2, 220);
+
+  let bestZoom = MIN_ZOOM;
+  for (let zoom = MAX_ZOOM; zoom >= MIN_ZOOM; zoom -= 1) {
+    const northWest = project(bounds.north, bounds.west, zoom);
+    const southEast = project(bounds.south, bounds.east, zoom);
+    const width = Math.abs(southEast.x - northWest.x);
+    const height = Math.abs(southEast.y - northWest.y);
+
+    if (width <= safeWidth && height <= safeHeight) {
+      bestZoom = zoom;
+      break;
+    }
+  }
+
+  const lat = (bounds.north + bounds.south) / 2;
+  const lng = (bounds.east + bounds.west) / 2;
+
+  return {
+    lat,
+    lng,
+    zoom: clamp(options.targetZoom ?? bestZoom, MIN_ZOOM, MAX_ZOOM),
+  };
+}
+
 function MapPage() {
   const [activeCategory, setActiveCategory] = React.useState(defaultMapCategory);
   const [selectedPlaceId, setSelectedPlaceId] = React.useState(() => {
     const featuredInCategory = portoGuidePlaces.find((place) => place.category === defaultMapCategory && place.featured);
     return featuredInCategory?.id ?? portoGuidePlaces[0]?.id;
   });
-  const [viewport, setViewport] = React.useState({ lat: 41.1496, lng: -8.6109, zoom: 13 });
+  const [viewport, setViewport] = React.useState({ lat: 41.1463, lng: -8.6138, zoom: 13 });
   const [mapSize, setMapSize] = React.useState({ width: 0, height: 0 });
 
   const mapViewportRef = React.useRef(null);
   const dragStateRef = React.useRef({ isDragging: false, startX: 0, startY: 0, centerPx: null });
+  const animationFrameRef = React.useRef(null);
 
   const placesByCategory = React.useMemo(() => {
     return mapCategories.reduce((accumulator, category) => {
@@ -70,6 +191,55 @@ function MapPage() {
     return portoGuidePlaces.find((place) => place.id === selectedPlaceId) ?? visiblePlaces[0] ?? portoGuidePlaces[0];
   }, [selectedPlaceId, visiblePlaces]);
 
+  const animateViewportTo = React.useCallback((target, duration = DEFAULT_TRANSITION_MS) => {
+    if (!target) {
+      return;
+    }
+
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+    }
+
+    const start = performance.now();
+    const from = viewport;
+    const to = {
+      lat: clamp(target.lat, -85, 85),
+      lng: target.lng,
+      zoom: clamp(Math.round(target.zoom), MIN_ZOOM, MAX_ZOOM),
+    };
+
+    if (from.zoom !== to.zoom) {
+      setViewport((current) => ({ ...current, zoom: to.zoom }));
+    }
+
+    const tick = (now) => {
+      const progress = clamp((now - start) / duration, 0, 1);
+      const eased = easeOutCubic(progress);
+
+      setViewport({
+        lat: from.lat + (to.lat - from.lat) * eased,
+        lng: from.lng + (to.lng - from.lng) * eased,
+        zoom: to.zoom,
+      });
+
+      if (progress < 1) {
+        animationFrameRef.current = requestAnimationFrame(tick);
+      } else {
+        animationFrameRef.current = null;
+      }
+    };
+
+    animationFrameRef.current = requestAnimationFrame(tick);
+  }, [viewport]);
+
+  React.useEffect(() => {
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, []);
+
   React.useEffect(() => {
     if (!visiblePlaces.some((place) => place.id === selectedPlaceId)) {
       setSelectedPlaceId(visiblePlaces[0]?.id ?? portoGuidePlaces[0]?.id);
@@ -77,12 +247,55 @@ function MapPage() {
   }, [activeCategory, selectedPlaceId, visiblePlaces]);
 
   React.useEffect(() => {
-    if (!selectedPlace) {
+    if (!mapSize.width || !mapSize.height || !visiblePlaces.length) {
       return;
     }
 
-    setViewport((current) => ({ ...current, lat: selectedPlace.lat, lng: selectedPlace.lng }));
-  }, [selectedPlace?.id]);
+    const categoryConfig = CATEGORY_VIEWPORT_CONFIG[activeCategory] ?? null;
+    const relevantPlaces =
+      activeCategory === 'Highlights' ? visiblePlaces.filter((place) => place.featured).slice(0, 8) : visiblePlaces;
+
+    const bounds = categoryConfig?.bounds ?? computeBoundsFromPlaces(relevantPlaces);
+    const nextViewport = fitBoundsToViewport(bounds, mapSize, {
+      paddingX: mapSize.width > 1200 ? 140 : 96,
+      paddingY: mapSize.height > 800 ? 120 : 90,
+      targetZoom: categoryConfig?.targetZoom,
+    });
+
+    animateViewportTo(nextViewport, 460);
+  }, [activeCategory, animateViewportTo, mapSize.height, mapSize.width, visiblePlaces]);
+
+  React.useEffect(() => {
+    if (!selectedPlace || !mapSize.width || !mapSize.height) {
+      return;
+    }
+
+    const markerWorld = project(selectedPlace.lat, selectedPlace.lng, viewport.zoom);
+    const centerWorld = project(viewport.lat, viewport.lng, viewport.zoom);
+    const selectedScreenX = markerWorld.x - centerWorld.x + mapSize.width / 2;
+    const selectedScreenY = markerWorld.y - centerWorld.y + mapSize.height / 2;
+
+    const desiredX = mapSize.width * 0.58;
+    const desiredY = mapSize.height * 0.52;
+
+    const nearEdgeX = selectedScreenX < mapSize.width * 0.18 || selectedScreenX > mapSize.width * 0.88;
+    const nearEdgeY = selectedScreenY < mapSize.height * 0.16 || selectedScreenY > mapSize.height * 0.86;
+
+    if (nearEdgeX || nearEdgeY) {
+      const nextCenterWorldX = markerWorld.x - (desiredX - mapSize.width / 2);
+      const nextCenterWorldY = markerWorld.y - (desiredY - mapSize.height / 2);
+      const nextCenter = unproject(nextCenterWorldX, nextCenterWorldY, viewport.zoom);
+
+      animateViewportTo(
+        {
+          lat: nextCenter.lat,
+          lng: nextCenter.lng,
+          zoom: Math.max(viewport.zoom, 13),
+        },
+        320
+      );
+    }
+  }, [animateViewportTo, mapSize.height, mapSize.width, selectedPlace, viewport.lat, viewport.lng, viewport.zoom]);
 
   React.useEffect(() => {
     if (!highlightCardPlaces.length) {
@@ -112,7 +325,6 @@ function MapPage() {
   }, []);
 
   const centerPixels = project(viewport.lat, viewport.lng, viewport.zoom);
-  const worldSize = 2 ** viewport.zoom * TILE_SIZE;
 
   const leftWorld = centerPixels.x - mapSize.width / 2;
   const topWorld = centerPixels.y - mapSize.height / 2;
@@ -122,27 +334,32 @@ function MapPage() {
   const minTileY = Math.floor(topWorld / TILE_SIZE);
   const maxTileY = Math.floor((topWorld + mapSize.height) / TILE_SIZE);
 
+  const zoomLevel = Math.round(viewport.zoom);
+  const maxTileIndex = 2 ** zoomLevel;
   const tiles = [];
+
   for (let tx = minTileX; tx <= maxTileX; tx += 1) {
     for (let ty = minTileY; ty <= maxTileY; ty += 1) {
-      if (ty < 0 || ty >= 2 ** viewport.zoom) {
+      if (ty < 0 || ty >= maxTileIndex) {
         continue;
       }
 
-      const wrappedX = ((tx % (2 ** viewport.zoom)) + 2 ** viewport.zoom) % (2 ** viewport.zoom);
+      const wrappedX = ((tx % maxTileIndex) + maxTileIndex) % maxTileIndex;
       tiles.push({
-        key: `${viewport.zoom}-${tx}-${ty}`,
-        src: `https://tile.openstreetmap.org/${viewport.zoom}/${wrappedX}/${ty}.png`,
+        key: `${zoomLevel}-${tx}-${ty}`,
+        src: `https://tile.openstreetmap.org/${zoomLevel}/${wrappedX}/${ty}.png`,
         x: tx * TILE_SIZE - leftWorld,
         y: ty * TILE_SIZE - topWorld,
       });
     }
   }
 
+  const markerTone = CATEGORY_MARKER_TONES[activeCategory] ?? 'marker-sage';
   const mapMarkers = visiblePlaces.map((place) => {
     const pixelPoint = project(place.lat, place.lng, viewport.zoom);
     return {
       ...place,
+      markerTone: CATEGORY_MARKER_TONES[place.category] ?? markerTone,
       x: pixelPoint.x - leftWorld,
       y: pixelPoint.y - topWorld,
     };
@@ -151,6 +368,11 @@ function MapPage() {
   const beginDrag = (event) => {
     if (event.button !== 0) {
       return;
+    }
+
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
     }
 
     event.preventDefault();
@@ -269,18 +491,23 @@ function MapPage() {
             />
           ))}
 
+          <div className="map-surface-wash" aria-hidden="true" />
+
           {mapMarkers.map((marker) => (
             <button
               key={marker.id}
               type="button"
-              className={`map-marker ${marker.featured ? 'is-featured' : ''} ${
+              className={`map-marker ${marker.markerTone} ${marker.featured ? 'is-featured' : ''} ${
                 selectedPlace?.id === marker.id ? 'is-selected' : ''
               }`}
               style={{ transform: `translate(${marker.x}px, ${marker.y}px)` }}
               onClick={() => setSelectedPlaceId(marker.id)}
               title={marker.name}
               aria-label={marker.name}
-            />
+            >
+              <span className="map-marker__pulse" />
+              <span className="map-marker__core" />
+            </button>
           ))}
 
           {activeHighlight ? (
