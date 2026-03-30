@@ -2,7 +2,7 @@ import React from 'react';
 import { defaultMapCategory, mapCategories, portoGuidePlaces } from '../data/portoGuide';
 
 const TILE_SIZE = 256;
-const TILE_PROVIDER_URL = 'https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png';
+const TILE_PROVIDER_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 const MIN_ZOOM = 11;
 const MAX_ZOOM = 17;
 const DEFAULT_TRANSITION_MS = 420;
@@ -448,8 +448,6 @@ function MapPage() {
               style={{ transform: `translate(${tile.x}px, ${tile.y}px)` }}
             />
           ))}
-
-          <div className="map-surface-wash" aria-hidden="true" />
 
           {mapMarkers.map((marker) => (
             <button

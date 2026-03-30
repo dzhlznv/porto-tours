@@ -1004,21 +1004,6 @@ h1 {
   top: 0;
   user-select: none;
   pointer-events: none;
-  filter: brightness(1.07) contrast(0.88) saturate(0.74) hue-rotate(6deg);
-}
-
-.leaflet-tile {
-  filter: brightness(1.07) contrast(0.88) saturate(0.74) hue-rotate(6deg);
-}
-
-.map-surface-wash {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(circle at 64% 30%, rgba(214, 231, 245, 0.2) 0%, rgba(214, 231, 245, 0) 48%),
-    linear-gradient(170deg, rgba(251, 252, 253, 0.42) 0%, rgba(247, 249, 251, 0.22) 34%, rgba(240, 246, 250, 0.32) 100%);
-  z-index: 1;
 }
 
 .map-marker {
