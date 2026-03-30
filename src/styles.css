@@ -1000,14 +1000,17 @@ h1 {
   top: 0;
   user-select: none;
   pointer-events: none;
-  filter: saturate(0.78) contrast(0.93) brightness(1.04);
+  filter: saturate(0.38) contrast(0.89) brightness(1.11) grayscale(0.18);
 }
 
 .map-surface-wash {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(170deg, rgba(247, 247, 246, 0.43) 0%, rgba(244, 244, 242, 0.24) 36%, rgba(237, 239, 241, 0.36) 100%);
+  background:
+    linear-gradient(160deg, rgba(252, 251, 249, 0.46) 0%, rgba(247, 247, 245, 0.24) 44%, rgba(240, 242, 243, 0.34) 100%),
+    radial-gradient(circle at 22% 18%, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 56%);
+  mix-blend-mode: screen;
   z-index: 1;
 }
 
@@ -1145,6 +1148,7 @@ h1 {
   z-index: 2;
   display: grid;
   gap: 0.6rem;
+  min-height: 178px;
 }
 
 .map-highlights-card h3 {
@@ -1157,10 +1161,20 @@ h1 {
   font-size: 0.82rem;
 }
 
+.map-highlights-card__description {
+  min-height: 2.7rem;
+  color: color-mix(in srgb, var(--ink) 90%, var(--ink-soft));
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 .map-highlights-card__category {
   margin-top: 0.28rem !important;
   color: var(--ink-soft);
   font-size: 0.75rem !important;
+  min-height: 1rem;
 }
 
 .map-highlights-card__actions {
