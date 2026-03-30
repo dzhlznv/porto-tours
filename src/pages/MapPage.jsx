@@ -4,55 +4,7 @@ import { defaultMapCategory, mapCategories, portoGuidePlaces } from '../data/por
 const TILE_SIZE = 256;
 const MIN_ZOOM = 11;
 const MAX_ZOOM = 17;
-const DEFAULT_TRANSITION_MS = 420;
-
-const CATEGORY_VIEWPORT_CONFIG = {
-  Highlights: {
-    bounds: {
-      north: 41.168,
-      south: 41.127,
-      west: -8.648,
-      east: -8.584,
-    },
-    targetZoom: 13,
-  },
-  'Classic Porto': {
-    bounds: {
-      north: 41.1538,
-      south: 41.1368,
-      west: -8.6205,
-      east: -8.6002,
-    },
-    targetZoom: 14,
-  },
-  Gaia: {
-    bounds: {
-      north: 41.1495,
-      south: 41.121,
-      west: -8.671,
-      east: -8.596,
-    },
-    targetZoom: 13,
-  },
-  'Beaches & Ocean': {
-    bounds: {
-      north: 41.193,
-      south: 41.116,
-      west: -8.709,
-      east: -8.645,
-    },
-    targetZoom: 12,
-  },
-  Parks: {
-    bounds: {
-      north: 41.186,
-      south: 41.132,
-      west: -8.688,
-      east: -8.567,
-    },
-    targetZoom: 12,
-  },
-};
+const DEFAULT_VIEW = { lat: 41.15, lng: -8.61, zoom: 12 };
 
 const CATEGORY_MARKER_TONES = {
   Highlights: 'marker-sage',
@@ -69,10 +21,6 @@ const CATEGORY_MARKER_TONES = {
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
-}
-
-function easeOutCubic(progress) {
-  return 1 - (1 - progress) ** 3;
 }
 
 function project(lat, lng, zoom) {
@@ -100,12 +48,24 @@ function normalizeInstagramHandle(handle) {
   return handle.replace('@', '').trim();
 }
 
+function hasValidCoordinates(place) {
+  return (
+    Number.isFinite(place?.lat) &&
+    Number.isFinite(place?.lng) &&
+    place.lat >= -90 &&
+    place.lat <= 90 &&
+    place.lng >= -180 &&
+    place.lng <= 180
+  );
+}
+
 function computeBoundsFromPlaces(places) {
-  if (!places.length) {
+  const validPlaces = places.filter(hasValidCoordinates);
+  if (!validPlaces.length) {
     return null;
   }
 
-  return places.reduce(
+  return validPlaces.reduce(
     (accumulator, place) => ({
       north: Math.max(accumulator.north, place.lat),
       south: Math.min(accumulator.south, place.lat),
@@ -121,37 +81,19 @@ function computeBoundsFromPlaces(places) {
   );
 }
 
-function fitBoundsToViewport(bounds, mapSize, options = {}) {
-  if (!bounds) {
-    return { lat: 41.1458, lng: -8.6139, zoom: 13 };
-  }
+function isCenterClose(current, target) {
+  const threshold = 0.0002;
+  return Math.abs(current.lat - target.lat) < threshold && Math.abs(current.lng - target.lng) < threshold;
+}
 
-  const paddingX = options.paddingX ?? 72;
-  const paddingY = options.paddingY ?? 72;
-  const safeWidth = Math.max((mapSize.width || 1200) - paddingX * 2, 220);
-  const safeHeight = Math.max((mapSize.height || 800) - paddingY * 2, 220);
-
-  let bestZoom = MIN_ZOOM;
-  for (let zoom = MAX_ZOOM; zoom >= MIN_ZOOM; zoom -= 1) {
-    const northWest = project(bounds.north, bounds.west, zoom);
-    const southEast = project(bounds.south, bounds.east, zoom);
-    const width = Math.abs(southEast.x - northWest.x);
-    const height = Math.abs(southEast.y - northWest.y);
-
-    if (width <= safeWidth && height <= safeHeight) {
-      bestZoom = zoom;
-      break;
-    }
-  }
-
-  const lat = (bounds.north + bounds.south) / 2;
-  const lng = (bounds.east + bounds.west) / 2;
-
-  return {
-    lat,
-    lng,
-    zoom: clamp(options.targetZoom ?? bestZoom, MIN_ZOOM, MAX_ZOOM),
-  };
+function zoomFromBounds(bounds) {
+  const latSpan = Math.abs(bounds.north - bounds.south);
+  const lngSpan = Math.abs(bounds.east - bounds.west);
+  const span = Math.max(latSpan, lngSpan);
+  if (span > 0.09) return 12;
+  if (span > 0.04) return 13;
+  if (span > 0.015) return 14;
+  return 15;
 }
 
 function MapPage() {
@@ -160,12 +102,12 @@ function MapPage() {
     const featuredInCategory = portoGuidePlaces.find((place) => place.category === defaultMapCategory && place.featured);
     return featuredInCategory?.id ?? portoGuidePlaces[0]?.id;
   });
-  const [viewport, setViewport] = React.useState({ lat: 41.1463, lng: -8.6138, zoom: 13 });
+  const [viewport, setViewport] = React.useState(DEFAULT_VIEW);
   const [mapSize, setMapSize] = React.useState({ width: 0, height: 0 });
+  const boundsAppliedCategoryRef = React.useRef(null);
 
   const mapViewportRef = React.useRef(null);
   const dragStateRef = React.useRef({ isDragging: false, startX: 0, startY: 0, centerPx: null });
-  const animationFrameRef = React.useRef(null);
 
   const placesByCategory = React.useMemo(() => {
     return mapCategories.reduce((accumulator, category) => {
@@ -191,111 +133,34 @@ function MapPage() {
     return portoGuidePlaces.find((place) => place.id === selectedPlaceId) ?? visiblePlaces[0] ?? portoGuidePlaces[0];
   }, [selectedPlaceId, visiblePlaces]);
 
-  const animateViewportTo = React.useCallback((target, duration = DEFAULT_TRANSITION_MS) => {
-    if (!target) {
+  const setView = React.useCallback((target, zoom) => {
+    if (!target || !Number.isFinite(target[0]) || !Number.isFinite(target[1])) {
       return;
     }
-
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current);
+    const next = { lat: clamp(target[0], -85, 85), lng: target[1], zoom: clamp(zoom, MIN_ZOOM, MAX_ZOOM) };
+    if (isCenterClose(viewport, next) && viewport.zoom === next.zoom) {
+      return;
     }
-
-    const start = performance.now();
-    const from = viewport;
-    const to = {
-      lat: clamp(target.lat, -85, 85),
-      lng: target.lng,
-      zoom: clamp(Math.round(target.zoom), MIN_ZOOM, MAX_ZOOM),
-    };
-
-    if (from.zoom !== to.zoom) {
-      setViewport((current) => ({ ...current, zoom: to.zoom }));
-    }
-
-    const tick = (now) => {
-      const progress = clamp((now - start) / duration, 0, 1);
-      const eased = easeOutCubic(progress);
-
-      setViewport({
-        lat: from.lat + (to.lat - from.lat) * eased,
-        lng: from.lng + (to.lng - from.lng) * eased,
-        zoom: to.zoom,
-      });
-
-      if (progress < 1) {
-        animationFrameRef.current = requestAnimationFrame(tick);
-      } else {
-        animationFrameRef.current = null;
-      }
-    };
-
-    animationFrameRef.current = requestAnimationFrame(tick);
+    setViewport(next);
   }, [viewport]);
 
-  React.useEffect(() => {
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    };
-  }, []);
+  const fitBounds = React.useCallback((places, category) => {
+    const bounds = computeBoundsFromPlaces(places);
+    if (!bounds) {
+      setView([DEFAULT_VIEW.lat, DEFAULT_VIEW.lng], DEFAULT_VIEW.zoom);
+      boundsAppliedCategoryRef.current = category;
+      return;
+    }
+    const target = [(bounds.north + bounds.south) / 2, (bounds.east + bounds.west) / 2];
+    setView(target, zoomFromBounds(bounds));
+    boundsAppliedCategoryRef.current = category;
+  }, [setView]);
 
   React.useEffect(() => {
     if (!visiblePlaces.some((place) => place.id === selectedPlaceId)) {
       setSelectedPlaceId(visiblePlaces[0]?.id ?? portoGuidePlaces[0]?.id);
     }
   }, [activeCategory, selectedPlaceId, visiblePlaces]);
-
-  React.useEffect(() => {
-    if (!mapSize.width || !mapSize.height || !visiblePlaces.length) {
-      return;
-    }
-
-    const categoryConfig = CATEGORY_VIEWPORT_CONFIG[activeCategory] ?? null;
-    const relevantPlaces =
-      activeCategory === 'Highlights' ? visiblePlaces.filter((place) => place.featured).slice(0, 8) : visiblePlaces;
-
-    const bounds = categoryConfig?.bounds ?? computeBoundsFromPlaces(relevantPlaces);
-    const nextViewport = fitBoundsToViewport(bounds, mapSize, {
-      paddingX: mapSize.width > 1200 ? 140 : 96,
-      paddingY: mapSize.height > 800 ? 120 : 90,
-      targetZoom: categoryConfig?.targetZoom,
-    });
-
-    animateViewportTo(nextViewport, 460);
-  }, [activeCategory, animateViewportTo, mapSize.height, mapSize.width, visiblePlaces]);
-
-  React.useEffect(() => {
-    if (!selectedPlace || !mapSize.width || !mapSize.height) {
-      return;
-    }
-
-    const markerWorld = project(selectedPlace.lat, selectedPlace.lng, viewport.zoom);
-    const centerWorld = project(viewport.lat, viewport.lng, viewport.zoom);
-    const selectedScreenX = markerWorld.x - centerWorld.x + mapSize.width / 2;
-    const selectedScreenY = markerWorld.y - centerWorld.y + mapSize.height / 2;
-
-    const desiredX = mapSize.width * 0.58;
-    const desiredY = mapSize.height * 0.52;
-
-    const nearEdgeX = selectedScreenX < mapSize.width * 0.18 || selectedScreenX > mapSize.width * 0.88;
-    const nearEdgeY = selectedScreenY < mapSize.height * 0.16 || selectedScreenY > mapSize.height * 0.86;
-
-    if (nearEdgeX || nearEdgeY) {
-      const nextCenterWorldX = markerWorld.x - (desiredX - mapSize.width / 2);
-      const nextCenterWorldY = markerWorld.y - (desiredY - mapSize.height / 2);
-      const nextCenter = unproject(nextCenterWorldX, nextCenterWorldY, viewport.zoom);
-
-      animateViewportTo(
-        {
-          lat: nextCenter.lat,
-          lng: nextCenter.lng,
-          zoom: Math.max(viewport.zoom, 13),
-        },
-        320
-      );
-    }
-  }, [animateViewportTo, mapSize.height, mapSize.width, selectedPlace, viewport.lat, viewport.lng, viewport.zoom]);
 
   React.useEffect(() => {
     if (!highlightCardPlaces.length) {
@@ -355,7 +220,7 @@ function MapPage() {
   }
 
   const markerTone = CATEGORY_MARKER_TONES[activeCategory] ?? 'marker-sage';
-  const mapMarkers = visiblePlaces.map((place) => {
+  const mapMarkers = visiblePlaces.filter(hasValidCoordinates).map((place) => {
     const pixelPoint = project(place.lat, place.lng, viewport.zoom);
     return {
       ...place,
@@ -368,11 +233,6 @@ function MapPage() {
   const beginDrag = (event) => {
     if (event.button !== 0) {
       return;
-    }
-
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current);
-      animationFrameRef.current = null;
     }
 
     event.preventDefault();
@@ -421,6 +281,25 @@ function MapPage() {
 
   const activeHighlight = highlightCardPlaces[highlightCardIndex] ?? null;
 
+  const handleCategoryChange = (category) => {
+    setActiveCategory(category);
+    setSelectedPlaceId(null);
+    const nextPlaces = (category === 'Highlights'
+      ? portoGuidePlaces.filter((place) => place.featured)
+      : portoGuidePlaces.filter((place) => place.category === category)
+    ).filter(hasValidCoordinates);
+    fitBounds(nextPlaces, category);
+  };
+
+  const handlePlaceSelection = (placeId) => {
+    const nextPlace = portoGuidePlaces.find((place) => place.id === placeId);
+    if (!nextPlace || !hasValidCoordinates(nextPlace)) {
+      return;
+    }
+    setSelectedPlaceId(placeId);
+    setView([nextPlace.lat, nextPlace.lng], 15);
+  };
+
   const showPreviousHighlight = () => {
     setHighlightCardIndex((current) => (current - 1 + highlightCardPlaces.length) % highlightCardPlaces.length);
   };
@@ -446,7 +325,7 @@ function MapPage() {
                 key={category}
                 type="button"
                 className={`map-category-chip ${activeCategory === category ? 'is-active' : ''}`}
-                onClick={() => setActiveCategory(category)}
+                onClick={() => handleCategoryChange(category)}
               >
                 <span>{category}</span>
                 <small>{categoryCount}</small>
@@ -462,7 +341,7 @@ function MapPage() {
               key={place.id}
               type="button"
               className={`map-place-row ${selectedPlace?.id === place.id ? 'is-selected' : ''}`}
-              onClick={() => setSelectedPlaceId(place.id)}
+              onClick={() => handlePlaceSelection(place.id)}
             >
               <strong>{place.name}</strong>
               <span>{place.area}</span>
@@ -501,7 +380,7 @@ function MapPage() {
                 selectedPlace?.id === marker.id ? 'is-selected' : ''
               }`}
               style={{ transform: `translate(${marker.x}px, ${marker.y}px)` }}
-              onClick={() => setSelectedPlaceId(marker.id)}
+              onClick={() => handlePlaceSelection(marker.id)}
               title={marker.name}
               aria-label={marker.name}
             >
@@ -525,7 +404,7 @@ function MapPage() {
                 <button
                   type="button"
                   className="map-highlights-card__focus"
-                  onClick={() => setSelectedPlaceId(activeHighlight.id)}
+                  onClick={() => handlePlaceSelection(activeHighlight.id)}
                 >
                   View on map
                 </button>
