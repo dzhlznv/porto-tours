@@ -173,6 +173,7 @@ function MapPage() {
   });
   const animationFrameRef = React.useRef(null);
   const suppressSelectionRecenteringRef = React.useRef(false);
+  const selectionSourceRef = React.useRef('initial');
 
   const placesByCategory = React.useMemo(() => {
     return mapCategories.reduce((accumulator, category) => {
@@ -348,6 +349,11 @@ function MapPage() {
       return;
     }
 
+    if (isMobileLayout && selectionSourceRef.current === 'marker') {
+      selectionSourceRef.current = 'initial';
+      return;
+    }
+
     const selectedRow = mapPlaceRowRefs.current.get(selectedPlaceId);
     if (!selectedRow) {
       return;
@@ -358,6 +364,8 @@ function MapPage() {
       block: isMobileLayout ? 'center' : 'nearest',
       inline: 'nearest',
     });
+
+    selectionSourceRef.current = 'initial';
   }, [isMobileLayout, selectedPlaceId]);
 
   const centerPixels = project(viewport.lat, viewport.lng, viewport.zoom);
@@ -582,6 +590,7 @@ function MapPage() {
               }}
               className={`map-place-row ${selectedPlace?.id === place.id ? 'is-selected' : ''}`}
               onClick={() => {
+                selectionSourceRef.current = 'list';
                 setSelectedPlaceId(place.id);
                 setIsDetailsOpen(true);
               }}
@@ -625,6 +634,7 @@ function MapPage() {
               }`}
               style={{ transform: `translate(${marker.x}px, ${marker.y}px)` }}
               onClick={() => {
+                selectionSourceRef.current = 'marker';
                 setSelectedPlaceId(marker.id);
                 setIsDetailsOpen(true);
               }}
