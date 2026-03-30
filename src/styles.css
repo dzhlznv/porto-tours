@@ -948,13 +948,14 @@ h1 {
 
 .map-place-row {
   border: 1px solid var(--line);
-  background: white;
+  background: color-mix(in srgb, white 90%, var(--paper-elevated));
   border-radius: 10px;
   text-align: left;
   padding: 0.5rem 0.6rem;
   display: grid;
   gap: 0.15rem;
   cursor: pointer;
+  transition: border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
 }
 
 .map-place-row strong {
@@ -968,8 +969,10 @@ h1 {
 }
 
 .map-place-row.is-selected {
-  border-color: var(--accent);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, white);
+  border-color: color-mix(in srgb, var(--accent) 72%, white);
+  background: color-mix(in srgb, var(--accent) 14%, white);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 48%, white), 0 8px 18px rgba(34, 49, 46, 0.08);
+  transform: translateX(1px);
 }
 
 .map-canvas-panel {
@@ -984,7 +987,7 @@ h1 {
   overflow: hidden;
   border-radius: 18px;
   border: 1px solid var(--line);
-  background: #d7e2eb;
+  background: #edf0ef;
   cursor: grab;
 }
 
@@ -1000,14 +1003,16 @@ h1 {
   top: 0;
   user-select: none;
   pointer-events: none;
-  filter: saturate(0.78) contrast(0.93) brightness(1.04);
+  filter: saturate(0.2) contrast(0.82) brightness(1.2);
 }
 
 .map-surface-wash {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(170deg, rgba(247, 247, 246, 0.43) 0%, rgba(244, 244, 242, 0.24) 36%, rgba(237, 239, 241, 0.36) 100%);
+  background:
+    linear-gradient(170deg, rgba(252, 252, 251, 0.7) 0%, rgba(249, 249, 247, 0.55) 36%, rgba(244, 245, 244, 0.64) 100%),
+    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.42), transparent 56%);
   z-index: 1;
 }
 
@@ -1024,6 +1029,7 @@ h1 {
   padding: 0;
   cursor: pointer;
   z-index: 2;
+  transition: transform 220ms ease, opacity 200ms ease;
 }
 
 .map-marker__pulse,
@@ -1035,14 +1041,14 @@ h1 {
 
 .map-marker__pulse {
   border: 1px solid color-mix(in srgb, var(--marker-color) 46%, white);
-  background: color-mix(in srgb, var(--marker-color) 15%, white);
+  background: color-mix(in srgb, var(--marker-color) 20%, white);
   box-shadow: 0 8px 18px rgba(16, 24, 28, 0.14);
 }
 
 .map-marker__core {
   inset: 4px;
   border: 1px solid color-mix(in srgb, var(--marker-color) 66%, white);
-  background: color-mix(in srgb, var(--marker-color) 72%, white);
+  background: color-mix(in srgb, var(--marker-color) 74%, white);
 }
 
 .map-marker.is-featured {
@@ -1053,21 +1059,24 @@ h1 {
 }
 
 .map-marker.is-selected {
-  width: 28px;
-  height: 28px;
-  margin-left: -14px;
-  margin-top: -14px;
+  width: 30px;
+  height: 30px;
+  margin-left: -15px;
+  margin-top: -15px;
+  z-index: 4;
 }
 
 .map-marker.is-selected .map-marker__pulse {
-  border-color: color-mix(in srgb, var(--marker-color) 62%, white);
-  box-shadow: 0 12px 24px rgba(12, 20, 24, 0.26);
+  border-color: color-mix(in srgb, var(--marker-color) 84%, white);
+  background: color-mix(in srgb, var(--marker-color) 34%, white);
+  box-shadow: 0 12px 24px rgba(12, 20, 24, 0.3);
 }
 
 .map-marker.is-selected .map-marker__core {
-  inset: 5px;
-  border-width: 1px;
-  background: color-mix(in srgb, var(--marker-color) 88%, white);
+  inset: 4px;
+  border-width: 2px;
+  border-color: white;
+  background: color-mix(in srgb, var(--marker-color) 93%, white);
 }
 
 .map-marker.marker-sage {
@@ -1140,7 +1149,7 @@ h1 {
   padding: 0.75rem 0.85rem;
   border-radius: 14px;
   border: 1px solid var(--line);
-  background: color-mix(in srgb, var(--paper-elevated) 94%, white);
+  background: color-mix(in srgb, var(--paper-elevated) 97%, white);
   box-shadow: 0 14px 30px rgba(10, 20, 26, 0.14);
   z-index: 2;
   display: grid;
@@ -1182,6 +1191,14 @@ h1 {
 
 .map-highlights-card__actions .map-highlights-card__focus {
   flex: 1;
+  background: color-mix(in srgb, var(--paper-elevated) 90%, white);
+  transition: background-color 180ms ease, border-color 180ms ease;
+}
+
+.map-highlights-card__actions .map-highlights-card__focus:hover,
+.map-highlights-card__actions .map-highlights-card__focus:focus-visible {
+  background: color-mix(in srgb, var(--accent) 12%, white);
+  border-color: color-mix(in srgb, var(--accent) 56%, white);
 }
 
 .map-place-card {
@@ -1189,6 +1206,7 @@ h1 {
   background: var(--paper-elevated);
   border-radius: 16px;
   padding: 0.9rem 1rem;
+  animation: mapCardFadeIn 220ms ease;
 }
 
 .map-place-card h2 {
@@ -1226,6 +1244,17 @@ h1 {
 .map-place-card__meta a {
   color: var(--accent);
   text-decoration: none;
+}
+
+@keyframes mapCardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (max-width: 980px) {

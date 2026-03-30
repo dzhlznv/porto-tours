@@ -5,6 +5,12 @@ const TILE_SIZE = 256;
 const MIN_ZOOM = 11;
 const MAX_ZOOM = 17;
 const DEFAULT_TRANSITION_MS = 420;
+const PAN_COMFORT_ZONE = {
+  left: 0.2,
+  right: 0.8,
+  top: 0.2,
+  bottom: 0.82,
+};
 
 const CATEGORY_VIEWPORT_CONFIG = {
   Highlights: {
@@ -154,6 +160,18 @@ function fitBoundsToViewport(bounds, mapSize, options = {}) {
   };
 }
 
+function shouldAnimateViewport(from, to) {
+  if (!from || !to) {
+    return false;
+  }
+
+  const latDiff = Math.abs(from.lat - to.lat);
+  const lngDiff = Math.abs(from.lng - to.lng);
+  const zoomDiff = Math.abs(from.zoom - to.zoom);
+
+  return latDiff > 0.0008 || lngDiff > 0.0008 || zoomDiff >= 1;
+}
+
 function MapPage() {
   const [activeCategory, setActiveCategory] = React.useState(defaultMapCategory);
   const [selectedPlaceId, setSelectedPlaceId] = React.useState(() => {
@@ -184,12 +202,18 @@ function MapPage() {
     return placesByCategory[activeCategory] ?? [];
   }, [activeCategory, featuredPlaces, placesByCategory]);
 
-  const highlightCardPlaces = React.useMemo(() => featuredPlaces.slice(0, 3), [featuredPlaces]);
-  const [highlightCardIndex, setHighlightCardIndex] = React.useState(0);
-
   const selectedPlace = React.useMemo(() => {
     return portoGuidePlaces.find((place) => place.id === selectedPlaceId) ?? visiblePlaces[0] ?? portoGuidePlaces[0];
   }, [selectedPlaceId, visiblePlaces]);
+
+  const contextualPlace = React.useMemo(() => {
+    if (selectedPlace && visiblePlaces.some((place) => place.id === selectedPlace.id)) {
+      return selectedPlace;
+    }
+
+    const featuredInCategory = visiblePlaces.find((place) => place.featured);
+    return featuredInCategory ?? visiblePlaces[0] ?? null;
+  }, [selectedPlace, visiblePlaces]);
 
   const animateViewportTo = React.useCallback((target, duration = DEFAULT_TRANSITION_MS) => {
     if (!target) {
@@ -262,8 +286,10 @@ function MapPage() {
       targetZoom: categoryConfig?.targetZoom,
     });
 
-    animateViewportTo(nextViewport, 460);
-  }, [activeCategory, animateViewportTo, mapSize.height, mapSize.width, visiblePlaces]);
+    if (shouldAnimateViewport(viewport, nextViewport)) {
+      animateViewportTo(nextViewport, 460);
+    }
+  }, [activeCategory, animateViewportTo, mapSize.height, mapSize.width, viewport, visiblePlaces]);
 
   React.useEffect(() => {
     if (!selectedPlace || !mapSize.width || !mapSize.height) {
@@ -275,38 +301,32 @@ function MapPage() {
     const selectedScreenX = markerWorld.x - centerWorld.x + mapSize.width / 2;
     const selectedScreenY = markerWorld.y - centerWorld.y + mapSize.height / 2;
 
-    const desiredX = mapSize.width * 0.58;
-    const desiredY = mapSize.height * 0.52;
+    const desiredX = mapSize.width * 0.56;
+    const desiredY = mapSize.height * 0.54;
 
-    const nearEdgeX = selectedScreenX < mapSize.width * 0.18 || selectedScreenX > mapSize.width * 0.88;
-    const nearEdgeY = selectedScreenY < mapSize.height * 0.16 || selectedScreenY > mapSize.height * 0.86;
+    const nearEdgeX =
+      selectedScreenX < mapSize.width * PAN_COMFORT_ZONE.left ||
+      selectedScreenX > mapSize.width * PAN_COMFORT_ZONE.right;
+    const nearEdgeY =
+      selectedScreenY < mapSize.height * PAN_COMFORT_ZONE.top ||
+      selectedScreenY > mapSize.height * PAN_COMFORT_ZONE.bottom;
 
     if (nearEdgeX || nearEdgeY) {
       const nextCenterWorldX = markerWorld.x - (desiredX - mapSize.width / 2);
       const nextCenterWorldY = markerWorld.y - (desiredY - mapSize.height / 2);
       const nextCenter = unproject(nextCenterWorldX, nextCenterWorldY, viewport.zoom);
 
-      animateViewportTo(
-        {
-          lat: nextCenter.lat,
-          lng: nextCenter.lng,
-          zoom: Math.max(viewport.zoom, 13),
-        },
-        320
-      );
+      const nextViewport = {
+        lat: nextCenter.lat,
+        lng: nextCenter.lng,
+        zoom: Math.max(viewport.zoom, 13),
+      };
+
+      if (shouldAnimateViewport(viewport, nextViewport)) {
+        animateViewportTo(nextViewport, 320);
+      }
     }
   }, [animateViewportTo, mapSize.height, mapSize.width, selectedPlace, viewport.lat, viewport.lng, viewport.zoom]);
-
-  React.useEffect(() => {
-    if (!highlightCardPlaces.length) {
-      return;
-    }
-
-    const clampedIndex = clamp(highlightCardIndex, 0, highlightCardPlaces.length - 1);
-    if (clampedIndex !== highlightCardIndex) {
-      setHighlightCardIndex(clampedIndex);
-    }
-  }, [highlightCardIndex, highlightCardPlaces]);
 
   React.useEffect(() => {
     const node = mapViewportRef.current;
@@ -419,16 +439,6 @@ function MapPage() {
     setViewport((current) => ({ ...current, zoom: clamp(current.zoom + zoomDelta, MIN_ZOOM, MAX_ZOOM) }));
   };
 
-  const activeHighlight = highlightCardPlaces[highlightCardIndex] ?? null;
-
-  const showPreviousHighlight = () => {
-    setHighlightCardIndex((current) => (current - 1 + highlightCardPlaces.length) % highlightCardPlaces.length);
-  };
-
-  const showNextHighlight = () => {
-    setHighlightCardIndex((current) => (current + 1) % highlightCardPlaces.length);
-  };
-
   return (
     <main className="map-page" aria-label="Porto2You curated guide map">
       <aside className="map-sidebar">
@@ -510,27 +520,19 @@ function MapPage() {
             </button>
           ))}
 
-          {activeHighlight ? (
+          {contextualPlace ? (
             <article className="map-highlights-card" aria-live="polite">
               <div>
-                <p className="eyebrow">Featured · {highlightCardIndex + 1}/{highlightCardPlaces.length}</p>
-                <h3>{activeHighlight.name}</h3>
-                <p>{activeHighlight.description}</p>
-                <p className="map-highlights-card__category">{activeHighlight.category}</p>
+                <p className="eyebrow">{selectedPlace?.id === contextualPlace.id ? 'Selected place' : 'Category focus'}</p>
+                <h3>{contextualPlace.name}</h3>
+                <p>{contextualPlace.description}</p>
+                <p className="map-highlights-card__category">
+                  {contextualPlace.category} · {contextualPlace.area}
+                </p>
               </div>
               <div className="map-highlights-card__actions">
-                <button type="button" onClick={showPreviousHighlight} aria-label="Show previous featured place">
-                  ←
-                </button>
-                <button
-                  type="button"
-                  className="map-highlights-card__focus"
-                  onClick={() => setSelectedPlaceId(activeHighlight.id)}
-                >
+                <button type="button" className="map-highlights-card__focus" onClick={() => setSelectedPlaceId(contextualPlace.id)}>
                   View on map
-                </button>
-                <button type="button" onClick={showNextHighlight} aria-label="Show next featured place">
-                  →
                 </button>
               </div>
             </article>
@@ -545,7 +547,7 @@ function MapPage() {
         </div>
 
         {selectedPlace ? (
-          <article className="map-place-card" aria-live="polite">
+          <article key={selectedPlace.id} className="map-place-card" aria-live="polite">
             <p className="eyebrow">{selectedPlace.category}</p>
             <h2>{selectedPlace.name}</h2>
             <p className="map-place-card__area">{selectedPlace.area}</p>
