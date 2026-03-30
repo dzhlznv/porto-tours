@@ -5,6 +5,7 @@ const TILE_SIZE = 256;
 const MIN_ZOOM = 11;
 const MAX_ZOOM = 17;
 const DEFAULT_TRANSITION_MS = 420;
+const PORTO_FALLBACK_VIEWPORT = { lat: 41.1463, lng: -8.6138, zoom: 13 };
 
 const CATEGORY_VIEWPORT_CONFIG = {
   Highlights: {
@@ -100,12 +101,17 @@ function normalizeInstagramHandle(handle) {
   return handle.replace('@', '').trim();
 }
 
+function isValidCoordinate(lat, lng) {
+  return Number.isFinite(lat) && Number.isFinite(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
+}
+
 function computeBoundsFromPlaces(places) {
-  if (!places.length) {
+  const validPlaces = places.filter((place) => isValidCoordinate(place.lat, place.lng));
+  if (!validPlaces.length) {
     return null;
   }
 
-  return places.reduce(
+  return validPlaces.reduce(
     (accumulator, place) => ({
       north: Math.max(accumulator.north, place.lat),
       south: Math.min(accumulator.south, place.lat),
@@ -123,7 +129,7 @@ function computeBoundsFromPlaces(places) {
 
 function fitBoundsToViewport(bounds, mapSize, options = {}) {
   if (!bounds) {
-    return { lat: 41.1458, lng: -8.6139, zoom: 13 };
+    return PORTO_FALLBACK_VIEWPORT;
   }
 
   const paddingX = options.paddingX ?? 72;
@@ -160,12 +166,16 @@ function MapPage() {
     const featuredInCategory = portoGuidePlaces.find((place) => place.category === defaultMapCategory && place.featured);
     return featuredInCategory?.id ?? portoGuidePlaces[0]?.id;
   });
-  const [viewport, setViewport] = React.useState({ lat: 41.1463, lng: -8.6138, zoom: 13 });
+  const [viewport, setViewport] = React.useState(PORTO_FALLBACK_VIEWPORT);
   const [mapSize, setMapSize] = React.useState({ width: 0, height: 0 });
 
   const mapViewportRef = React.useRef(null);
   const dragStateRef = React.useRef({ isDragging: false, startX: 0, startY: 0, centerPx: null });
   const animationFrameRef = React.useRef(null);
+  const viewportRef = React.useRef(PORTO_FALLBACK_VIEWPORT);
+  const previousCategoryRef = React.useRef(activeCategory);
+  const lastCenteredPlaceIdRef = React.useRef(null);
+  const suppressNextSelectionCenterRef = React.useRef(false);
 
   const placesByCategory = React.useMemo(() => {
     return mapCategories.reduce((accumulator, category) => {
@@ -184,12 +194,22 @@ function MapPage() {
     return placesByCategory[activeCategory] ?? [];
   }, [activeCategory, featuredPlaces, placesByCategory]);
 
+  const validVisiblePlaces = React.useMemo(
+    () => visiblePlaces.filter((place) => isValidCoordinate(place.lat, place.lng)),
+    [visiblePlaces]
+  );
+
   const highlightCardPlaces = React.useMemo(() => featuredPlaces.slice(0, 3), [featuredPlaces]);
   const [highlightCardIndex, setHighlightCardIndex] = React.useState(0);
 
   const selectedPlace = React.useMemo(() => {
-    return portoGuidePlaces.find((place) => place.id === selectedPlaceId) ?? visiblePlaces[0] ?? portoGuidePlaces[0];
-  }, [selectedPlaceId, visiblePlaces]);
+    const placeById = portoGuidePlaces.find((place) => place.id === selectedPlaceId);
+    if (placeById && isValidCoordinate(placeById.lat, placeById.lng)) {
+      return placeById;
+    }
+
+    return validVisiblePlaces[0] ?? portoGuidePlaces.find((place) => isValidCoordinate(place.lat, place.lng)) ?? null;
+  }, [selectedPlaceId, validVisiblePlaces]);
 
   const animateViewportTo = React.useCallback((target, duration = DEFAULT_TRANSITION_MS) => {
     if (!target) {
@@ -201,16 +221,12 @@ function MapPage() {
     }
 
     const start = performance.now();
-    const from = viewport;
+    const from = viewportRef.current;
     const to = {
       lat: clamp(target.lat, -85, 85),
       lng: target.lng,
       zoom: clamp(Math.round(target.zoom), MIN_ZOOM, MAX_ZOOM),
     };
-
-    if (from.zoom !== to.zoom) {
-      setViewport((current) => ({ ...current, zoom: to.zoom }));
-    }
 
     const tick = (now) => {
       const progress = clamp((now - start) / duration, 0, 1);
@@ -230,6 +246,10 @@ function MapPage() {
     };
 
     animationFrameRef.current = requestAnimationFrame(tick);
+  }, []);
+
+  React.useEffect(() => {
+    viewportRef.current = viewport;
   }, [viewport]);
 
   React.useEffect(() => {
@@ -241,21 +261,39 @@ function MapPage() {
   }, []);
 
   React.useEffect(() => {
-    if (!visiblePlaces.some((place) => place.id === selectedPlaceId)) {
-      setSelectedPlaceId(visiblePlaces[0]?.id ?? portoGuidePlaces[0]?.id);
+    if (!validVisiblePlaces.some((place) => place.id === selectedPlaceId)) {
+      setSelectedPlaceId(validVisiblePlaces[0]?.id ?? portoGuidePlaces.find((place) => isValidCoordinate(place.lat, place.lng))?.id);
     }
-  }, [activeCategory, selectedPlaceId, visiblePlaces]);
+  }, [selectedPlaceId, validVisiblePlaces]);
 
   React.useEffect(() => {
-    if (!mapSize.width || !mapSize.height || !visiblePlaces.length) {
+    const categoryChanged = previousCategoryRef.current !== activeCategory;
+    previousCategoryRef.current = activeCategory;
+
+    if (!mapSize.width || !mapSize.height || !validVisiblePlaces.length || !categoryChanged) {
       return;
     }
 
     const categoryConfig = CATEGORY_VIEWPORT_CONFIG[activeCategory] ?? null;
     const relevantPlaces =
-      activeCategory === 'Highlights' ? visiblePlaces.filter((place) => place.featured).slice(0, 8) : visiblePlaces;
+      activeCategory === 'Highlights' ? validVisiblePlaces.filter((place) => place.featured).slice(0, 8) : validVisiblePlaces;
 
     const bounds = categoryConfig?.bounds ?? computeBoundsFromPlaces(relevantPlaces);
+    suppressNextSelectionCenterRef.current = true;
+
+    if (validVisiblePlaces.length === 1) {
+      const onlyPlace = validVisiblePlaces[0];
+      animateViewportTo(
+        {
+          lat: onlyPlace.lat,
+          lng: onlyPlace.lng,
+          zoom: clamp(categoryConfig?.targetZoom ?? 14, MIN_ZOOM, MAX_ZOOM),
+        },
+        360
+      );
+      return;
+    }
+
     const nextViewport = fitBoundsToViewport(bounds, mapSize, {
       paddingX: mapSize.width > 1200 ? 140 : 96,
       paddingY: mapSize.height > 800 ? 120 : 90,
@@ -263,39 +301,33 @@ function MapPage() {
     });
 
     animateViewportTo(nextViewport, 460);
-  }, [activeCategory, animateViewportTo, mapSize.height, mapSize.width, visiblePlaces]);
+  }, [activeCategory, animateViewportTo, mapSize.height, mapSize.width, validVisiblePlaces]);
 
   React.useEffect(() => {
-    if (!selectedPlace || !mapSize.width || !mapSize.height) {
+    if (!selectedPlace || !isValidCoordinate(selectedPlace.lat, selectedPlace.lng)) {
       return;
     }
 
-    const markerWorld = project(selectedPlace.lat, selectedPlace.lng, viewport.zoom);
-    const centerWorld = project(viewport.lat, viewport.lng, viewport.zoom);
-    const selectedScreenX = markerWorld.x - centerWorld.x + mapSize.width / 2;
-    const selectedScreenY = markerWorld.y - centerWorld.y + mapSize.height / 2;
-
-    const desiredX = mapSize.width * 0.58;
-    const desiredY = mapSize.height * 0.52;
-
-    const nearEdgeX = selectedScreenX < mapSize.width * 0.18 || selectedScreenX > mapSize.width * 0.88;
-    const nearEdgeY = selectedScreenY < mapSize.height * 0.16 || selectedScreenY > mapSize.height * 0.86;
-
-    if (nearEdgeX || nearEdgeY) {
-      const nextCenterWorldX = markerWorld.x - (desiredX - mapSize.width / 2);
-      const nextCenterWorldY = markerWorld.y - (desiredY - mapSize.height / 2);
-      const nextCenter = unproject(nextCenterWorldX, nextCenterWorldY, viewport.zoom);
-
-      animateViewportTo(
-        {
-          lat: nextCenter.lat,
-          lng: nextCenter.lng,
-          zoom: Math.max(viewport.zoom, 13),
-        },
-        320
-      );
+    if (suppressNextSelectionCenterRef.current) {
+      suppressNextSelectionCenterRef.current = false;
+      lastCenteredPlaceIdRef.current = selectedPlace.id;
+      return;
     }
-  }, [animateViewportTo, mapSize.height, mapSize.width, selectedPlace, viewport.lat, viewport.lng, viewport.zoom]);
+
+    if (lastCenteredPlaceIdRef.current === selectedPlace.id) {
+      return;
+    }
+
+    lastCenteredPlaceIdRef.current = selectedPlace.id;
+    animateViewportTo(
+      {
+        lat: selectedPlace.lat,
+        lng: selectedPlace.lng,
+        zoom: Math.max(viewportRef.current.zoom, 13),
+      },
+      320
+    );
+  }, [animateViewportTo, selectedPlace]);
 
   React.useEffect(() => {
     if (!highlightCardPlaces.length) {
@@ -324,46 +356,54 @@ function MapPage() {
     return () => observer.disconnect();
   }, []);
 
-  const centerPixels = project(viewport.lat, viewport.lng, viewport.zoom);
+  const centerPixels = React.useMemo(() => project(viewport.lat, viewport.lng, viewport.zoom), [viewport.lat, viewport.lng, viewport.zoom]);
 
-  const leftWorld = centerPixels.x - mapSize.width / 2;
-  const topWorld = centerPixels.y - mapSize.height / 2;
+  const { leftWorld, topWorld, tiles } = React.useMemo(() => {
+    const nextLeftWorld = centerPixels.x - mapSize.width / 2;
+    const nextTopWorld = centerPixels.y - mapSize.height / 2;
 
-  const minTileX = Math.floor(leftWorld / TILE_SIZE);
-  const maxTileX = Math.floor((leftWorld + mapSize.width) / TILE_SIZE);
-  const minTileY = Math.floor(topWorld / TILE_SIZE);
-  const maxTileY = Math.floor((topWorld + mapSize.height) / TILE_SIZE);
+    const minTileX = Math.floor(nextLeftWorld / TILE_SIZE);
+    const maxTileX = Math.floor((nextLeftWorld + mapSize.width) / TILE_SIZE);
+    const minTileY = Math.floor(nextTopWorld / TILE_SIZE);
+    const maxTileY = Math.floor((nextTopWorld + mapSize.height) / TILE_SIZE);
 
-  const zoomLevel = Math.round(viewport.zoom);
-  const maxTileIndex = 2 ** zoomLevel;
-  const tiles = [];
+    const zoomLevel = Math.round(viewport.zoom);
+    const maxTileIndex = 2 ** zoomLevel;
+    const nextTiles = [];
 
-  for (let tx = minTileX; tx <= maxTileX; tx += 1) {
-    for (let ty = minTileY; ty <= maxTileY; ty += 1) {
-      if (ty < 0 || ty >= maxTileIndex) {
-        continue;
+    for (let tx = minTileX; tx <= maxTileX; tx += 1) {
+      for (let ty = minTileY; ty <= maxTileY; ty += 1) {
+        if (ty < 0 || ty >= maxTileIndex) {
+          continue;
+        }
+
+        const wrappedX = ((tx % maxTileIndex) + maxTileIndex) % maxTileIndex;
+        nextTiles.push({
+          key: `${zoomLevel}-${tx}-${ty}`,
+          src: `https://tile.openstreetmap.org/${zoomLevel}/${wrappedX}/${ty}.png`,
+          x: tx * TILE_SIZE - nextLeftWorld,
+          y: ty * TILE_SIZE - nextTopWorld,
+        });
       }
-
-      const wrappedX = ((tx % maxTileIndex) + maxTileIndex) % maxTileIndex;
-      tiles.push({
-        key: `${zoomLevel}-${tx}-${ty}`,
-        src: `https://tile.openstreetmap.org/${zoomLevel}/${wrappedX}/${ty}.png`,
-        x: tx * TILE_SIZE - leftWorld,
-        y: ty * TILE_SIZE - topWorld,
-      });
     }
-  }
+
+    return { leftWorld: nextLeftWorld, topWorld: nextTopWorld, tiles: nextTiles };
+  }, [centerPixels.x, centerPixels.y, mapSize.height, mapSize.width, viewport.zoom]);
 
   const markerTone = CATEGORY_MARKER_TONES[activeCategory] ?? 'marker-sage';
-  const mapMarkers = visiblePlaces.map((place) => {
-    const pixelPoint = project(place.lat, place.lng, viewport.zoom);
-    return {
-      ...place,
-      markerTone: CATEGORY_MARKER_TONES[place.category] ?? markerTone,
-      x: pixelPoint.x - leftWorld,
-      y: pixelPoint.y - topWorld,
-    };
-  });
+  const mapMarkers = React.useMemo(
+    () =>
+      validVisiblePlaces.map((place) => {
+        const pixelPoint = project(place.lat, place.lng, viewport.zoom);
+        return {
+          ...place,
+          markerTone: CATEGORY_MARKER_TONES[place.category] ?? markerTone,
+          x: pixelPoint.x - leftWorld,
+          y: pixelPoint.y - topWorld,
+        };
+      }),
+    [leftWorld, markerTone, topWorld, validVisiblePlaces, viewport.zoom]
+  );
 
   const beginDrag = (event) => {
     if (event.button !== 0) {
