@@ -5,6 +5,7 @@ const TILE_SIZE = 256;
 const MIN_ZOOM = 11;
 const MAX_ZOOM = 17;
 const DEFAULT_TRANSITION_MS = 420;
+const CATEGORY_REVEAL_DELAY_MS = 140;
 
 const CATEGORY_VIEWPORT_CONFIG = {
   'Classic Porto': {
@@ -156,6 +157,11 @@ function MapPage() {
   const mapViewportRef = React.useRef(null);
   const dragStateRef = React.useRef({ isDragging: false, startX: 0, startY: 0, centerPx: null });
   const animationFrameRef = React.useRef(null);
+  const markerRevealTimeoutRef = React.useRef(null);
+  const categoryTransitionIdRef = React.useRef(0);
+  const didInitializeCategoryViewRef = React.useRef(false);
+  const [isCategoryTransitioning, setIsCategoryTransitioning] = React.useState(false);
+  const [areMarkersVisible, setAreMarkersVisible] = React.useState(true);
 
   const placesByCategory = React.useMemo(() => {
     return mapCategories.reduce((accumulator, category) => {
@@ -172,7 +178,7 @@ function MapPage() {
     return portoGuidePlaces.find((place) => place.id === selectedPlaceId) ?? visiblePlaces[0] ?? portoGuidePlaces[0];
   }, [selectedPlaceId, visiblePlaces]);
 
-  const animateViewportTo = React.useCallback((target, duration = DEFAULT_TRANSITION_MS) => {
+  const animateViewportTo = React.useCallback((target, duration = DEFAULT_TRANSITION_MS, onComplete) => {
     if (!target) {
       return;
     }
@@ -207,6 +213,7 @@ function MapPage() {
         animationFrameRef.current = requestAnimationFrame(tick);
       } else {
         animationFrameRef.current = null;
+        onComplete?.();
       }
     };
 
@@ -217,6 +224,9 @@ function MapPage() {
     return () => {
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
+      }
+      if (markerRevealTimeoutRef.current) {
+        clearTimeout(markerRevealTimeoutRef.current);
       }
     };
   }, []);
@@ -232,6 +242,18 @@ function MapPage() {
       return;
     }
 
+    const isInitialCategoryFit = !didInitializeCategoryViewRef.current;
+    const transitionId = categoryTransitionIdRef.current + 1;
+    categoryTransitionIdRef.current = transitionId;
+
+    if (!isInitialCategoryFit) {
+      if (markerRevealTimeoutRef.current) {
+        clearTimeout(markerRevealTimeoutRef.current);
+      }
+      setIsCategoryTransitioning(true);
+      setAreMarkersVisible(false);
+    }
+
     const categoryConfig = CATEGORY_VIEWPORT_CONFIG[activeCategory] ?? null;
     const relevantPlaces = visiblePlaces;
 
@@ -242,7 +264,24 @@ function MapPage() {
       targetZoom: categoryConfig?.targetZoom,
     });
 
-    animateViewportTo(nextViewport, 460);
+    animateViewportTo(nextViewport, 460, () => {
+      if (transitionId !== categoryTransitionIdRef.current) {
+        return;
+      }
+
+      if (isInitialCategoryFit) {
+        didInitializeCategoryViewRef.current = true;
+        return;
+      }
+
+      markerRevealTimeoutRef.current = window.setTimeout(() => {
+        if (transitionId !== categoryTransitionIdRef.current) {
+          return;
+        }
+        setIsCategoryTransitioning(false);
+        setAreMarkersVisible(true);
+      }, CATEGORY_REVEAL_DELAY_MS);
+    });
   }, [activeCategory, animateViewportTo, mapSize.height, mapSize.width, visiblePlaces]);
 
   React.useEffect(() => {
@@ -450,22 +489,30 @@ function MapPage() {
 
           <div className="map-surface-wash" aria-hidden="true" />
 
-          {mapMarkers.map((marker) => (
-            <button
-              key={marker.id}
-              type="button"
-              className={`map-marker ${marker.markerTone} ${marker.featured ? 'is-featured' : ''} ${
-                selectedPlace?.id === marker.id ? 'is-selected' : ''
-              }`}
-              style={{ transform: `translate(${marker.x}px, ${marker.y}px)` }}
-              onClick={() => setSelectedPlaceId(marker.id)}
-              title={marker.name}
-              aria-label={marker.name}
-            >
-              <span className="map-marker__pulse" />
-              <span className="map-marker__core" />
-            </button>
-          ))}
+          <div className={`map-markers-layer ${areMarkersVisible ? 'is-visible' : 'is-hidden'}`}>
+            {mapMarkers.map((marker) => (
+              <button
+                key={marker.id}
+                type="button"
+                className={`map-marker ${marker.markerTone} ${marker.featured ? 'is-featured' : ''} ${
+                  selectedPlace?.id === marker.id ? 'is-selected' : ''
+                }`}
+                style={{ transform: `translate(${marker.x}px, ${marker.y}px)` }}
+                onClick={() => setSelectedPlaceId(marker.id)}
+                title={marker.name}
+                aria-label={marker.name}
+              >
+                <span className="map-marker__pulse" />
+                <span className="map-marker__core" />
+              </button>
+            ))}
+          </div>
+
+          {isCategoryTransitioning ? (
+            <div className="map-transition-loader" aria-hidden="true">
+              <span className="map-transition-loader__spinner" />
+            </div>
+          ) : null}
 
           {selectedPlace ? (
             <article className="map-details-panel" aria-live="polite">
