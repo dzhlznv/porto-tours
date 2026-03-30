@@ -1228,8 +1228,8 @@ h1 {
     height: auto;
     min-height: 100vh;
     flex-direction: column;
-    gap: 0.65rem;
-    padding: 0.65rem;
+    gap: 0.75rem;
+    padding: 0;
   }
 
   .map-sidebar,
@@ -1240,52 +1240,48 @@ h1 {
   .map-sidebar {
     flex-basis: auto;
     gap: 0.65rem;
-    padding: 0.75rem;
-    margin-top: -0.35rem;
+    padding: 0.8rem;
+    margin: 0 0.65rem 0.65rem;
     position: relative;
     z-index: 2;
+    border-radius: 14px;
   }
 
   .map-viewport {
-    min-height: 64vh;
-    height: 64vh;
-  }
-
-  .map-canvas-panel::after {
-    content: '';
-    position: absolute;
-    left: 0.95rem;
-    right: 0.95rem;
-    bottom: 0.65rem;
-    height: 2.3rem;
-    pointer-events: none;
-    border-radius: 0 0 18px 18px;
-    background: linear-gradient(to bottom, rgba(244, 248, 251, 0), rgba(244, 248, 251, 0.88));
-    z-index: 2;
-  }
-
-  .map-details-panel {
-    left: 0.65rem;
-    right: 0.65rem;
-    top: auto;
-    bottom: 2.45rem;
-    width: min(420px, calc(100% - 1.3rem));
-    max-height: min(38vh, 260px);
-    padding: 0.72rem 0.82rem;
-    background: color-mix(in srgb, var(--paper-elevated) 96%, white);
-  }
-
-  .map-details-backdrop {
-    display: block;
-    background: rgba(17, 28, 36, 0.06);
-  }
-
-  .map-details-panel__close {
-    display: inline-grid;
+    min-height: 82vh;
+    height: 88dvh;
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
   }
 
   .map-canvas-panel {
     order: -1;
+    min-height: auto;
+  }
+
+  .map-details-panel {
+    left: 0.75rem;
+    right: 0.75rem;
+    top: auto;
+    bottom: 3rem;
+    width: min(420px, calc(100% - 1.5rem));
+    max-height: min(32vh, 240px);
+    padding: 0.7rem 0.78rem;
+    background: color-mix(in srgb, var(--paper-elevated) 96%, white);
+    pointer-events: none;
+  }
+
+  .map-details-panel > * {
+    pointer-events: auto;
+  }
+
+  .map-details-backdrop {
+    display: none;
+  }
+
+  .map-details-panel__close {
+    display: inline-grid;
   }
 
   .map-sidebar__header p {
@@ -1303,7 +1299,9 @@ h1 {
   }
 
   .map-place-list {
-    max-height: 21vh;
+    overflow: visible;
+    padding-right: 0;
+    gap: 0.5rem;
   }
 
   .map-place-row {

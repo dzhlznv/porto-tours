@@ -156,7 +156,14 @@ function MapPage() {
   const [mapSize, setMapSize] = React.useState({ width: 0, height: 0 });
 
   const mapViewportRef = React.useRef(null);
-  const dragStateRef = React.useRef({ isDragging: false, startX: 0, startY: 0, centerPx: null });
+  const dragStateRef = React.useRef({
+    mode: null,
+    startX: 0,
+    startY: 0,
+    centerPx: null,
+    startDistance: 0,
+    startZoom: 0,
+  });
   const animationFrameRef = React.useRef(null);
   const suppressSelectionRecenteringRef = React.useRef(false);
 
@@ -368,10 +375,12 @@ function MapPage() {
 
     event.preventDefault();
     dragStateRef.current = {
-      isDragging: true,
+      mode: 'pan',
       startX: event.clientX,
       startY: event.clientY,
       centerPx: centerPixels,
+      startDistance: 0,
+      startZoom: viewport.zoom,
     };
   };
 
@@ -385,19 +394,39 @@ function MapPage() {
       animationFrameRef.current = null;
     }
 
+    if (event.touches.length >= 2) {
+      const [touchA, touchB] = event.touches;
+      const deltaX = touchB.clientX - touchA.clientX;
+      const deltaY = touchB.clientY - touchA.clientY;
+      const midpointX = (touchA.clientX + touchB.clientX) / 2;
+      const midpointY = (touchA.clientY + touchB.clientY) / 2;
+
+      dragStateRef.current = {
+        mode: 'pinch',
+        startX: midpointX,
+        startY: midpointY,
+        centerPx: centerPixels,
+        startDistance: Math.hypot(deltaX, deltaY),
+        startZoom: viewport.zoom,
+      };
+      return;
+    }
+
     const [touch] = event.touches;
     dragStateRef.current = {
-      isDragging: true,
+      mode: 'pan',
       startX: touch.clientX,
       startY: touch.clientY,
       centerPx: centerPixels,
+      startDistance: 0,
+      startZoom: viewport.zoom,
     };
   };
 
   const handleMouseMove = React.useCallback(
     (event) => {
       const dragState = dragStateRef.current;
-      if (!dragState.isDragging || !dragState.centerPx) {
+      if (dragState.mode !== 'pan' || !dragState.centerPx) {
         return;
       }
 
@@ -410,8 +439,15 @@ function MapPage() {
   );
 
   const stopDrag = React.useCallback(() => {
-    dragStateRef.current = { isDragging: false, startX: 0, startY: 0, centerPx: null };
-  }, []);
+    dragStateRef.current = {
+      mode: null,
+      startX: 0,
+      startY: 0,
+      centerPx: null,
+      startDistance: 0,
+      startZoom: viewport.zoom,
+    };
+  }, [viewport.zoom]);
 
   React.useEffect(() => {
     window.addEventListener('mousemove', handleMouseMove);
@@ -426,7 +462,19 @@ function MapPage() {
   React.useEffect(() => {
     const handleTouchMove = (event) => {
       const dragState = dragStateRef.current;
-      if (!dragState.isDragging || !dragState.centerPx || !event.touches?.length) {
+      if (!dragState.mode || !dragState.centerPx || !event.touches?.length) {
+        return;
+      }
+
+      if (dragState.mode === 'pinch' && event.touches.length >= 2) {
+        const [touchA, touchB] = event.touches;
+        const deltaX = touchB.clientX - touchA.clientX;
+        const deltaY = touchB.clientY - touchA.clientY;
+        const distance = Math.max(Math.hypot(deltaX, deltaY), 1);
+        const zoomChange = Math.log2(distance / Math.max(dragState.startDistance, 1));
+        const nextZoom = clamp(dragState.startZoom + zoomChange, MIN_ZOOM, MAX_ZOOM);
+        setViewport((current) => ({ ...current, zoom: nextZoom }));
+        event.preventDefault();
         return;
       }
 
