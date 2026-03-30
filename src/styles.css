@@ -1015,6 +1015,23 @@ h1 {
   z-index: 1;
 }
 
+.map-markers-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  transition: opacity 240ms ease;
+}
+
+.map-markers-layer.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.map-markers-layer.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
 .map-marker {
   --marker-color: #4f6b66;
   position: absolute;
@@ -1112,6 +1129,33 @@ h1 {
 
 .map-marker.marker-slate {
   --marker-color: #5f6672;
+}
+
+.map-transition-loader {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at center, rgba(250, 250, 249, 0.32) 0%, rgba(250, 250, 249, 0.08) 44%, transparent 78%);
+}
+
+.map-transition-loader__spinner {
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  border: 1px solid rgba(63, 82, 88, 0.22);
+  border-top-color: rgba(63, 82, 88, 0.62);
+  background: rgba(255, 255, 255, 0.46);
+  box-shadow: 0 8px 22px rgba(16, 24, 28, 0.12);
+  animation: map-loader-spin 840ms linear infinite;
+}
+
+@keyframes map-loader-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .map-attribution {
