@@ -67,6 +67,9 @@ const CATEGORY_MARKER_TONES = {
   Shopping: 'marker-slate',
 };
 
+const FEATURED_DESCRIPTION_FALLBACK =
+  'A curated Porto2You stop worth saving for your route through Porto and Gaia.';
+
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }
@@ -98,6 +101,26 @@ function normalizeInstagramHandle(handle) {
   }
 
   return handle.replace('@', '').trim();
+}
+
+function getPlaceSummary(place) {
+  if (!place) {
+    return FEATURED_DESCRIPTION_FALLBACK;
+  }
+
+  const summary = [place.description, place.excerpt, place.summary, place.note, place.notes].find(
+    (value) => typeof value === 'string' && value.trim().length
+  );
+
+  return summary?.trim() ?? FEATURED_DESCRIPTION_FALLBACK;
+}
+
+function getPlaceMeta(place) {
+  if (!place) {
+    return null;
+  }
+
+  return place.area || place.neighborhood || place.subarea || place.category || null;
 }
 
 function computeBoundsFromPlaces(places) {
@@ -347,7 +370,7 @@ function MapPage() {
       const wrappedX = ((tx % maxTileIndex) + maxTileIndex) % maxTileIndex;
       tiles.push({
         key: `${zoomLevel}-${tx}-${ty}`,
-        src: `https://tile.openstreetmap.org/${zoomLevel}/${wrappedX}/${ty}.png`,
+        src: `https://a.basemaps.cartocdn.com/light_all/${zoomLevel}/${wrappedX}/${ty}.png`,
         x: tx * TILE_SIZE - leftWorld,
         y: ty * TILE_SIZE - topWorld,
       });
@@ -515,8 +538,10 @@ function MapPage() {
               <div>
                 <p className="eyebrow">Featured · {highlightCardIndex + 1}/{highlightCardPlaces.length}</p>
                 <h3>{activeHighlight.name}</h3>
-                <p>{activeHighlight.description}</p>
-                <p className="map-highlights-card__category">{activeHighlight.category}</p>
+                <p className="map-highlights-card__description">{getPlaceSummary(activeHighlight)}</p>
+                <p className="map-highlights-card__category">
+                  {getPlaceMeta(activeHighlight) ?? activeHighlight.category}
+                </p>
               </div>
               <div className="map-highlights-card__actions">
                 <button type="button" onClick={showPreviousHighlight} aria-label="Show previous featured place">
@@ -538,9 +563,15 @@ function MapPage() {
 
           <div className="map-attribution">
             <span>Use wheel to zoom and drag to pan.</span>
-            <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">
-              © OpenStreetMap contributors
-            </a>
+            <span>
+              <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">
+                © OpenStreetMap contributors
+              </a>
+              {' · '}
+              <a href="https://carto.com/attributions" target="_blank" rel="noreferrer">
+                © CARTO
+              </a>
+            </span>
           </div>
         </div>
 
