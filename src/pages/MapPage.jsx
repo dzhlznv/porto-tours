@@ -157,6 +157,8 @@ function MapPage() {
   const mapViewportRef = React.useRef(null);
   const dragStateRef = React.useRef({ isDragging: false, startX: 0, startY: 0, centerPx: null });
   const animationFrameRef = React.useRef(null);
+  const suppressMarkerAutopanRef = React.useRef(false);
+  const suppressMarkerAutopanTimeoutRef = React.useRef(null);
 
   const placesByCategory = React.useMemo(() => {
     return mapCategories.reduce((accumulator, category) => {
@@ -219,6 +221,10 @@ function MapPage() {
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
+
+      if (suppressMarkerAutopanTimeoutRef.current) {
+        clearTimeout(suppressMarkerAutopanTimeoutRef.current);
+      }
     };
   }, []);
 
@@ -243,11 +249,20 @@ function MapPage() {
       targetZoom: categoryConfig?.targetZoom,
     });
 
-    animateViewportTo(nextViewport, 460);
+    suppressMarkerAutopanRef.current = true;
+    if (suppressMarkerAutopanTimeoutRef.current) {
+      clearTimeout(suppressMarkerAutopanTimeoutRef.current);
+    }
+
+    const animationDuration = 460;
+    animateViewportTo(nextViewport, animationDuration);
+    suppressMarkerAutopanTimeoutRef.current = setTimeout(() => {
+      suppressMarkerAutopanRef.current = false;
+    }, animationDuration + 80);
   }, [activeCategory, animateViewportTo, mapSize.height, mapSize.width, visiblePlaces]);
 
   React.useEffect(() => {
-    if (!selectedPlace || !mapSize.width || !mapSize.height) {
+    if (!selectedPlace || !mapSize.width || !mapSize.height || suppressMarkerAutopanRef.current) {
       return;
     }
 
