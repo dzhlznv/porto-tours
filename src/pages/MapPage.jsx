@@ -276,7 +276,7 @@ function MapPage() {
         320
       );
     }
-  }, [animateViewportTo, mapSize.height, mapSize.width, selectedPlace, viewport.lat, viewport.lng, viewport.zoom]);
+  }, [activeCategory, animateViewportTo, mapSize.height, mapSize.width, selectedPlace, viewport.zoom]);
 
   React.useEffect(() => {
     const node = mapViewportRef.current;
