@@ -151,6 +151,7 @@ function MapPage() {
     const featuredInCategory = portoGuidePlaces.find((place) => place.category === defaultMapCategory && place.featured);
     return featuredInCategory?.id ?? portoGuidePlaces[0]?.id;
   });
+  const [isDetailsOpen, setIsDetailsOpen] = React.useState(true);
   const [viewport, setViewport] = React.useState({ lat: 41.15, lng: -8.61, zoom: 13 });
   const [mapSize, setMapSize] = React.useState({ width: 0, height: 0 });
 
@@ -231,6 +232,7 @@ function MapPage() {
   React.useEffect(() => {
     if (!visiblePlaces.some((place) => place.id === selectedPlaceId)) {
       setSelectedPlaceId(visiblePlaces[0]?.id ?? portoGuidePlaces[0]?.id);
+      setIsDetailsOpen(true);
     }
   }, [activeCategory, selectedPlaceId, visiblePlaces]);
 
@@ -486,7 +488,10 @@ function MapPage() {
               key={place.id}
               type="button"
               className={`map-place-row ${selectedPlace?.id === place.id ? 'is-selected' : ''}`}
-              onClick={() => setSelectedPlaceId(place.id)}
+              onClick={() => {
+                setSelectedPlaceId(place.id);
+                setIsDetailsOpen(true);
+              }}
             >
               <strong>{place.name}</strong>
               <span>{place.area}</span>
@@ -526,7 +531,10 @@ function MapPage() {
                 selectedPlace?.id === marker.id ? 'is-selected' : ''
               }`}
               style={{ transform: `translate(${marker.x}px, ${marker.y}px)` }}
-              onClick={() => setSelectedPlaceId(marker.id)}
+              onClick={() => {
+                setSelectedPlaceId(marker.id);
+                setIsDetailsOpen(true);
+              }}
               title={marker.name}
               aria-label={marker.name}
             >
@@ -535,24 +543,35 @@ function MapPage() {
             </button>
           ))}
 
-          {selectedPlace ? (
-            <article className="map-details-panel" aria-live="polite">
-              <p className="eyebrow">{selectedPlace.category}</p>
-              <h2>{selectedPlace.name}</h2>
-              <p className="map-details-panel__area">{selectedPlace.area}</p>
-              <p>{selectedPlace.description}</p>
-              {selectedPlace.notes ? <p className="map-details-panel__notes">{selectedPlace.notes}</p> : null}
-              {selectedPlace.instagram ? (
-                <a
-                  className="map-details-panel__instagram"
-                  href={`https://instagram.com/${normalizeInstagramHandle(selectedPlace.instagram)}`}
-                  target="_blank"
-                  rel="noreferrer"
+          {selectedPlace && isDetailsOpen ? (
+            <>
+              <div className="map-details-backdrop" aria-hidden="true" />
+              <article className="map-details-panel" aria-live="polite">
+                <button
+                  type="button"
+                  className="map-details-panel__close"
+                  onClick={() => setIsDetailsOpen(false)}
+                  aria-label="Close place details"
                 >
-                  @{normalizeInstagramHandle(selectedPlace.instagram)}
-                </a>
-              ) : null}
-            </article>
+                  <span aria-hidden="true">×</span>
+                </button>
+                <p className="eyebrow">{selectedPlace.category}</p>
+                <h2>{selectedPlace.name}</h2>
+                <p className="map-details-panel__area">{selectedPlace.area}</p>
+                <p>{selectedPlace.description}</p>
+                {selectedPlace.notes ? <p className="map-details-panel__notes">{selectedPlace.notes}</p> : null}
+                {selectedPlace.instagram ? (
+                  <a
+                    className="map-details-panel__instagram"
+                    href={`https://instagram.com/${normalizeInstagramHandle(selectedPlace.instagram)}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    @{normalizeInstagramHandle(selectedPlace.instagram)}
+                  </a>
+                ) : null}
+              </article>
+            </>
           ) : null}
 
           <div className="map-attribution">
