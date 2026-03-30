@@ -154,8 +154,15 @@ function MapPage() {
   const [isDetailsOpen, setIsDetailsOpen] = React.useState(true);
   const [viewport, setViewport] = React.useState({ lat: 41.15, lng: -8.61, zoom: 13 });
   const [mapSize, setMapSize] = React.useState({ width: 0, height: 0 });
+  const [isMobileLayout, setIsMobileLayout] = React.useState(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) {
+      return false;
+    }
+    return window.matchMedia('(max-width: 980px)').matches;
+  });
 
   const mapViewportRef = React.useRef(null);
+  const placeButtonRefs = React.useRef(new Map());
   const dragStateRef = React.useRef({
     mode: null,
     startX: 0,
@@ -244,6 +251,19 @@ function MapPage() {
   }, [activeCategory, selectedPlaceId, visiblePlaces]);
 
   React.useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) {
+      return undefined;
+    }
+
+    const mediaQuery = window.matchMedia('(max-width: 980px)');
+    const syncLayout = () => setIsMobileLayout(mediaQuery.matches);
+    syncLayout();
+
+    mediaQuery.addEventListener('change', syncLayout);
+    return () => mediaQuery.removeEventListener('change', syncLayout);
+  }, []);
+
+  React.useEffect(() => {
     if (!mapSize.width || !mapSize.height || !visiblePlaces.length) {
       return;
     }
@@ -253,9 +273,9 @@ function MapPage() {
 
     const bounds = categoryConfig?.bounds ?? computeBoundsFromPlaces(relevantPlaces);
     const nextViewport = fitBoundsToViewport(bounds, mapSize, {
-      paddingX: mapSize.width > 1200 ? 140 : 96,
-      paddingY: mapSize.height > 800 ? 120 : 90,
-      targetZoom: categoryConfig?.targetZoom,
+      paddingX: isMobileLayout ? 54 : mapSize.width > 1200 ? 140 : 96,
+      paddingY: isMobileLayout ? 58 : mapSize.height > 800 ? 120 : 90,
+      targetZoom: (categoryConfig?.targetZoom ?? 13) + (isMobileLayout ? 1 : 0),
     });
 
     suppressSelectionRecenteringRef.current = true;
@@ -269,7 +289,7 @@ function MapPage() {
       window.clearTimeout(releaseSuppressTimer);
       suppressSelectionRecenteringRef.current = false;
     };
-  }, [activeCategory, animateViewportTo, mapSize.height, mapSize.width, visiblePlaces]);
+  }, [activeCategory, animateViewportTo, isMobileLayout, mapSize.height, mapSize.width, visiblePlaces]);
 
   React.useEffect(() => {
     if (!selectedPlace || !mapSize.width || !mapSize.height) {
@@ -299,12 +319,29 @@ function MapPage() {
         {
           lat: nextCenter.lat,
           lng: nextCenter.lng,
-          zoom: Math.max(viewport.zoom, 13),
+          zoom: Math.max(viewport.zoom, isMobileLayout ? 14 : 13),
         },
         320
       );
     }
-  }, [animateViewportTo, mapSize.height, mapSize.width, selectedPlace, viewport.lat, viewport.lng, viewport.zoom]);
+  }, [animateViewportTo, isMobileLayout, mapSize.height, mapSize.width, selectedPlace, viewport.lat, viewport.lng, viewport.zoom]);
+
+  React.useEffect(() => {
+    if (!selectedPlaceId) {
+      return;
+    }
+
+    const selectedNode = placeButtonRefs.current.get(selectedPlaceId);
+    if (!selectedNode) {
+      return;
+    }
+
+    selectedNode.scrollIntoView({
+      block: 'nearest',
+      inline: 'nearest',
+      behavior: 'smooth',
+    });
+  }, [selectedPlaceId, activeCategory]);
 
   React.useEffect(() => {
     const node = mapViewportRef.current;
@@ -534,6 +571,13 @@ function MapPage() {
           {visiblePlaces.map((place) => (
             <button
               key={place.id}
+              ref={(node) => {
+                if (node) {
+                  placeButtonRefs.current.set(place.id, node);
+                } else {
+                  placeButtonRefs.current.delete(place.id);
+                }
+              }}
               type="button"
               className={`map-place-row ${selectedPlace?.id === place.id ? 'is-selected' : ''}`}
               onClick={() => {
