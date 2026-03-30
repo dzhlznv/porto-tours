@@ -154,6 +154,22 @@ function fitBoundsToViewport(bounds, mapSize, options = {}) {
   };
 }
 
+function isValidCoordinate(lat, lng) {
+  return Number.isFinite(lat) && Number.isFinite(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
+}
+
+function isViewportClose(current, next) {
+  if (!current || !next) {
+    return false;
+  }
+
+  const latClose = Math.abs(current.lat - next.lat) < 0.0001;
+  const lngClose = Math.abs(current.lng - next.lng) < 0.0001;
+  const zoomClose = Math.abs(current.zoom - next.zoom) < 0.01;
+
+  return latClose && lngClose && zoomClose;
+}
+
 function MapPage() {
   const [activeCategory, setActiveCategory] = React.useState(defaultMapCategory);
   const [selectedPlaceId, setSelectedPlaceId] = React.useState(() => {
@@ -166,6 +182,8 @@ function MapPage() {
   const mapViewportRef = React.useRef(null);
   const dragStateRef = React.useRef({ isDragging: false, startX: 0, startY: 0, centerPx: null });
   const animationFrameRef = React.useRef(null);
+  const viewportRef = React.useRef(viewport);
+  const lastSelectionMoveRef = React.useRef(null);
 
   const placesByCategory = React.useMemo(() => {
     return mapCategories.reduce((accumulator, category) => {
@@ -191,22 +209,31 @@ function MapPage() {
     return portoGuidePlaces.find((place) => place.id === selectedPlaceId) ?? visiblePlaces[0] ?? portoGuidePlaces[0];
   }, [selectedPlaceId, visiblePlaces]);
 
+  React.useEffect(() => {
+    viewportRef.current = viewport;
+  }, [viewport]);
+
   const animateViewportTo = React.useCallback((target, duration = DEFAULT_TRANSITION_MS) => {
     if (!target) {
       return;
     }
 
+    const from = viewportRef.current;
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current);
     }
 
-    const start = performance.now();
-    const from = viewport;
     const to = {
       lat: clamp(target.lat, -85, 85),
       lng: target.lng,
       zoom: clamp(Math.round(target.zoom), MIN_ZOOM, MAX_ZOOM),
     };
+
+    if (isViewportClose(from, to)) {
+      return;
+    }
+
+    const start = performance.now();
 
     if (from.zoom !== to.zoom) {
       setViewport((current) => ({ ...current, zoom: to.zoom }));
@@ -230,7 +257,7 @@ function MapPage() {
     };
 
     animationFrameRef.current = requestAnimationFrame(tick);
-  }, [viewport]);
+  }, []);
 
   React.useEffect(() => {
     return () => {
@@ -253,7 +280,9 @@ function MapPage() {
 
     const categoryConfig = CATEGORY_VIEWPORT_CONFIG[activeCategory] ?? null;
     const relevantPlaces =
-      activeCategory === 'Highlights' ? visiblePlaces.filter((place) => place.featured).slice(0, 8) : visiblePlaces;
+      activeCategory === 'Highlights'
+        ? visiblePlaces.filter((place) => place.featured && isValidCoordinate(place.lat, place.lng)).slice(0, 8)
+        : visiblePlaces.filter((place) => isValidCoordinate(place.lat, place.lng));
 
     const bounds = categoryConfig?.bounds ?? computeBoundsFromPlaces(relevantPlaces);
     const nextViewport = fitBoundsToViewport(bounds, mapSize, {
@@ -263,6 +292,7 @@ function MapPage() {
     });
 
     animateViewportTo(nextViewport, 460);
+    lastSelectionMoveRef.current = null;
   }, [activeCategory, animateViewportTo, mapSize.height, mapSize.width, visiblePlaces]);
 
   React.useEffect(() => {
@@ -270,32 +300,25 @@ function MapPage() {
       return;
     }
 
-    const markerWorld = project(selectedPlace.lat, selectedPlace.lng, viewport.zoom);
-    const centerWorld = project(viewport.lat, viewport.lng, viewport.zoom);
-    const selectedScreenX = markerWorld.x - centerWorld.x + mapSize.width / 2;
-    const selectedScreenY = markerWorld.y - centerWorld.y + mapSize.height / 2;
-
-    const desiredX = mapSize.width * 0.58;
-    const desiredY = mapSize.height * 0.52;
-
-    const nearEdgeX = selectedScreenX < mapSize.width * 0.18 || selectedScreenX > mapSize.width * 0.88;
-    const nearEdgeY = selectedScreenY < mapSize.height * 0.16 || selectedScreenY > mapSize.height * 0.86;
-
-    if (nearEdgeX || nearEdgeY) {
-      const nextCenterWorldX = markerWorld.x - (desiredX - mapSize.width / 2);
-      const nextCenterWorldY = markerWorld.y - (desiredY - mapSize.height / 2);
-      const nextCenter = unproject(nextCenterWorldX, nextCenterWorldY, viewport.zoom);
-
-      animateViewportTo(
-        {
-          lat: nextCenter.lat,
-          lng: nextCenter.lng,
-          zoom: Math.max(viewport.zoom, 13),
-        },
-        320
-      );
+    if (!isValidCoordinate(selectedPlace.lat, selectedPlace.lng)) {
+      return;
     }
-  }, [animateViewportTo, mapSize.height, mapSize.width, selectedPlace, viewport.lat, viewport.lng, viewport.zoom]);
+
+    const moveKey = `${selectedPlace.id}:${selectedPlace.lat}:${selectedPlace.lng}`;
+    if (lastSelectionMoveRef.current === moveKey) {
+      return;
+    }
+
+    const current = viewportRef.current;
+    const nextViewport = {
+      lat: selectedPlace.lat,
+      lng: selectedPlace.lng,
+      zoom: Math.max(current.zoom, 13),
+    };
+
+    animateViewportTo(nextViewport, 320);
+    lastSelectionMoveRef.current = moveKey;
+  }, [animateViewportTo, mapSize.height, mapSize.width, selectedPlace]);
 
   React.useEffect(() => {
     if (!highlightCardPlaces.length) {
@@ -355,7 +378,7 @@ function MapPage() {
   }
 
   const markerTone = CATEGORY_MARKER_TONES[activeCategory] ?? 'marker-sage';
-  const mapMarkers = visiblePlaces.map((place) => {
+  const mapMarkers = visiblePlaces.filter((place) => isValidCoordinate(place.lat, place.lng)).map((place) => {
     const pixelPoint = project(place.lat, place.lng, viewport.zoom);
     return {
       ...place,
