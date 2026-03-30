@@ -1225,11 +1225,12 @@ h1 {
 
 @media (max-width: 980px) {
   .map-page {
-    height: auto;
-    min-height: 100vh;
+    height: 100dvh;
+    min-height: 100dvh;
     flex-direction: column;
     gap: 0.75rem;
     padding: 0;
+    overflow: hidden;
   }
 
   .map-sidebar,
@@ -1238,6 +1239,7 @@ h1 {
   }
 
   .map-sidebar {
+    flex: 1 1 auto;
     flex-basis: auto;
     gap: 0.65rem;
     padding: 0.8rem;
@@ -1245,11 +1247,13 @@ h1 {
     position: relative;
     z-index: 2;
     border-radius: 14px;
+    overflow: hidden;
+    grid-template-rows: auto auto minmax(0, 1fr);
   }
 
   .map-viewport {
-    min-height: 82vh;
-    height: 88dvh;
+    min-height: 46dvh;
+    height: 52dvh;
     border-radius: 0;
     border-left: 0;
     border-right: 0;
@@ -1257,7 +1261,11 @@ h1 {
 
   .map-canvas-panel {
     order: -1;
+    flex: 0 0 auto;
     min-height: auto;
+    position: sticky;
+    top: 0;
+    z-index: 1;
   }
 
   .map-details-panel {
@@ -1299,9 +1307,12 @@ h1 {
   }
 
   .map-place-list {
-    overflow: visible;
-    padding-right: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 0.2rem;
     gap: 0.5rem;
+    min-height: 0;
+    overscroll-behavior: contain;
   }
 
   .map-place-row {
