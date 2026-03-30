@@ -1,5 +1,4 @@
 export const mapCategories = [
-  'Highlights',
   'Classic Porto',
   'Parks',
   'Breakfast & Brunch',
@@ -80,7 +79,7 @@ export const portoGuidePlaces = [
   { id: 62, slug: 'lobbb-pt', name: 'lobbb.pt', category: 'Street Food', area: 'Bonfim', lat: 41.1493, lng: -8.6012, instagram: 'lobbb.pt', description: 'Compact street-food concept in east center.', notes: 'Snack-friendly stop.', featured: false, tags: ['snacks'] },
   { id: 63, slug: 'shavva-pt', name: 'shavva.pt', category: 'Street Food', area: 'Baixa', lat: 41.1464, lng: -8.6077, instagram: 'shavva.pt', description: 'Street-food style wraps and bowls.', notes: 'Late-day casual option.', featured: false, tags: ['wraps'] },
 
-  { id: 64, slug: 'base-porto', name: 'baseporto', category: 'Highlights', area: 'Clérigos', lat: 41.1457, lng: -8.6145, instagram: 'baseporto', description: 'Classic outdoor lounge lawn under Clérigos tower.', notes: 'Special local social spot.', featured: true, tags: ['special place', 'drinks'] },
+  { id: 64, slug: 'base-porto', name: 'baseporto', category: 'Classic Porto', area: 'Clérigos', lat: 41.1457, lng: -8.6145, instagram: 'baseporto', description: 'Classic outdoor lounge lawn under Clérigos tower.', notes: 'Special local social spot.', featured: true, tags: ['special place', 'drinks'] },
 
   { id: 65, slug: 'praia-lavadores', name: 'Lavadores', category: 'Beaches & Ocean', area: 'Canidelo', lat: 41.1232, lng: -8.6698, description: 'Atlantic beach with rugged boardwalk scenery.', notes: 'Great sunset wind and waves.', featured: true, tags: ['beach', 'sunset'] },
   { id: 66, slug: 'foz-beachfront', name: 'Foz', category: 'Beaches & Ocean', area: 'Foz do Douro', lat: 41.1502, lng: -8.6764, description: 'Elegant seaside district and promenade.', notes: 'Pair with Passeio Alegre or brunch.', featured: true, tags: ['promenade', 'district'] },
@@ -118,4 +117,4 @@ export const portoGuidePlaces = [
   { id: 95, slug: 'portuguese-flannel-store', name: 'Portuguese Flannel Store', category: 'Shopping', area: 'Cedofeita', lat: 41.1529, lng: -8.6161, description: 'Portuguese menswear label flagship with elevated basics.', notes: 'Local design quality stop.', featured: true, tags: ['local brand', 'menswear'] },
 ];
 
-export const defaultMapCategory = 'Highlights';
+export const defaultMapCategory = 'Classic Porto';

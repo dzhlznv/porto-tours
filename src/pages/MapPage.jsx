@@ -7,15 +7,6 @@ const MAX_ZOOM = 17;
 const DEFAULT_TRANSITION_MS = 420;
 
 const CATEGORY_VIEWPORT_CONFIG = {
-  Highlights: {
-    bounds: {
-      north: 41.168,
-      south: 41.127,
-      west: -8.648,
-      east: -8.584,
-    },
-    targetZoom: 13,
-  },
   'Classic Porto': {
     bounds: {
       north: 41.1538,
@@ -55,7 +46,6 @@ const CATEGORY_VIEWPORT_CONFIG = {
 };
 
 const CATEGORY_MARKER_TONES = {
-  Highlights: 'marker-sage',
   'Classic Porto': 'marker-clay',
   Gaia: 'marker-indigo',
   'Beaches & Ocean': 'marker-ocean',
@@ -174,15 +164,9 @@ function MapPage() {
     }, {});
   }, []);
 
-  const featuredPlaces = React.useMemo(() => portoGuidePlaces.filter((place) => place.featured), []);
-
   const visiblePlaces = React.useMemo(() => {
-    if (activeCategory === 'Highlights') {
-      return featuredPlaces;
-    }
-
     return placesByCategory[activeCategory] ?? [];
-  }, [activeCategory, featuredPlaces, placesByCategory]);
+  }, [activeCategory, placesByCategory]);
 
   const selectedPlace = React.useMemo(() => {
     return portoGuidePlaces.find((place) => place.id === selectedPlaceId) ?? visiblePlaces[0] ?? portoGuidePlaces[0];
@@ -249,8 +233,7 @@ function MapPage() {
     }
 
     const categoryConfig = CATEGORY_VIEWPORT_CONFIG[activeCategory] ?? null;
-    const relevantPlaces =
-      activeCategory === 'Highlights' ? visiblePlaces.filter((place) => place.featured).slice(0, 8) : visiblePlaces;
+    const relevantPlaces = visiblePlaces;
 
     const bounds = categoryConfig?.bounds ?? computeBoundsFromPlaces(relevantPlaces);
     const nextViewport = fitBoundsToViewport(bounds, mapSize, {
@@ -411,12 +394,12 @@ function MapPage() {
         <header className="map-sidebar__header">
           <p className="eyebrow">Porto2You</p>
           <h1>Curated Porto Map</h1>
-          <p>Discover Porto and Gaia through a local, premium list of places across ten practical categories.</p>
+          <p>Discover Porto and Gaia through a local, premium list of places across nine practical categories.</p>
         </header>
 
         <nav className="map-category-list" aria-label="Map categories">
           {mapCategories.map((category) => {
-            const categoryCount = category === 'Highlights' ? featuredPlaces.length : placesByCategory[category]?.length ?? 0;
+            const categoryCount = placesByCategory[category]?.length ?? 0;
             return (
               <button
                 key={category}
@@ -430,8 +413,6 @@ function MapPage() {
             );
           })}
         </nav>
-        {activeCategory === 'Highlights' ? <p className="map-start-hint">Start here</p> : null}
-
         <section className="map-place-list" aria-label={`${activeCategory} places`}>
           {visiblePlaces.map((place) => (
             <button
