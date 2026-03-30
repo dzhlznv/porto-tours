@@ -985,7 +985,7 @@ h1 {
   overflow: hidden;
   border-radius: 18px;
   border: 1px solid var(--line);
-  background: #d7e2eb;
+  background: #e7eff5;
   cursor: grab;
   min-height: 620px;
   height: 100%;
@@ -1004,14 +1004,20 @@ h1 {
   top: 0;
   user-select: none;
   pointer-events: none;
-  filter: saturate(0.78) contrast(0.93) brightness(1.04);
+  filter: brightness(1.07) contrast(0.88) saturate(0.74) hue-rotate(6deg);
+}
+
+.leaflet-tile {
+  filter: brightness(1.07) contrast(0.88) saturate(0.74) hue-rotate(6deg);
 }
 
 .map-surface-wash {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(170deg, rgba(247, 247, 246, 0.43) 0%, rgba(244, 244, 242, 0.24) 36%, rgba(237, 239, 241, 0.36) 100%);
+  background:
+    radial-gradient(circle at 64% 30%, rgba(214, 231, 245, 0.2) 0%, rgba(214, 231, 245, 0) 48%),
+    linear-gradient(170deg, rgba(251, 252, 253, 0.42) 0%, rgba(247, 249, 251, 0.22) 34%, rgba(240, 246, 250, 0.32) 100%);
   z-index: 1;
 }
 
@@ -1027,7 +1033,10 @@ h1 {
   border: none;
   padding: 0;
   cursor: pointer;
-  z-index: 2;
+  z-index: 4;
+  transform-origin: center;
+  transition: transform 160ms ease, filter 160ms ease;
+  filter: drop-shadow(0 7px 14px rgba(19, 30, 40, 0.22));
 }
 
 .map-marker__pulse,
@@ -1040,7 +1049,7 @@ h1 {
 .map-marker__pulse {
   border: 1px solid color-mix(in srgb, var(--marker-color) 46%, white);
   background: color-mix(in srgb, var(--marker-color) 15%, white);
-  box-shadow: 0 8px 18px rgba(16, 24, 28, 0.14);
+  box-shadow: 0 7px 16px rgba(16, 24, 28, 0.13);
 }
 
 .map-marker__core {
@@ -1054,6 +1063,7 @@ h1 {
   height: 24px;
   margin-left: -12px;
   margin-top: -12px;
+  filter: drop-shadow(0 10px 18px rgba(14, 24, 30, 0.28));
 }
 
 .map-marker.is-selected {
@@ -1061,6 +1071,7 @@ h1 {
   height: 28px;
   margin-left: -14px;
   margin-top: -14px;
+  filter: drop-shadow(0 12px 22px rgba(11, 21, 28, 0.32));
 }
 
 .map-marker.is-selected .map-marker__pulse {

@@ -2,6 +2,7 @@ import React from 'react';
 import { defaultMapCategory, mapCategories, portoGuidePlaces } from '../data/portoGuide';
 
 const TILE_SIZE = 256;
+const TILE_PROVIDER_URL = 'https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png';
 const MIN_ZOOM = 11;
 const MAX_ZOOM = 17;
 const DEFAULT_TRANSITION_MS = 420;
@@ -316,7 +317,7 @@ function MapPage() {
       const wrappedX = ((tx % maxTileIndex) + maxTileIndex) % maxTileIndex;
       tiles.push({
         key: `${zoomLevel}-${tx}-${ty}`,
-        src: `https://tile.openstreetmap.org/${zoomLevel}/${wrappedX}/${ty}.png`,
+        src: TILE_PROVIDER_URL.replace('{z}', zoomLevel).replace('{x}', wrappedX).replace('{y}', ty),
         x: tx * TILE_SIZE - leftWorld,
         y: ty * TILE_SIZE - topWorld,
       });
@@ -489,8 +490,8 @@ function MapPage() {
 
           <div className="map-attribution">
             <span>Use wheel to zoom and drag to pan.</span>
-            <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">
-              © OpenStreetMap contributors
+            <a href="https://carto.com/attributions" target="_blank" rel="noreferrer">
+              © OpenStreetMap contributors © CARTO
             </a>
           </div>
         </div>
