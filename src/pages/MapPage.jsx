@@ -373,6 +373,25 @@ function MapPage() {
     };
   };
 
+  const beginTouchDrag = (event) => {
+    if (!event.touches?.length) {
+      return;
+    }
+
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
+
+    const [touch] = event.touches;
+    dragStateRef.current = {
+      isDragging: true,
+      startX: touch.clientX,
+      startY: touch.clientY,
+      centerPx: centerPixels,
+    };
+  };
+
   const handleMouseMove = React.useCallback(
     (event) => {
       const dragState = dragStateRef.current;
@@ -401,6 +420,34 @@ function MapPage() {
       window.removeEventListener('mouseup', stopDrag);
     };
   }, [handleMouseMove, stopDrag]);
+
+  React.useEffect(() => {
+    const handleTouchMove = (event) => {
+      const dragState = dragStateRef.current;
+      if (!dragState.isDragging || !dragState.centerPx || !event.touches?.length) {
+        return;
+      }
+
+      const [touch] = event.touches;
+      const nextCenterX = dragState.centerPx.x - (touch.clientX - dragState.startX);
+      const nextCenterY = dragState.centerPx.y - (touch.clientY - dragState.startY);
+      const nextCenter = unproject(nextCenterX, nextCenterY, viewport.zoom);
+      setViewport((current) => ({ ...current, lat: clamp(nextCenter.lat, -85, 85), lng: nextCenter.lng }));
+      event.preventDefault();
+    };
+
+    const handleTouchEnd = () => stopDrag();
+
+    window.addEventListener('touchmove', handleTouchMove, { passive: false });
+    window.addEventListener('touchend', handleTouchEnd);
+    window.addEventListener('touchcancel', handleTouchEnd);
+
+    return () => {
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
+      window.removeEventListener('touchcancel', handleTouchEnd);
+    };
+  }, [stopDrag, viewport.zoom]);
 
   const handleWheel = (event) => {
     event.preventDefault();
@@ -453,6 +500,7 @@ function MapPage() {
           className="map-viewport"
           ref={mapViewportRef}
           onMouseDown={beginDrag}
+          onTouchStart={beginTouchDrag}
           onWheel={handleWheel}
           role="application"
           aria-label="Interactive Porto map"
@@ -508,7 +556,7 @@ function MapPage() {
           ) : null}
 
           <div className="map-attribution">
-            <span>Use wheel to zoom and drag to pan.</span>
+            <span className="map-attribution__hint">Use wheel to zoom and drag to pan.</span>
             <a href="https://carto.com/attributions" target="_blank" rel="noreferrer">
               © OpenStreetMap contributors © CARTO
             </a>
