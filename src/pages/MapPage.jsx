@@ -6,6 +6,8 @@ const TILE_PROVIDER_URL = 'https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}
 const MIN_ZOOM = 11;
 const MAX_ZOOM = 17;
 const DEFAULT_TRANSITION_MS = 420;
+const MOBILE_BREAKPOINT_QUERY = '(max-width: 980px)';
+const MOBILE_SELECTED_PLACE_ZOOM = 15;
 
 const CATEGORY_VIEWPORT_CONFIG = {
   'Classic Porto': {
@@ -154,8 +156,13 @@ function MapPage() {
   const [isDetailsOpen, setIsDetailsOpen] = React.useState(true);
   const [viewport, setViewport] = React.useState({ lat: 41.15, lng: -8.61, zoom: 13 });
   const [mapSize, setMapSize] = React.useState({ width: 0, height: 0 });
+  const [isMobileLayout, setIsMobileLayout] = React.useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia(MOBILE_BREAKPOINT_QUERY).matches : false
+  );
 
   const mapViewportRef = React.useRef(null);
+  const mapPlaceListRef = React.useRef(null);
+  const mapPlaceRowRefs = React.useRef(new Map());
   const dragStateRef = React.useRef({
     mode: null,
     startX: 0,
@@ -196,7 +203,7 @@ function MapPage() {
     const to = {
       lat: clamp(target.lat, -85, 85),
       lng: target.lng,
-      zoom: clamp(Math.round(target.zoom), MIN_ZOOM, MAX_ZOOM),
+      zoom: clamp(target.zoom, MIN_ZOOM, MAX_ZOOM),
     };
 
     if (duration <= 0) {
@@ -237,6 +244,19 @@ function MapPage() {
   }, []);
 
   React.useEffect(() => {
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
+
+    const mediaQuery = window.matchMedia(MOBILE_BREAKPOINT_QUERY);
+    const updateLayout = () => setIsMobileLayout(mediaQuery.matches);
+    updateLayout();
+    mediaQuery.addEventListener('change', updateLayout);
+
+    return () => mediaQuery.removeEventListener('change', updateLayout);
+  }, []);
+
+  React.useEffect(() => {
     if (!visiblePlaces.some((place) => place.id === selectedPlaceId)) {
       setSelectedPlaceId(visiblePlaces[0]?.id ?? portoGuidePlaces[0]?.id);
       setIsDetailsOpen(true);
@@ -252,10 +272,11 @@ function MapPage() {
     const relevantPlaces = visiblePlaces;
 
     const bounds = categoryConfig?.bounds ?? computeBoundsFromPlaces(relevantPlaces);
+    const categoryTargetZoom = categoryConfig?.targetZoom ?? MIN_ZOOM;
     const nextViewport = fitBoundsToViewport(bounds, mapSize, {
-      paddingX: mapSize.width > 1200 ? 140 : 96,
-      paddingY: mapSize.height > 800 ? 120 : 90,
-      targetZoom: categoryConfig?.targetZoom,
+      paddingX: isMobileLayout ? 44 : mapSize.width > 1200 ? 140 : 96,
+      paddingY: isMobileLayout ? 52 : mapSize.height > 800 ? 120 : 90,
+      targetZoom: isMobileLayout ? Math.min(categoryTargetZoom + 1, MAX_ZOOM - 1) : categoryConfig?.targetZoom,
     });
 
     suppressSelectionRecenteringRef.current = true;
@@ -269,7 +290,7 @@ function MapPage() {
       window.clearTimeout(releaseSuppressTimer);
       suppressSelectionRecenteringRef.current = false;
     };
-  }, [activeCategory, animateViewportTo, mapSize.height, mapSize.width, visiblePlaces]);
+  }, [activeCategory, animateViewportTo, isMobileLayout, mapSize.height, mapSize.width, visiblePlaces]);
 
   React.useEffect(() => {
     if (!selectedPlace || !mapSize.width || !mapSize.height) {
@@ -299,12 +320,12 @@ function MapPage() {
         {
           lat: nextCenter.lat,
           lng: nextCenter.lng,
-          zoom: Math.max(viewport.zoom, 13),
+          zoom: Math.max(viewport.zoom, isMobileLayout ? MOBILE_SELECTED_PLACE_ZOOM : 13),
         },
         320
       );
     }
-  }, [animateViewportTo, mapSize.height, mapSize.width, selectedPlace, viewport.lat, viewport.lng, viewport.zoom]);
+  }, [animateViewportTo, isMobileLayout, mapSize.height, mapSize.width, selectedPlace, viewport.lat, viewport.lng, viewport.zoom]);
 
   React.useEffect(() => {
     const node = mapViewportRef.current;
@@ -321,6 +342,23 @@ function MapPage() {
 
     return () => observer.disconnect();
   }, []);
+
+  React.useEffect(() => {
+    if (!selectedPlaceId || !mapPlaceListRef.current) {
+      return;
+    }
+
+    const selectedRow = mapPlaceRowRefs.current.get(selectedPlaceId);
+    if (!selectedRow) {
+      return;
+    }
+
+    selectedRow.scrollIntoView({
+      behavior: 'smooth',
+      block: isMobileLayout ? 'center' : 'nearest',
+      inline: 'nearest',
+    });
+  }, [isMobileLayout, selectedPlaceId]);
 
   const centerPixels = project(viewport.lat, viewport.lng, viewport.zoom);
 
@@ -530,11 +568,18 @@ function MapPage() {
             );
           })}
         </nav>
-        <section className="map-place-list" aria-label={`${activeCategory} places`}>
+        <section className="map-place-list" ref={mapPlaceListRef} aria-label={`${activeCategory} places`}>
           {visiblePlaces.map((place) => (
             <button
               key={place.id}
               type="button"
+              ref={(node) => {
+                if (node) {
+                  mapPlaceRowRefs.current.set(place.id, node);
+                } else {
+                  mapPlaceRowRefs.current.delete(place.id);
+                }
+              }}
               className={`map-place-row ${selectedPlace?.id === place.id ? 'is-selected' : ''}`}
               onClick={() => {
                 setSelectedPlaceId(place.id);
