@@ -1176,7 +1176,7 @@ h1 {
 }
 
 .map-details-panel__close {
-  display: none;
+  display: inline-grid;
   touch-action: manipulation;
   justify-self: end;
   width: 2rem;
