@@ -64,6 +64,10 @@ function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }
 
+function normalizeZoom(zoom) {
+  return Math.round(clamp(zoom, MIN_ZOOM, MAX_ZOOM));
+}
+
 function easeOutCubic(progress) {
   return 1 - (1 - progress) ** 3;
 }
@@ -204,7 +208,7 @@ function MapPage() {
     const to = {
       lat: clamp(target.lat, -85, 85),
       lng: target.lng,
-      zoom: clamp(target.zoom, MIN_ZOOM, MAX_ZOOM),
+      zoom: normalizeZoom(target.zoom),
     };
 
     if (duration <= 0) {
@@ -518,7 +522,7 @@ function MapPage() {
         const deltaY = touchB.clientY - touchA.clientY;
         const distance = Math.max(Math.hypot(deltaX, deltaY), 1);
         const zoomChange = Math.log2(distance / Math.max(dragState.startDistance, 1));
-        const nextZoom = clamp(dragState.startZoom + zoomChange, MIN_ZOOM, MAX_ZOOM);
+        const nextZoom = normalizeZoom(dragState.startZoom + zoomChange);
         setViewport((current) => ({ ...current, zoom: nextZoom }));
         event.preventDefault();
         return;
@@ -548,11 +552,11 @@ function MapPage() {
   const handleWheel = (event) => {
     event.preventDefault();
     const zoomDelta = event.deltaY < 0 ? 1 : -1;
-    setViewport((current) => ({ ...current, zoom: clamp(current.zoom + zoomDelta, MIN_ZOOM, MAX_ZOOM) }));
+    setViewport((current) => ({ ...current, zoom: normalizeZoom(current.zoom + zoomDelta) }));
   };
 
   const adjustZoom = React.useCallback((delta) => {
-    setViewport((current) => ({ ...current, zoom: clamp(current.zoom + delta, MIN_ZOOM, MAX_ZOOM) }));
+    setViewport((current) => ({ ...current, zoom: normalizeZoom(current.zoom + delta) }));
   }, []);
 
   return (
