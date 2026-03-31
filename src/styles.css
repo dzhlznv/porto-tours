@@ -991,6 +991,10 @@ h1 {
   height: 100%;
   width: 100%;
   touch-action: none;
+  overscroll-behavior: contain;
+  -webkit-user-select: none;
+  user-select: none;
+  pointer-events: auto;
 }
 
 .map-viewport:active {

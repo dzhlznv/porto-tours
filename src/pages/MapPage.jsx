@@ -9,6 +9,7 @@ const ZOOM_BUTTON_STEP = 0.5;
 const DEFAULT_TRANSITION_MS = 420;
 const MOBILE_BREAKPOINT_QUERY = '(max-width: 980px)';
 const MOBILE_SELECTED_PLACE_ZOOM = 15;
+const ZOOM_DEBUG_ENABLED = true;
 
 const CATEGORY_VIEWPORT_CONFIG = {
   'Classic Porto': {
@@ -162,6 +163,7 @@ function MapPage() {
   );
 
   const mapViewportRef = React.useRef(null);
+  const gestureStateRef = React.useRef({ startZoom: 0, active: false });
   const mapPlaceListRef = React.useRef(null);
   const mapPlaceRowRefs = React.useRef(new Map());
   const dragStateRef = React.useRef({
@@ -175,6 +177,15 @@ function MapPage() {
   const animationFrameRef = React.useRef(null);
   const suppressSelectionRecenteringRef = React.useRef(false);
   const selectionSourceRef = React.useRef('initial');
+
+  const logZoomDebug = React.useCallback((label, payload = {}) => {
+    if (!ZOOM_DEBUG_ENABLED) {
+      return;
+    }
+
+    // eslint-disable-next-line no-console
+    console.debug(`[map-zoom] ${label}`, payload);
+  }, []);
 
   const placesByCategory = React.useMemo(() => {
     return mapCategories.reduce((accumulator, category) => {
@@ -430,45 +441,6 @@ function MapPage() {
     };
   };
 
-  const beginTouchDrag = (event) => {
-    if (!event.touches?.length) {
-      return;
-    }
-
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current);
-      animationFrameRef.current = null;
-    }
-
-    if (event.touches.length >= 2) {
-      const [touchA, touchB] = event.touches;
-      const deltaX = touchB.clientX - touchA.clientX;
-      const deltaY = touchB.clientY - touchA.clientY;
-      const midpointX = (touchA.clientX + touchB.clientX) / 2;
-      const midpointY = (touchA.clientY + touchB.clientY) / 2;
-
-      dragStateRef.current = {
-        mode: 'pinch',
-        startX: midpointX,
-        startY: midpointY,
-        centerPx: centerPixels,
-        startDistance: Math.hypot(deltaX, deltaY),
-        startZoom: viewport.zoom,
-      };
-      return;
-    }
-
-    const [touch] = event.touches;
-    dragStateRef.current = {
-      mode: 'pan',
-      startX: touch.clientX,
-      startY: touch.clientY,
-      centerPx: centerPixels,
-      startDistance: 0,
-      startZoom: viewport.zoom,
-    };
-  };
-
   const handleMouseMove = React.useCallback(
     (event) => {
       const dragState = dragStateRef.current;
@@ -505,7 +477,86 @@ function MapPage() {
     };
   }, [handleMouseMove, stopDrag]);
 
+
+  const adjustZoom = React.useCallback((delta, source = 'buttons') => {
+    setViewport((current) => {
+      const nextZoom = clamp(current.zoom + delta, MIN_ZOOM, MAX_ZOOM);
+      logZoomDebug('zoom-control', { source, delta, from: current.zoom, to: nextZoom });
+      return { ...current, zoom: nextZoom };
+    });
+  }, [logZoomDebug]);
+
+
   React.useEffect(() => {
+    const node = mapViewportRef.current;
+    if (!node) {
+      return undefined;
+    }
+
+    const handleWheelZoom = (event) => {
+      event.preventDefault();
+      const deltaByMode = event.deltaMode === 1 ? event.deltaY * 16 : event.deltaMode === 2 ? event.deltaY * 160 : event.deltaY;
+      const sensitivity = event.ctrlKey ? 0.0045 : 0.0025;
+      const zoomDelta = -deltaByMode * sensitivity;
+
+      setViewport((current) => {
+        const nextZoom = clamp(current.zoom + zoomDelta, MIN_ZOOM, MAX_ZOOM);
+        logZoomDebug('wheel', {
+          deltaY: event.deltaY,
+          deltaMode: event.deltaMode,
+          ctrlKey: event.ctrlKey,
+          zoomDelta,
+          from: current.zoom,
+          to: nextZoom,
+        });
+        return { ...current, zoom: nextZoom };
+      });
+    };
+
+    const handleTouchStart = (event) => {
+      if (!event.touches?.length) {
+        return;
+      }
+
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
+
+      if (event.touches.length >= 2) {
+        const [touchA, touchB] = event.touches;
+        const deltaX = touchB.clientX - touchA.clientX;
+        const deltaY = touchB.clientY - touchA.clientY;
+        const midpointX = (touchA.clientX + touchB.clientX) / 2;
+        const midpointY = (touchA.clientY + touchB.clientY) / 2;
+
+        dragStateRef.current = {
+          mode: 'pinch',
+          startX: midpointX,
+          startY: midpointY,
+          centerPx: centerPixels,
+          startDistance: Math.hypot(deltaX, deltaY),
+          startZoom: viewport.zoom,
+        };
+
+        logZoomDebug('touch-pinch-start', {
+          startDistance: dragStateRef.current.startDistance,
+          startZoom: viewport.zoom,
+        });
+        return;
+      }
+
+      const [touch] = event.touches;
+      dragStateRef.current = {
+        mode: 'pan',
+        startX: touch.clientX,
+        startY: touch.clientY,
+        centerPx: centerPixels,
+        startDistance: 0,
+        startZoom: viewport.zoom,
+      };
+    };
+
     const handleTouchMove = (event) => {
       const dragState = dragStateRef.current;
       if (!dragState.mode || !dragState.centerPx || !event.touches?.length) {
@@ -519,7 +570,9 @@ function MapPage() {
         const distance = Math.max(Math.hypot(deltaX, deltaY), 1);
         const zoomChange = Math.log2(distance / Math.max(dragState.startDistance, 1));
         const nextZoom = clamp(dragState.startZoom + zoomChange, MIN_ZOOM, MAX_ZOOM);
+
         setViewport((current) => ({ ...current, zoom: nextZoom }));
+        logZoomDebug('touch-pinch-move', { distance, zoomChange, nextZoom });
         event.preventDefault();
         return;
       }
@@ -534,27 +587,56 @@ function MapPage() {
 
     const handleTouchEnd = () => stopDrag();
 
-    window.addEventListener('touchmove', handleTouchMove, { passive: false });
-    window.addEventListener('touchend', handleTouchEnd);
-    window.addEventListener('touchcancel', handleTouchEnd);
+    const handleGestureStart = (event) => {
+      event.preventDefault();
+      gestureStateRef.current = { startZoom: viewport.zoom, active: true };
+      logZoomDebug('gesture-start', { scale: event.scale, startZoom: viewport.zoom });
+    };
+
+    const handleGestureChange = (event) => {
+      event.preventDefault();
+      const startZoom = gestureStateRef.current.startZoom ?? viewport.zoom;
+      const scale = Math.max(event.scale || 1, 0.01);
+      const zoomDelta = Math.log2(scale);
+      const nextZoom = clamp(startZoom + zoomDelta, MIN_ZOOM, MAX_ZOOM);
+      setViewport((current) => ({ ...current, zoom: nextZoom }));
+      logZoomDebug('gesture-change', { scale, zoomDelta, nextZoom });
+    };
+
+    const handleGestureEnd = (event) => {
+      event.preventDefault();
+      gestureStateRef.current = { startZoom: viewport.zoom, active: false };
+      logZoomDebug('gesture-end', { zoom: viewport.zoom });
+    };
+
+    node.addEventListener('wheel', handleWheelZoom, { passive: false });
+    node.addEventListener('touchstart', handleTouchStart, { passive: false });
+    node.addEventListener('touchmove', handleTouchMove, { passive: false });
+    node.addEventListener('touchend', handleTouchEnd);
+    node.addEventListener('touchcancel', handleTouchEnd);
+    node.addEventListener('gesturestart', handleGestureStart, { passive: false });
+    node.addEventListener('gesturechange', handleGestureChange, { passive: false });
+    node.addEventListener('gestureend', handleGestureEnd);
 
     return () => {
-      window.removeEventListener('touchmove', handleTouchMove);
-      window.removeEventListener('touchend', handleTouchEnd);
-      window.removeEventListener('touchcancel', handleTouchEnd);
+      node.removeEventListener('wheel', handleWheelZoom);
+      node.removeEventListener('touchstart', handleTouchStart);
+      node.removeEventListener('touchmove', handleTouchMove);
+      node.removeEventListener('touchend', handleTouchEnd);
+      node.removeEventListener('touchcancel', handleTouchEnd);
+      node.removeEventListener('gesturestart', handleGestureStart);
+      node.removeEventListener('gesturechange', handleGestureChange);
+      node.removeEventListener('gestureend', handleGestureEnd);
     };
-  }, [stopDrag, viewport.zoom]);
+  }, [centerPixels, logZoomDebug, stopDrag, viewport.zoom]);
 
-  const handleWheel = (event) => {
-    event.preventDefault();
-    const deltaByMode = event.deltaMode === 1 ? event.deltaY * 16 : event.deltaMode === 2 ? event.deltaY * 160 : event.deltaY;
-    const zoomDelta = -deltaByMode * 0.0025;
-    setViewport((current) => ({ ...current, zoom: clamp(current.zoom + zoomDelta, MIN_ZOOM, MAX_ZOOM) }));
-  };
-
-  const adjustZoom = React.useCallback((delta) => {
-    setViewport((current) => ({ ...current, zoom: clamp(current.zoom + delta, MIN_ZOOM, MAX_ZOOM) }));
-  }, []);
+  React.useEffect(() => {
+    logZoomDebug('viewport-zoom-update', {
+      viewportZoom: viewport.zoom,
+      tileZoom,
+      tileScale,
+    });
+  }, [logZoomDebug, tileScale, tileZoom, viewport.zoom]);
 
   return (
     <main className="map-page" aria-label="Porto2You curated guide map">
@@ -612,8 +694,6 @@ function MapPage() {
           className="map-viewport"
           ref={mapViewportRef}
           onMouseDown={beginDrag}
-          onTouchStart={beginTouchDrag}
-          onWheel={handleWheel}
           role="application"
           aria-label="Interactive Porto map"
         >
@@ -686,7 +766,7 @@ function MapPage() {
             <button
               type="button"
               className="map-zoom-button"
-              onClick={() => adjustZoom(ZOOM_BUTTON_STEP)}
+              onClick={() => adjustZoom(ZOOM_BUTTON_STEP, 'button-in')}
               onMouseDown={(event) => event.stopPropagation()}
               aria-label="Zoom in"
             >
@@ -695,7 +775,7 @@ function MapPage() {
             <button
               type="button"
               className="map-zoom-button"
-              onClick={() => adjustZoom(-ZOOM_BUTTON_STEP)}
+              onClick={() => adjustZoom(-ZOOM_BUTTON_STEP, 'button-out')}
               onMouseDown={(event) => event.stopPropagation()}
               aria-label="Zoom out"
             >
@@ -704,7 +784,7 @@ function MapPage() {
           </div>
 
           <div className="map-attribution">
-            <span className="map-attribution__hint">Use wheel to zoom and drag to pan.</span>
+            <span className="map-attribution__hint">Use wheel, pinch, or +/- to zoom, and drag to pan.</span>
             <a href="https://carto.com/attributions" target="_blank" rel="noreferrer">
               © OpenStreetMap contributors © CARTO
             </a>
