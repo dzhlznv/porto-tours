@@ -5,6 +5,7 @@ const TILE_SIZE = 256;
 const TILE_PROVIDER_URL = 'https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png';
 const MIN_ZOOM = 11;
 const MAX_ZOOM = 17;
+const ZOOM_BUTTON_STEP = 0.5;
 const DEFAULT_TRANSITION_MS = 420;
 const MOBILE_BREAKPOINT_QUERY = '(max-width: 980px)';
 const MOBILE_SELECTED_PLACE_ZOOM = 15;
@@ -212,10 +213,6 @@ function MapPage() {
       return;
     }
 
-    if (from.zoom !== to.zoom) {
-      setViewport((current) => ({ ...current, zoom: to.zoom }));
-    }
-
     const tick = (now) => {
       const progress = clamp((now - start) / duration, 0, 1);
       const eased = easeOutCubic(progress);
@@ -223,7 +220,7 @@ function MapPage() {
       setViewport({
         lat: from.lat + (to.lat - from.lat) * eased,
         lng: from.lng + (to.lng - from.lng) * eased,
-        zoom: to.zoom,
+        zoom: from.zoom + (to.zoom - from.zoom) * eased,
       });
 
       if (progress < 1) {
@@ -368,18 +365,20 @@ function MapPage() {
     selectionSourceRef.current = 'initial';
   }, [isMobileLayout, selectedPlaceId]);
 
+  const tileZoom = Math.floor(viewport.zoom);
+  const tileScale = 2 ** (viewport.zoom - tileZoom);
+  const scaledTileSize = TILE_SIZE * tileScale;
   const centerPixels = project(viewport.lat, viewport.lng, viewport.zoom);
 
   const leftWorld = centerPixels.x - mapSize.width / 2;
   const topWorld = centerPixels.y - mapSize.height / 2;
 
-  const minTileX = Math.floor(leftWorld / TILE_SIZE);
-  const maxTileX = Math.floor((leftWorld + mapSize.width) / TILE_SIZE);
-  const minTileY = Math.floor(topWorld / TILE_SIZE);
-  const maxTileY = Math.floor((topWorld + mapSize.height) / TILE_SIZE);
+  const minTileX = Math.floor(leftWorld / scaledTileSize);
+  const maxTileX = Math.floor((leftWorld + mapSize.width) / scaledTileSize);
+  const minTileY = Math.floor(topWorld / scaledTileSize);
+  const maxTileY = Math.floor((topWorld + mapSize.height) / scaledTileSize);
 
-  const zoomLevel = Math.round(viewport.zoom);
-  const maxTileIndex = 2 ** zoomLevel;
+  const maxTileIndex = 2 ** tileZoom;
   const tiles = [];
 
   for (let tx = minTileX; tx <= maxTileX; tx += 1) {
@@ -390,10 +389,11 @@ function MapPage() {
 
       const wrappedX = ((tx % maxTileIndex) + maxTileIndex) % maxTileIndex;
       tiles.push({
-        key: `${zoomLevel}-${tx}-${ty}`,
-        src: TILE_PROVIDER_URL.replace('{z}', zoomLevel).replace('{x}', wrappedX).replace('{y}', ty),
-        x: tx * TILE_SIZE - leftWorld,
-        y: ty * TILE_SIZE - topWorld,
+        key: `${tileZoom}-${tx}-${ty}`,
+        src: TILE_PROVIDER_URL.replace('{z}', tileZoom).replace('{x}', wrappedX).replace('{y}', ty),
+        x: tx * scaledTileSize - leftWorld,
+        y: ty * scaledTileSize - topWorld,
+        size: scaledTileSize,
       });
     }
   }
@@ -547,7 +547,8 @@ function MapPage() {
 
   const handleWheel = (event) => {
     event.preventDefault();
-    const zoomDelta = event.deltaY < 0 ? 1 : -1;
+    const deltaByMode = event.deltaMode === 1 ? event.deltaY * 16 : event.deltaMode === 2 ? event.deltaY * 160 : event.deltaY;
+    const zoomDelta = -deltaByMode * 0.0025;
     setViewport((current) => ({ ...current, zoom: clamp(current.zoom + zoomDelta, MIN_ZOOM, MAX_ZOOM) }));
   };
 
@@ -623,7 +624,7 @@ function MapPage() {
               src={tile.src}
               alt=""
               draggable="false"
-              style={{ transform: `translate(${tile.x}px, ${tile.y}px)` }}
+              style={{ width: `${tile.size}px`, height: `${tile.size}px`, transform: `translate(${tile.x}px, ${tile.y}px)` }}
             />
           ))}
 
@@ -685,7 +686,7 @@ function MapPage() {
             <button
               type="button"
               className="map-zoom-button"
-              onClick={() => adjustZoom(1)}
+              onClick={() => adjustZoom(ZOOM_BUTTON_STEP)}
               onMouseDown={(event) => event.stopPropagation()}
               aria-label="Zoom in"
             >
@@ -694,7 +695,7 @@ function MapPage() {
             <button
               type="button"
               className="map-zoom-button"
-              onClick={() => adjustZoom(-1)}
+              onClick={() => adjustZoom(-ZOOM_BUTTON_STEP)}
               onMouseDown={(event) => event.stopPropagation()}
               aria-label="Zoom out"
             >
