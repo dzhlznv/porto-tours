@@ -551,6 +551,10 @@ function MapPage() {
     setViewport((current) => ({ ...current, zoom: clamp(current.zoom + zoomDelta, MIN_ZOOM, MAX_ZOOM) }));
   };
 
+  const changeZoom = (zoomDelta) => {
+    setViewport((current) => ({ ...current, zoom: clamp(current.zoom + zoomDelta, MIN_ZOOM, MAX_ZOOM) }));
+  };
+
   return (
     <main className="map-page" aria-label="Porto2You curated guide map">
       <aside className="map-sidebar">
@@ -676,6 +680,15 @@ function MapPage() {
               </article>
             </>
           ) : null}
+
+          <div className="map-zoom-controls" aria-label="Map zoom controls">
+            <button type="button" className="map-zoom-button" onClick={() => changeZoom(1)} aria-label="Zoom in">
+              +
+            </button>
+            <button type="button" className="map-zoom-button" onClick={() => changeZoom(-1)} aria-label="Zoom out">
+              −
+            </button>
+          </div>
 
           <div className="map-attribution">
             <span className="map-attribution__hint">Use wheel to zoom and drag to pan.</span>
