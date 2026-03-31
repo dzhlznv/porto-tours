@@ -1126,6 +1126,31 @@ h1 {
   --marker-color: #5f6672;
 }
 
+.map-zoom-controls {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  display: grid;
+  gap: 0.35rem;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.map-zoom-button {
+  pointer-events: auto;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, white 86%, var(--paper));
+  color: var(--ink-strong);
+  font-size: 1.2rem;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
 .map-attribution {
   position: absolute;
   left: 0.65rem;
@@ -1142,11 +1167,13 @@ h1 {
   font-size: 0.71rem;
   color: var(--ink-soft);
   z-index: 3;
+  pointer-events: none;
 }
 
 .map-attribution a {
   color: var(--ink-soft);
   opacity: 0.88;
+  pointer-events: auto;
 }
 
 .map-details-panel {
