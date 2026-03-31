@@ -175,6 +175,7 @@ function MapPage() {
   const animationFrameRef = React.useRef(null);
   const suppressSelectionRecenteringRef = React.useRef(false);
   const selectionSourceRef = React.useRef('initial');
+  const viewportRef = React.useRef(viewport);
 
   const placesByCategory = React.useMemo(() => {
     return mapCategories.reduce((accumulator, category) => {
@@ -191,6 +192,10 @@ function MapPage() {
     return portoGuidePlaces.find((place) => place.id === selectedPlaceId) ?? visiblePlaces[0] ?? portoGuidePlaces[0];
   }, [selectedPlaceId, visiblePlaces]);
 
+  React.useEffect(() => {
+    viewportRef.current = viewport;
+  }, [viewport]);
+
   const animateViewportTo = React.useCallback((target, duration = DEFAULT_TRANSITION_MS) => {
     if (!target) {
       return;
@@ -201,7 +206,7 @@ function MapPage() {
     }
 
     const start = performance.now();
-    const from = viewport;
+    const from = viewportRef.current;
     const to = {
       lat: clamp(target.lat, -85, 85),
       lng: target.lng,
@@ -231,7 +236,7 @@ function MapPage() {
     };
 
     animationFrameRef.current = requestAnimationFrame(tick);
-  }, [viewport]);
+  }, []);
 
   React.useEffect(() => {
     return () => {
