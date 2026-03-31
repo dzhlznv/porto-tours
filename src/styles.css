@@ -1006,10 +1006,14 @@ h1 {
   user-select: none;
   pointer-events: none;
   filter: brightness(1.07) contrast(0.88) saturate(0.74) hue-rotate(6deg);
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 .leaflet-tile {
   filter: brightness(1.07) contrast(0.88) saturate(0.74) hue-rotate(6deg);
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 .map-surface-wash {
@@ -1036,8 +1040,10 @@ h1 {
   cursor: pointer;
   z-index: 4;
   transform-origin: center;
-  transition: transform 160ms ease, filter 160ms ease;
+  transition: filter 160ms ease;
   filter: drop-shadow(0 7px 14px rgba(19, 30, 40, 0.22));
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 .map-marker__pulse,
