@@ -175,6 +175,7 @@ function MapPage() {
   const animationFrameRef = React.useRef(null);
   const suppressSelectionRecenteringRef = React.useRef(false);
   const selectionSourceRef = React.useRef('initial');
+  const lastInputSourceRef = React.useRef('initial');
 
   const placesByCategory = React.useMemo(() => {
     return mapCategories.reduce((accumulator, category) => {
@@ -409,6 +410,38 @@ function MapPage() {
     };
   });
 
+  const firstTile = tiles[0] ?? null;
+  const lastTile = tiles[tiles.length - 1] ?? null;
+
+  const debugLog = React.useCallback((type, payload = {}) => {
+    // eslint-disable-next-line no-console
+    console.debug(`[map-debug] ${type}`, payload);
+  }, []);
+
+  React.useEffect(() => {
+    debugLog('viewport-zoom-update', {
+      zoom: Number(viewport.zoom.toFixed(3)),
+      tileZoom,
+      tileScale: Number(tileScale.toFixed(4)),
+      tileCount: tiles.length,
+      firstTileSize: firstTile ? Number(firstTile.size.toFixed(2)) : null,
+      firstTileTransform: firstTile
+        ? `translate(${Number(firstTile.x.toFixed(1))}px, ${Number(firstTile.y.toFixed(1))}px)`
+        : null,
+      lastTileTransform: lastTile
+        ? `translate(${Number(lastTile.x.toFixed(1))}px, ${Number(lastTile.y.toFixed(1))}px)`
+        : null,
+      firstMarker: mapMarkers[0]
+        ? {
+            id: mapMarkers[0].id,
+            x: Number(mapMarkers[0].x.toFixed(1)),
+            y: Number(mapMarkers[0].y.toFixed(1)),
+          }
+        : null,
+      lastInputSource: lastInputSourceRef.current,
+    });
+  }, [debugLog, firstTile, lastTile, mapMarkers, tileScale, tileZoom, tiles.length, viewport.zoom]);
+
   const beginDrag = (event) => {
     if (event.button !== 0) {
       return;
@@ -455,6 +488,11 @@ function MapPage() {
         startDistance: Math.hypot(deltaX, deltaY),
         startZoom: viewport.zoom,
       };
+      lastInputSourceRef.current = 'touch-pinch-start';
+      debugLog('touch-pinch-start', {
+        touches: event.touches.length,
+        startZoom: Number(viewport.zoom.toFixed(3)),
+      });
       return;
     }
 
@@ -519,6 +557,13 @@ function MapPage() {
         const distance = Math.max(Math.hypot(deltaX, deltaY), 1);
         const zoomChange = Math.log2(distance / Math.max(dragState.startDistance, 1));
         const nextZoom = clamp(dragState.startZoom + zoomChange, MIN_ZOOM, MAX_ZOOM);
+        lastInputSourceRef.current = 'touch-pinch';
+        debugLog('touch-pinch-change', {
+          touches: event.touches.length,
+          distance: Number(distance.toFixed(2)),
+          zoomChange: Number(zoomChange.toFixed(4)),
+          nextZoom: Number(nextZoom.toFixed(3)),
+        });
         setViewport((current) => ({ ...current, zoom: nextZoom }));
         event.preventDefault();
         return;
@@ -549,12 +594,52 @@ function MapPage() {
     event.preventDefault();
     const deltaByMode = event.deltaMode === 1 ? event.deltaY * 16 : event.deltaMode === 2 ? event.deltaY * 160 : event.deltaY;
     const zoomDelta = -deltaByMode * 0.0025;
+    lastInputSourceRef.current = 'wheel';
+    debugLog('wheel', {
+      deltaY: Number(event.deltaY.toFixed(2)),
+      deltaMode: event.deltaMode,
+      normalizedDelta: Number(deltaByMode.toFixed(2)),
+      zoomDelta: Number(zoomDelta.toFixed(4)),
+    });
     setViewport((current) => ({ ...current, zoom: clamp(current.zoom + zoomDelta, MIN_ZOOM, MAX_ZOOM) }));
   };
 
   const adjustZoom = React.useCallback((delta) => {
+    lastInputSourceRef.current = delta > 0 ? 'zoom-control-plus' : 'zoom-control-minus';
+    debugLog('zoom-control', { delta });
     setViewport((current) => ({ ...current, zoom: clamp(current.zoom + delta, MIN_ZOOM, MAX_ZOOM) }));
-  }, []);
+  }, [debugLog]);
+
+  React.useEffect(() => {
+    const node = mapViewportRef.current;
+    if (!node) {
+      return undefined;
+    }
+
+    const handleGestureStart = (event) => {
+      lastInputSourceRef.current = 'gesture-start';
+      debugLog('gesture-start', {
+        scale: event.scale ?? null,
+        rotation: event.rotation ?? null,
+      });
+    };
+
+    const handleGestureChange = (event) => {
+      lastInputSourceRef.current = 'gesture-change';
+      debugLog('gesture-change', {
+        scale: event.scale ?? null,
+        rotation: event.rotation ?? null,
+      });
+    };
+
+    node.addEventListener('gesturestart', handleGestureStart);
+    node.addEventListener('gesturechange', handleGestureChange);
+
+    return () => {
+      node.removeEventListener('gesturestart', handleGestureStart);
+      node.removeEventListener('gesturechange', handleGestureChange);
+    };
+  }, [debugLog]);
 
   return (
     <main className="map-page" aria-label="Porto2You curated guide map">
@@ -709,6 +794,37 @@ function MapPage() {
               © OpenStreetMap contributors © CARTO
             </a>
           </div>
+
+          <aside
+            style={{
+              position: 'absolute',
+              top: '0.85rem',
+              right: '0.85rem',
+              zIndex: 7,
+              background: 'rgba(20, 26, 33, 0.78)',
+              color: '#fff',
+              borderRadius: '10px',
+              padding: '0.6rem 0.7rem',
+              fontSize: '0.72rem',
+              lineHeight: 1.35,
+              minWidth: '12.5rem',
+              pointerEvents: 'none',
+            }}
+            aria-hidden="true"
+          >
+            <div>viewport.zoom: {viewport.zoom.toFixed(3)}</div>
+            <div>tileZoom: {tileZoom}</div>
+            <div>tileScale: {tileScale.toFixed(4)}</div>
+            <div>first tile size: {firstTile ? `${firstTile.size.toFixed(2)}px` : 'n/a'}</div>
+            <div>
+              first tile xy:{' '}
+              {firstTile ? `${firstTile.x.toFixed(1)}, ${firstTile.y.toFixed(1)}` : 'n/a'}
+            </div>
+            <div>
+              last tile xy: {lastTile ? `${lastTile.x.toFixed(1)}, ${lastTile.y.toFixed(1)}` : 'n/a'}
+            </div>
+            <div>last input: {lastInputSourceRef.current}</div>
+          </aside>
         </div>
 
       </section>
