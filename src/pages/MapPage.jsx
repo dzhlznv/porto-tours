@@ -9,6 +9,16 @@ const ZOOM_BUTTON_STEP = 0.5;
 const DEFAULT_TRANSITION_MS = 420;
 const MOBILE_BREAKPOINT_QUERY = '(max-width: 980px)';
 const MOBILE_SELECTED_PLACE_ZOOM = 15;
+const PAN_INTERACTION_RECENTER_COOLDOWN_MS = 700;
+const PAN_SOFT_MARGIN_RATIO = 0.38;
+const PAN_MIN_SOFT_MARGIN_LAT = 0.01;
+const PAN_MIN_SOFT_MARGIN_LNG = 0.012;
+const PAN_REFERENCE_BOUNDS = {
+  north: 41.24,
+  south: 41.08,
+  west: -8.74,
+  east: -8.5,
+};
 
 const CATEGORY_VIEWPORT_CONFIG = {
   'Classic Porto': {
@@ -148,6 +158,39 @@ function fitBoundsToViewport(bounds, mapSize, options = {}) {
   };
 }
 
+function constrainViewportCenter(center, zoom, mapSize, bounds = PAN_REFERENCE_BOUNDS) {
+  if (!center) {
+    return center;
+  }
+
+  const lat = clamp(center.lat, -85, 85);
+  const lng = center.lng;
+
+  if (!mapSize.width || !mapSize.height) {
+    return { lat, lng };
+  }
+
+  const centerWorld = project(lat, lng, zoom);
+  const leftTop = unproject(centerWorld.x - mapSize.width / 2, centerWorld.y - mapSize.height / 2, zoom);
+  const rightBottom = unproject(centerWorld.x + mapSize.width / 2, centerWorld.y + mapSize.height / 2, zoom);
+
+  const viewportLatSpan = Math.max(Math.abs(leftTop.lat - rightBottom.lat), PAN_MIN_SOFT_MARGIN_LAT * 2);
+  const viewportLngSpan = Math.max(Math.abs(rightBottom.lng - leftTop.lng), PAN_MIN_SOFT_MARGIN_LNG * 2);
+
+  const minCenterLat = bounds.south + viewportLatSpan / 2;
+  const maxCenterLat = bounds.north - viewportLatSpan / 2;
+  const minCenterLng = bounds.west + viewportLngSpan / 2;
+  const maxCenterLng = bounds.east - viewportLngSpan / 2;
+
+  const softLatMargin = Math.max(viewportLatSpan * PAN_SOFT_MARGIN_RATIO, PAN_MIN_SOFT_MARGIN_LAT);
+  const softLngMargin = Math.max(viewportLngSpan * PAN_SOFT_MARGIN_RATIO, PAN_MIN_SOFT_MARGIN_LNG);
+
+  return {
+    lat: clamp(lat, minCenterLat - softLatMargin, maxCenterLat + softLatMargin),
+    lng: clamp(lng, minCenterLng - softLngMargin, maxCenterLng + softLngMargin),
+  };
+}
+
 function MapPage() {
   const [activeCategory, setActiveCategory] = React.useState(defaultMapCategory);
   const [selectedPlaceId, setSelectedPlaceId] = React.useState(() => {
@@ -176,6 +219,7 @@ function MapPage() {
   const suppressSelectionRecenteringRef = React.useRef(false);
   const selectionSourceRef = React.useRef('initial');
   const viewportRef = React.useRef(viewport);
+  const lastManualPanRef = React.useRef(0);
 
   const placesByCategory = React.useMemo(() => {
     return mapCategories.reduce((accumulator, category) => {
@@ -302,6 +346,12 @@ function MapPage() {
     if (suppressSelectionRecenteringRef.current) {
       return;
     }
+    if (dragStateRef.current.mode) {
+      return;
+    }
+    if (Date.now() - lastManualPanRef.current < PAN_INTERACTION_RECENTER_COOLDOWN_MS) {
+      return;
+    }
 
     const markerWorld = project(selectedPlace.lat, selectedPlace.lng, viewport.zoom);
     const centerWorld = project(viewport.lat, viewport.lng, viewport.zoom);
@@ -318,11 +368,12 @@ function MapPage() {
       const nextCenterWorldX = markerWorld.x - (desiredX - mapSize.width / 2);
       const nextCenterWorldY = markerWorld.y - (desiredY - mapSize.height / 2);
       const nextCenter = unproject(nextCenterWorldX, nextCenterWorldY, viewport.zoom);
+      const constrainedCenter = constrainViewportCenter(nextCenter, viewport.zoom, mapSize);
 
       animateViewportTo(
         {
-          lat: nextCenter.lat,
-          lng: nextCenter.lng,
+          lat: constrainedCenter.lat,
+          lng: constrainedCenter.lng,
           zoom: Math.max(viewport.zoom, isMobileLayout ? MOBILE_SELECTED_PLACE_ZOOM : 13),
         },
         320
@@ -436,6 +487,7 @@ function MapPage() {
       startDistance: 0,
       startZoom: viewport.zoom,
     };
+    lastManualPanRef.current = Date.now();
   };
 
   const beginTouchDrag = (event) => {
@@ -463,6 +515,7 @@ function MapPage() {
         startDistance: Math.hypot(deltaX, deltaY),
         startZoom: viewport.zoom,
       };
+      lastManualPanRef.current = Date.now();
       return;
     }
 
@@ -475,6 +528,7 @@ function MapPage() {
       startDistance: 0,
       startZoom: viewport.zoom,
     };
+    lastManualPanRef.current = Date.now();
   };
 
   const handleMouseMove = React.useCallback(
@@ -487,9 +541,11 @@ function MapPage() {
       const nextCenterX = dragState.centerPx.x - (event.clientX - dragState.startX);
       const nextCenterY = dragState.centerPx.y - (event.clientY - dragState.startY);
       const nextCenter = unproject(nextCenterX, nextCenterY, viewport.zoom);
-      setViewport((current) => ({ ...current, lat: clamp(nextCenter.lat, -85, 85), lng: nextCenter.lng }));
+      const constrainedCenter = constrainViewportCenter(nextCenter, viewport.zoom, mapSize);
+      lastManualPanRef.current = Date.now();
+      setViewport((current) => ({ ...current, lat: constrainedCenter.lat, lng: constrainedCenter.lng }));
     },
-    [viewport.zoom]
+    [mapSize, viewport.zoom]
   );
 
   const stopDrag = React.useCallback(() => {
@@ -527,6 +583,7 @@ function MapPage() {
         const distance = Math.max(Math.hypot(deltaX, deltaY), 1);
         const zoomChange = Math.log2(distance / Math.max(dragState.startDistance, 1));
         const nextZoom = clamp(dragState.startZoom + zoomChange, MIN_ZOOM, MAX_ZOOM);
+        lastManualPanRef.current = Date.now();
         setViewport((current) => ({ ...current, zoom: nextZoom }));
         event.preventDefault();
         return;
@@ -536,7 +593,9 @@ function MapPage() {
       const nextCenterX = dragState.centerPx.x - (touch.clientX - dragState.startX);
       const nextCenterY = dragState.centerPx.y - (touch.clientY - dragState.startY);
       const nextCenter = unproject(nextCenterX, nextCenterY, viewport.zoom);
-      setViewport((current) => ({ ...current, lat: clamp(nextCenter.lat, -85, 85), lng: nextCenter.lng }));
+      const constrainedCenter = constrainViewportCenter(nextCenter, viewport.zoom, mapSize);
+      lastManualPanRef.current = Date.now();
+      setViewport((current) => ({ ...current, lat: constrainedCenter.lat, lng: constrainedCenter.lng }));
       event.preventDefault();
     };
 
@@ -551,16 +610,18 @@ function MapPage() {
       window.removeEventListener('touchend', handleTouchEnd);
       window.removeEventListener('touchcancel', handleTouchEnd);
     };
-  }, [stopDrag, viewport.zoom]);
+  }, [mapSize, stopDrag, viewport.zoom]);
 
   const handleWheel = (event) => {
     event.preventDefault();
     const deltaByMode = event.deltaMode === 1 ? event.deltaY * 16 : event.deltaMode === 2 ? event.deltaY * 160 : event.deltaY;
     const zoomDelta = -deltaByMode * 0.0025;
+    lastManualPanRef.current = Date.now();
     setViewport((current) => ({ ...current, zoom: clamp(current.zoom + zoomDelta, MIN_ZOOM, MAX_ZOOM) }));
   };
 
   const adjustZoom = React.useCallback((delta) => {
+    lastManualPanRef.current = Date.now();
     setViewport((current) => ({ ...current, zoom: clamp(current.zoom + delta, MIN_ZOOM, MAX_ZOOM) }));
   }, []);
 
