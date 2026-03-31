@@ -551,6 +551,10 @@ function MapPage() {
     setViewport((current) => ({ ...current, zoom: clamp(current.zoom + zoomDelta, MIN_ZOOM, MAX_ZOOM) }));
   };
 
+  const adjustZoom = React.useCallback((delta) => {
+    setViewport((current) => ({ ...current, zoom: clamp(current.zoom + delta, MIN_ZOOM, MAX_ZOOM) }));
+  }, []);
+
   return (
     <main className="map-page" aria-label="Porto2You curated guide map">
       <aside className="map-sidebar">
@@ -676,6 +680,27 @@ function MapPage() {
               </article>
             </>
           ) : null}
+
+          <div className="map-zoom-controls" role="group" aria-label="Map zoom controls">
+            <button
+              type="button"
+              className="map-zoom-button"
+              onClick={() => adjustZoom(1)}
+              onMouseDown={(event) => event.stopPropagation()}
+              aria-label="Zoom in"
+            >
+              +
+            </button>
+            <button
+              type="button"
+              className="map-zoom-button"
+              onClick={() => adjustZoom(-1)}
+              onMouseDown={(event) => event.stopPropagation()}
+              aria-label="Zoom out"
+            >
+              −
+            </button>
+          </div>
 
           <div className="map-attribution">
             <span className="map-attribution__hint">Use wheel to zoom and drag to pan.</span>
