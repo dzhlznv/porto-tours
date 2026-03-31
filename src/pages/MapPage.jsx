@@ -547,7 +547,7 @@ function MapPage() {
 
   const handleWheel = (event) => {
     event.preventDefault();
-    const zoomDelta = event.deltaY < 0 ? 1 : -1;
+    const zoomDelta = clamp(-event.deltaY * 0.01, -0.6, 0.6);
     setViewport((current) => ({ ...current, zoom: clamp(current.zoom + zoomDelta, MIN_ZOOM, MAX_ZOOM) }));
   };
 
