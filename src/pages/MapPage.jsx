@@ -375,13 +375,14 @@ function MapPage() {
   const scaledTileSize = TILE_SIZE * tileScale;
   const centerPixels = project(viewport.lat, viewport.lng, viewport.zoom);
 
-  const leftWorld = centerPixels.x - mapSize.width / 2;
-  const topWorld = centerPixels.y - mapSize.height / 2;
+  const centerTilePixels = project(viewport.lat, viewport.lng, tileZoom);
+  const leftTileWorld = centerTilePixels.x - mapSize.width / (2 * tileScale);
+  const topTileWorld = centerTilePixels.y - mapSize.height / (2 * tileScale);
 
-  const minTileX = Math.floor(leftWorld / scaledTileSize);
-  const maxTileX = Math.floor((leftWorld + mapSize.width) / scaledTileSize);
-  const minTileY = Math.floor(topWorld / scaledTileSize);
-  const maxTileY = Math.floor((topWorld + mapSize.height) / scaledTileSize);
+  const minTileX = Math.floor(leftTileWorld / TILE_SIZE);
+  const maxTileX = Math.floor((leftTileWorld + mapSize.width / tileScale) / TILE_SIZE);
+  const minTileY = Math.floor(topTileWorld / TILE_SIZE);
+  const maxTileY = Math.floor((topTileWorld + mapSize.height / tileScale) / TILE_SIZE);
 
   const maxTileIndex = 2 ** tileZoom;
   const tiles = [];
@@ -396,23 +397,25 @@ function MapPage() {
       tiles.push({
         key: `${tileZoom}-${tx}-${ty}`,
         src: TILE_PROVIDER_URL.replace('{z}', tileZoom).replace('{x}', wrappedX).replace('{y}', ty),
-        x: tx * scaledTileSize - leftWorld,
-        y: ty * scaledTileSize - topWorld,
+        x: (tx * TILE_SIZE - leftTileWorld) * tileScale,
+        y: (ty * TILE_SIZE - topTileWorld) * tileScale,
         size: scaledTileSize,
       });
     }
   }
 
   const markerTone = CATEGORY_MARKER_TONES[activeCategory] ?? 'marker-sage';
-  const mapMarkers = visiblePlaces.map((place) => {
-    const pixelPoint = project(place.lat, place.lng, viewport.zoom);
-    return {
-      ...place,
-      markerTone: CATEGORY_MARKER_TONES[place.category] ?? markerTone,
-      x: pixelPoint.x - leftWorld,
-      y: pixelPoint.y - topWorld,
-    };
-  });
+  const mapMarkers = React.useMemo(() => {
+    return visiblePlaces.map((place) => {
+      const pixelPoint = project(place.lat, place.lng, tileZoom);
+      return {
+        ...place,
+        markerTone: CATEGORY_MARKER_TONES[place.category] ?? markerTone,
+        x: (pixelPoint.x - leftTileWorld) * tileScale,
+        y: (pixelPoint.y - topTileWorld) * tileScale,
+      };
+    });
+  }, [activeCategory, leftTileWorld, markerTone, tileScale, tileZoom, topTileWorld, visiblePlaces]);
 
   const beginDrag = (event) => {
     if (event.button !== 0) {
@@ -629,7 +632,7 @@ function MapPage() {
               src={tile.src}
               alt=""
               draggable="false"
-              style={{ width: `${tile.size}px`, height: `${tile.size}px`, transform: `translate(${tile.x}px, ${tile.y}px)` }}
+              style={{ width: `${tile.size}px`, height: `${tile.size}px`, transform: `translate3d(${tile.x}px, ${tile.y}px, 0)` }}
             />
           ))}
 
@@ -642,7 +645,7 @@ function MapPage() {
               className={`map-marker ${marker.markerTone} ${marker.featured ? 'is-featured' : ''} ${
                 selectedPlace?.id === marker.id ? 'is-selected' : ''
               }`}
-              style={{ transform: `translate(${marker.x}px, ${marker.y}px)` }}
+              style={{ transform: `translate3d(${marker.x}px, ${marker.y}px, 0)` }}
               onClick={() => {
                 selectionSourceRef.current = 'marker';
                 setSelectedPlaceId(marker.id);
