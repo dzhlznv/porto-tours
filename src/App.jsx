@@ -54,6 +54,7 @@ function App() {
   const [isMobileGallery, setIsMobileGallery] = useState(() => window.matchMedia('(max-width: 768px)').matches);
   const [visibleGalleryCount, setVisibleGalleryCount] = useState(INITIAL_GALLERY_COUNT);
   const [activeGalleryIndex, setActiveGalleryIndex] = useState(null);
+  const [hasScrolled, setHasScrolled] = useState(false);
   const [activeAboutImageIndex, setActiveAboutImageIndex] = useState(0);
   const [isAboutDragging, setIsAboutDragging] = useState(false);
   const [aboutHoverZone, setAboutHoverZone] = useState('center');
@@ -78,6 +79,17 @@ function App() {
     mediaQuery.addEventListener('change', handleChange);
 
     return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
+  React.useEffect(() => {
+    const handleScroll = () => {
+      setHasScrolled(window.scrollY > 18);
+    };
+
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const visibleGalleryItems = useMemo(
@@ -283,6 +295,21 @@ function App() {
 
   return (
     <div className="page-shell">
+      <header className={`site-header ${hasScrolled ? 'is-scrolled' : ''}`} aria-label="Primary navigation">
+        <div className="site-header-inner">
+          <a className="site-logo" href="#top" aria-label="Go to top">
+            porto2you
+          </a>
+          <nav className="site-nav" aria-label="Section links">
+            <a href="#about">About</a>
+            <a href="#experience">Experience</a>
+            <a href="#contact">Contact</a>
+          </nav>
+          <a className="site-header-cta" href="#contact">
+            Plan a day
+          </a>
+        </div>
+      </header>
       <main className="page-content">
         <section className="hero" id="top">
           <div className="hero-copy">
@@ -297,7 +324,7 @@ function App() {
               </ul>
             </div>
             <p className="hero-supporting">{pageContent.hero.supportingLine}</p>
-            <a className="cta" href="#join">
+            <a className="cta" href="#contact">
               {pageContent.hero.cta}
             </a>
             <p className="hero-note">{pageContent.hero.note}</p>
@@ -364,7 +391,7 @@ function App() {
           </div>
         </Section>
 
-        <Section title="What this day includes" id="what-day-includes">
+        <Section title="What this day includes" id="experience">
           <div className="includes-grid">
             {pageContent.dayIncludes.map((item) => (
               <article key={item.title} className="includes-card">
@@ -484,7 +511,7 @@ function App() {
           </div>
         </Section>
 
-        <Section title="Join the waitlist" id="join">
+        <Section title="Join the waitlist" id="contact">
           <p className="waitlist-trust-note">No spam. I’ll only reach out when new dates open.</p>
           <WaitlistForm />
         </Section>
