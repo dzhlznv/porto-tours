@@ -54,7 +54,6 @@ function App() {
   const [isMobileGallery, setIsMobileGallery] = useState(() => window.matchMedia('(max-width: 768px)').matches);
   const [visibleGalleryCount, setVisibleGalleryCount] = useState(INITIAL_GALLERY_COUNT);
   const [activeGalleryIndex, setActiveGalleryIndex] = useState(null);
-  const [hasScrolled, setHasScrolled] = useState(false);
   const [activeAboutImageIndex, setActiveAboutImageIndex] = useState(0);
   const [isAboutDragging, setIsAboutDragging] = useState(false);
   const [aboutHoverZone, setAboutHoverZone] = useState('center');
@@ -79,17 +78,6 @@ function App() {
     mediaQuery.addEventListener('change', handleChange);
 
     return () => mediaQuery.removeEventListener('change', handleChange);
-  }, []);
-
-  React.useEffect(() => {
-    const handleScroll = () => {
-      setHasScrolled(window.scrollY > 18);
-    };
-
-    handleScroll();
-    window.addEventListener('scroll', handleScroll, { passive: true });
-
-    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const visibleGalleryItems = useMemo(
@@ -295,19 +283,13 @@ function App() {
 
   return (
     <div className="page-shell">
-      <header className={`site-header ${hasScrolled ? 'is-scrolled' : ''}`} aria-label="Primary navigation">
+      <header className="site-header" aria-label="Primary navigation">
         <div className="site-header-inner">
-          <a className="site-logo" href="#top" aria-label="Go to top">
-            porto2you
-          </a>
           <nav className="site-nav" aria-label="Section links">
             <a href="#about">About</a>
             <a href="#experience">Experience</a>
             <a href="#contact">Contact</a>
           </nav>
-          <a className="site-header-cta" href="#contact">
-            Plan a day
-          </a>
         </div>
       </header>
       <main className="page-content">
