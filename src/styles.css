@@ -37,7 +37,7 @@ body {
   min-height: 100vh;
   display: flex;
   justify-content: center;
-  padding: calc(2rem + var(--header-height)) 1.25rem 2.75rem;
+  padding: 2rem 1.25rem 2.75rem;
 }
 
 .page-content {
@@ -52,6 +52,9 @@ body {
   z-index: 20;
   display: flex;
   justify-content: center;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 320ms ease, transform 320ms ease;
   pointer-events: none;
 }
 
@@ -62,31 +65,23 @@ body {
   padding: 0.45rem 0.95rem;
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1.15rem;
   border-radius: 999px;
-  transition: background-color 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
-  border: 1px solid transparent;
+  justify-content: flex-end;
+  transition: background-color 280ms ease, border-color 280ms ease;
+  border: 1px solid color-mix(in srgb, var(--line-strong) 52%, white);
+  background: color-mix(in srgb, var(--paper-elevated) 64%, transparent);
+  backdrop-filter: blur(9px);
+  -webkit-backdrop-filter: blur(9px);
 }
 
-.site-header.is-scrolled .site-header-inner {
-  background: color-mix(in srgb, var(--paper-elevated) 76%, transparent);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-color: color-mix(in srgb, var(--line-strong) 60%, white);
-  box-shadow: 0 6px 22px rgba(42, 45, 44, 0.05);
-}
-
-.site-logo {
-  font-size: 0.82rem;
-  letter-spacing: 0.08em;
-  text-transform: lowercase;
-  text-decoration: none;
-  color: var(--ink-strong);
-  white-space: nowrap;
+.site-header.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
 }
 
 .site-nav {
-  margin-left: auto;
   display: flex;
   align-items: center;
   gap: 1.05rem;
@@ -836,7 +831,7 @@ h1 {
 
 @media (min-width: 820px) {
   .page-shell {
-    padding: calc(4rem + var(--header-height)) 2.1rem 3.4rem;
+    padding: 4rem 2.1rem 3.4rem;
   }
 
   .hero {
@@ -901,6 +896,7 @@ h1 {
   .site-header-inner {
     width: calc(100% - 1.2rem);
     padding: 0.4rem 0.75rem;
+    justify-content: space-between;
   }
 
   .site-nav {

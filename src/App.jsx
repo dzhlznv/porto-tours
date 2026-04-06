@@ -54,7 +54,7 @@ function App() {
   const [isMobileGallery, setIsMobileGallery] = useState(() => window.matchMedia('(max-width: 768px)').matches);
   const [visibleGalleryCount, setVisibleGalleryCount] = useState(INITIAL_GALLERY_COUNT);
   const [activeGalleryIndex, setActiveGalleryIndex] = useState(null);
-  const [hasScrolled, setHasScrolled] = useState(false);
+  const [isHeaderVisible, setIsHeaderVisible] = useState(() => window.scrollY > 180);
   const [activeAboutImageIndex, setActiveAboutImageIndex] = useState(0);
   const [isAboutDragging, setIsAboutDragging] = useState(false);
   const [aboutHoverZone, setAboutHoverZone] = useState('center');
@@ -82,11 +82,24 @@ function App() {
   }, []);
 
   React.useEffect(() => {
-    const handleScroll = () => {
-      setHasScrolled(window.scrollY > 18);
+    const headerRevealOffset = 180;
+    let ticking = false;
+
+    const updateHeaderVisibility = () => {
+      setIsHeaderVisible(window.scrollY > headerRevealOffset);
+      ticking = false;
     };
 
-    handleScroll();
+    const handleScroll = () => {
+      if (ticking) {
+        return;
+      }
+
+      ticking = true;
+      window.requestAnimationFrame(updateHeaderVisibility);
+    };
+
+    updateHeaderVisibility();
     window.addEventListener('scroll', handleScroll, { passive: true });
 
     return () => window.removeEventListener('scroll', handleScroll);
@@ -295,11 +308,8 @@ function App() {
 
   return (
     <div className="page-shell">
-      <header className={`site-header ${hasScrolled ? 'is-scrolled' : ''}`} aria-label="Primary navigation">
+      <header className={`site-header ${isHeaderVisible ? 'is-visible' : ''}`} aria-label="Primary navigation">
         <div className="site-header-inner">
-          <a className="site-logo" href="#top" aria-label="Go to top">
-            porto2you
-          </a>
           <nav className="site-nav" aria-label="Section links">
             <a href="#about">About</a>
             <a href="#experience">Experience</a>
