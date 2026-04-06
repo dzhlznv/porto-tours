@@ -297,9 +297,6 @@ function App() {
     <div className="page-shell">
       <header className={`site-header ${hasScrolled ? 'is-scrolled' : ''}`} aria-label="Primary navigation">
         <div className="site-header-inner">
-          <a className="site-logo" href="#top" aria-label="Go to top">
-            porto2you
-          </a>
           <nav className="site-nav" aria-label="Section links">
             <a href="#about">About</a>
             <a href="#experience">Experience</a>

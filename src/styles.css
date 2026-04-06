@@ -62,10 +62,12 @@ body {
   padding: 0.45rem 0.95rem;
   display: flex;
   align-items: center;
-  gap: 1rem;
+  justify-content: center;
+  gap: 1.2rem;
   border-radius: 999px;
   transition: background-color 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
-  border: 1px solid transparent;
+  border: 1px solid color-mix(in srgb, var(--line-strong) 65%, white);
+  background: color-mix(in srgb, var(--paper-elevated) 94%, white);
 }
 
 .site-header.is-scrolled .site-header-inner {
@@ -76,40 +78,31 @@ body {
   box-shadow: 0 6px 22px rgba(42, 45, 44, 0.05);
 }
 
-.site-logo {
-  font-size: 0.82rem;
-  letter-spacing: 0.08em;
-  text-transform: lowercase;
-  text-decoration: none;
-  color: var(--ink-strong);
-  white-space: nowrap;
-}
-
 .site-nav {
-  margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 1.05rem;
+  gap: 2rem;
 }
 
 .site-nav a {
-  font-size: 0.78rem;
-  letter-spacing: 0.02em;
+  font-size: 0.68rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
   text-decoration: none;
-  color: color-mix(in srgb, var(--ink-soft) 92%, var(--ink));
+  color: color-mix(in srgb, var(--ink-soft) 88%, var(--ink));
   transition: color 180ms ease, opacity 180ms ease;
-  opacity: 0.9;
+  opacity: 0.95;
 }
 
 .site-header-cta {
-  margin-left: 0.7rem;
-  font-size: 0.76rem;
-  letter-spacing: 0.03em;
+  font-size: 0.7rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
   text-decoration: none;
   color: var(--ink-strong);
-  border: 1px solid color-mix(in srgb, var(--line-strong) 78%, white);
+  border: 1px solid color-mix(in srgb, var(--line-strong) 72%, white);
   border-radius: 999px;
-  padding: 0.36rem 0.78rem;
+  padding: 0.5rem 1rem;
   transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease;
   white-space: nowrap;
 }
