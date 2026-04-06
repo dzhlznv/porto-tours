@@ -65,14 +65,14 @@ body {
   gap: 1rem;
   border-radius: 999px;
   transition: background-color 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
-  border: 1px solid transparent;
+  border: 0;
 }
 
 .site-header.is-scrolled .site-header-inner {
   background: color-mix(in srgb, var(--paper-elevated) 76%, transparent);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border-color: color-mix(in srgb, var(--line-strong) 60%, white);
+  border: 1px solid color-mix(in srgb, var(--line-strong) 60%, white);
   box-shadow: 0 6px 22px rgba(42, 45, 44, 0.05);
 }
 
