@@ -107,7 +107,7 @@ body {
   letter-spacing: 0.03em;
   text-decoration: none;
   color: var(--ink-strong);
-  border: 1px solid color-mix(in srgb, var(--line-strong) 78%, white);
+  border: 0.75px solid color-mix(in srgb, var(--line-strong) 78%, white);
   border-radius: 999px;
   padding: 0.36rem 0.78rem;
   transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease;
