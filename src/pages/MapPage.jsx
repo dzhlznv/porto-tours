@@ -879,7 +879,7 @@ function MapPage() {
                   <h2>{selectedPlace.name}</h2>
                   {!isDetailsExpanded ? (
                     <button type="button" className="map-details-panel__read-more" onClick={() => setIsDetailsExpanded(true)}>
-                      Details
+                      READ MORE
                     </button>
                   ) : null}
                   <p className="map-details-panel__area">{selectedPlace.subtitle ?? selectedPlace.area}</p>
