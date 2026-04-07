@@ -1252,7 +1252,7 @@ h1 {
   right: 1rem;
   width: min(360px, calc(100% - 2rem));
   max-height: calc(100% - 5.75rem);
-  overflow: auto;
+  overflow: hidden;
   padding: 0.85rem 0.95rem;
   border-radius: 14px;
   border: 1px solid var(--line);
@@ -1260,7 +1260,41 @@ h1 {
   box-shadow: 0 14px 30px rgba(10, 20, 26, 0.14);
   z-index: 4;
   display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
   gap: 0.45rem;
+}
+
+.map-details-panel__header {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.map-details-panel__content {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  position: relative;
+  padding-right: 0.1rem;
+}
+
+.map-details-panel__content::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.map-details-panel__content::after {
+  content: '';
+  position: sticky;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: block;
+  height: 1.2rem;
+  margin-top: -1.2rem;
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), color-mix(in srgb, var(--paper-elevated) 90%, white));
 }
 
 .map-details-backdrop {
@@ -1371,13 +1405,14 @@ h1 {
     top: auto;
     bottom: 3.1rem;
     width: min(420px, calc(100% - 1.5rem));
-    max-height: min(28dvh, 220px);
+    max-height: min(70dvh, 480px);
     padding: 0.7rem 0.78rem;
     background: color-mix(in srgb, var(--paper-elevated) 96%, white);
     pointer-events: none;
   }
 
-  .map-details-panel > * {
+  .map-details-panel__header,
+  .map-details-panel__content {
     pointer-events: auto;
   }
 
