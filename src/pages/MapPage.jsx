@@ -248,6 +248,7 @@ function MapPage() {
   const [viewport, setViewport] = React.useState({ lat: 41.15, lng: -8.61, zoom: 13 });
   const [mapSize, setMapSize] = React.useState({ width: 0, height: 0 });
   const [hoveredNeighborhoodId, setHoveredNeighborhoodId] = React.useState(null);
+  const [hoveredMarkerId, setHoveredMarkerId] = React.useState(null);
   const [isMobileLayout, setIsMobileLayout] = React.useState(() =>
     typeof window !== 'undefined' ? window.matchMedia(MOBILE_BREAKPOINT_QUERY).matches : false
   );
@@ -735,6 +736,7 @@ function MapPage() {
                 key={category}
                 type="button"
                 className={`map-category-chip ${activeCategory === category ? 'is-active' : ''}`}
+                aria-pressed={activeCategory === category}
                 onClick={() => {
                   setActiveCategory(category);
                   setIsDetailsExpanded(false);
@@ -828,7 +830,7 @@ function MapPage() {
               type="button"
               className={`map-marker ${marker.markerTone} ${marker.featured ? 'is-featured' : ''} ${
                 selectedPlace?.id === marker.id ? 'is-selected' : ''
-              }`}
+              } ${hoveredMarkerId === marker.id ? 'is-hovered' : ''}`}
               style={{ transform: `translate3d(${marker.x}px, ${marker.y}px, 0)` }}
               onClick={() => {
                 selectionSourceRef.current = 'marker';
@@ -836,6 +838,10 @@ function MapPage() {
                 setIsDetailsOpen(true);
                 setIsDetailsExpanded(false);
               }}
+              onMouseEnter={() => setHoveredMarkerId(marker.id)}
+              onMouseLeave={() => setHoveredMarkerId((current) => (current === marker.id ? null : current))}
+              onFocus={() => setHoveredMarkerId(marker.id)}
+              onBlur={() => setHoveredMarkerId((current) => (current === marker.id ? null : current))}
               title={marker.name}
               aria-label={marker.name}
             >
@@ -847,6 +853,15 @@ function MapPage() {
           {selectedPlace && isDetailsOpen ? (
             <>
               <div className="map-details-backdrop" aria-hidden="true" />
+              <button
+                type="button"
+                className="map-details-dismiss"
+                onClick={() => {
+                  setIsDetailsOpen(false);
+                  setIsDetailsExpanded(false);
+                }}
+                aria-label="Dismiss place details"
+              />
               <article className={`map-details-panel ${isDetailsExpanded ? 'is-expanded' : 'is-collapsed'}`} aria-live="polite">
                 <header className="map-details-panel__header">
                   <button
@@ -931,7 +946,7 @@ function MapPage() {
           </div>
 
           <div className="map-attribution">
-            <span className="map-attribution__hint">Use wheel to zoom and drag to pan.</span>
+            <span className="map-attribution__hint">{isMobileLayout ? 'Pinch to zoom and drag to explore.' : 'Use wheel to zoom and drag to pan.'}</span>
             <a href="https://carto.com/attributions" target="_blank" rel="noreferrer">
               © OpenStreetMap contributors © CARTO
             </a>
