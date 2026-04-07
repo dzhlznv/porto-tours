@@ -916,6 +916,7 @@ h1 {
   align-items: center;
   gap: 0.45rem;
   cursor: pointer;
+  transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease;
 }
 
 .map-category-chip small {
@@ -930,6 +931,11 @@ h1 {
 
 .map-category-chip.is-active small {
   color: color-mix(in srgb, var(--paper-elevated) 70%, var(--accent));
+}
+
+.map-category-chip:hover,
+.map-category-chip:focus-visible {
+  border-color: var(--accent);
 }
 
 .map-start-hint {
@@ -956,6 +962,7 @@ h1 {
   display: grid;
   gap: 0.15rem;
   cursor: pointer;
+  transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
 }
 
 .map-place-row strong {
@@ -971,6 +978,12 @@ h1 {
 .map-place-row.is-selected {
   border-color: var(--accent);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, white);
+}
+
+.map-place-row:hover,
+.map-place-row:focus-visible {
+  border-color: color-mix(in srgb, var(--accent) 58%, var(--line));
+  background: color-mix(in srgb, white 86%, var(--paper));
 }
 
 .map-canvas-panel {
@@ -1040,7 +1053,7 @@ h1 {
   cursor: pointer;
   z-index: 4;
   transform-origin: center;
-  transition: filter 160ms ease;
+  transition: filter 160ms ease, width 140ms ease, height 140ms ease, margin 140ms ease;
   filter: drop-shadow(0 7px 14px rgba(19, 30, 40, 0.22));
   will-change: transform;
   backface-visibility: hidden;
@@ -1090,6 +1103,19 @@ h1 {
   inset: 5px;
   border-width: 1px;
   background: color-mix(in srgb, var(--marker-color) 88%, white);
+}
+
+.map-marker.is-hovered:not(.is-selected) {
+  width: 24px;
+  height: 24px;
+  margin-left: -12px;
+  margin-top: -12px;
+  filter: drop-shadow(0 10px 18px rgba(14, 24, 30, 0.28));
+}
+
+.map-marker:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--marker-color) 55%, white);
+  outline-offset: 4px;
 }
 
 .map-marker.marker-sage {
@@ -1322,6 +1348,17 @@ h1 {
   z-index: 3;
 }
 
+.map-details-dismiss {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: default;
+}
+
 .map-details-panel__close {
   display: inline-grid;
   touch-action: manipulation;
@@ -1462,7 +1499,15 @@ h1 {
   }
 
   .map-details-backdrop {
-    display: none;
+    display: block;
+    background: rgba(17, 28, 36, 0.18);
+    backdrop-filter: blur(1px);
+    pointer-events: none;
+  }
+
+  .map-details-dismiss {
+    display: block;
+    cursor: pointer;
   }
 
   .map-details-panel__close {
