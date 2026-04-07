@@ -250,6 +250,7 @@ function MapPage() {
   const [isMobileLayout, setIsMobileLayout] = React.useState(() =>
     typeof window !== 'undefined' ? window.matchMedia(MOBILE_BREAKPOINT_QUERY).matches : false
   );
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = React.useState(false);
 
   const mapViewportRef = React.useRef(null);
   const mapPlaceListRef = React.useRef(null);
@@ -478,6 +479,10 @@ function MapPage() {
 
     selectionSourceRef.current = 'initial';
   }, [isMobileLayout, selectedPlaceId]);
+
+  React.useEffect(() => {
+    setIsDescriptionExpanded(false);
+  }, [selectedPlaceId]);
 
   const tileZoom = Math.floor(viewport.zoom);
   const tileScale = 2 ** (viewport.zoom - tileZoom);
@@ -851,7 +856,22 @@ function MapPage() {
                   <p className="map-details-panel__area">{selectedPlace.subtitle ?? selectedPlace.area}</p>
                 </header>
                 <div className="map-details-panel__content">
-                  <p>{selectedPlace.description}</p>
+                  <p
+                    className={`map-details-panel__description ${
+                      isMobileLayout && !isDescriptionExpanded ? 'is-clamped' : ''
+                    }`}
+                  >
+                    {selectedPlace.description}
+                  </p>
+                  {isMobileLayout ? (
+                    <button
+                      type="button"
+                      className="map-details-panel__toggle-description"
+                      onClick={() => setIsDescriptionExpanded((currentState) => !currentState)}
+                    >
+                      {isDescriptionExpanded ? 'Read less' : 'Read more'}
+                    </button>
+                  ) : null}
                   {selectedPlace.notes ? <p className="map-details-panel__notes">{selectedPlace.notes}</p> : null}
                   {selectedPlace.googleMapsUrl ? (
                     <a
