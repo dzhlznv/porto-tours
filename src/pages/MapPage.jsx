@@ -837,45 +837,49 @@ function MapPage() {
             <>
               <div className="map-details-backdrop" aria-hidden="true" />
               <article className="map-details-panel" aria-live="polite">
-                <button
-                  type="button"
-                  className="map-details-panel__close"
-                  onClick={() => setIsDetailsOpen(false)}
-                  aria-label="Close place details"
-                >
-                  <span aria-hidden="true">×</span>
-                </button>
-                <p className="eyebrow">{isNeighborhoodsMode ? NEIGHBORHOODS_CATEGORY : selectedPlace.category}</p>
-                <h2>{selectedPlace.name}</h2>
-                <p className="map-details-panel__area">{selectedPlace.subtitle ?? selectedPlace.area}</p>
-                <p>{selectedPlace.description}</p>
-                {selectedPlace.notes ? <p className="map-details-panel__notes">{selectedPlace.notes}</p> : null}
-                {selectedPlace.googleMapsUrl ? (
-                  <a
-                    className="map-details-panel__instagram"
-                    href={selectedPlace.googleMapsUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                <header className="map-details-panel__header">
+                  <button
+                    type="button"
+                    className="map-details-panel__close"
+                    onClick={() => setIsDetailsOpen(false)}
+                    aria-label="Close place details"
                   >
-                    Open in Google Maps
-                  </a>
-                ) : null}
-                {selectedPlace.instagram ? (
-                  <a
-                    className="map-details-panel__instagram"
-                    href={getInstagramUrl(selectedPlace.instagram)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="Open Instagram"
-                  >
-                    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
-                      <path
-                        fill="currentColor"
-                        d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2m0 1.5A4.25 4.25 0 0 0 3.5 7.75v8.5a4.25 4.25 0 0 0 4.25 4.25h8.5a4.25 4.25 0 0 0 4.25-4.25v-8.5a4.25 4.25 0 0 0-4.25-4.25zm8.75 1.75a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5M12 6.5A5.5 5.5 0 1 1 6.5 12 5.5 5.5 0 0 1 12 6.5m0 1.5A4 4 0 1 0 16 12a4 4 0 0 0-4-4"
-                      />
-                    </svg>
-                  </a>
-                ) : null}
+                    <span aria-hidden="true">×</span>
+                  </button>
+                  <p className="eyebrow">{isNeighborhoodsMode ? NEIGHBORHOODS_CATEGORY : selectedPlace.category}</p>
+                  <h2>{selectedPlace.name}</h2>
+                  <p className="map-details-panel__area">{selectedPlace.subtitle ?? selectedPlace.area}</p>
+                </header>
+                <div className="map-details-panel__content">
+                  <p>{selectedPlace.description}</p>
+                  {selectedPlace.notes ? <p className="map-details-panel__notes">{selectedPlace.notes}</p> : null}
+                  {selectedPlace.googleMapsUrl ? (
+                    <a
+                      className="map-details-panel__instagram"
+                      href={selectedPlace.googleMapsUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Open in Google Maps
+                    </a>
+                  ) : null}
+                  {selectedPlace.instagram ? (
+                    <a
+                      className="map-details-panel__instagram"
+                      href={getInstagramUrl(selectedPlace.instagram)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="Open Instagram"
+                    >
+                      <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
+                        <path
+                          fill="currentColor"
+                          d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2m0 1.5A4.25 4.25 0 0 0 3.5 7.75v8.5a4.25 4.25 0 0 0 4.25 4.25h8.5a4.25 4.25 0 0 0 4.25-4.25v-8.5a4.25 4.25 0 0 0-4.25-4.25zm8.75 1.75a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5M12 6.5A5.5 5.5 0 1 1 6.5 12 5.5 5.5 0 0 1 12 6.5m0 1.5A4 4 0 1 0 16 12a4 4 0 0 0-4-4"
+                        />
+                      </svg>
+                    </a>
+                  ) : null}
+                </div>
               </article>
             </>
           ) : null}
