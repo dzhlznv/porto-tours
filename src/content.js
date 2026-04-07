@@ -100,7 +100,7 @@ import g99 from './assets/gallery-99.jpg'
 import g100 from './assets/gallery-100.jpg'
 export const pageContent = {
   hero: {
-    title: 'A personal Porto day, thoughtfully shaped around you',
+    title: 'A day in Porto with a local',
     clarityPoints: [
       'Private 1:1 or in a very small group (max 3–4 people)',
       '6–8 unhurried hours',

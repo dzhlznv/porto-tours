@@ -41,8 +41,9 @@ function InstagramIcon() {
   );
 }
 
-function App() {
-  const pathname = window.location.pathname;
+function App({ initialPathname = '/' }) {
+  const isBrowser = typeof window !== 'undefined';
+  const pathname = isBrowser ? window.location.pathname : initialPathname;
   const normalizedPathname = pathname.endsWith('/') && pathname.length > 1 ? pathname.slice(0, -1) : pathname;
 
   if (normalizedPathname !== '/') {
@@ -51,7 +52,7 @@ function App() {
   const instagramUrl = 'https://www.instagram.com/porto2u/';
   const INITIAL_GALLERY_COUNT = 12;
   const GALLERY_BATCH_SIZE = 9;
-  const [isMobileGallery, setIsMobileGallery] = useState(() => window.matchMedia('(max-width: 768px)').matches);
+  const [isMobileGallery, setIsMobileGallery] = useState(false);
   const [visibleGalleryCount, setVisibleGalleryCount] = useState(INITIAL_GALLERY_COUNT);
   const [activeGalleryIndex, setActiveGalleryIndex] = useState(null);
   const [hasScrolled, setHasScrolled] = useState(false);
@@ -73,15 +74,23 @@ function App() {
   ];
 
   React.useEffect(() => {
+    if (!isBrowser) {
+      return undefined;
+    }
+
     const mediaQuery = window.matchMedia('(max-width: 768px)');
     const handleChange = () => setIsMobileGallery(mediaQuery.matches);
     handleChange();
     mediaQuery.addEventListener('change', handleChange);
 
     return () => mediaQuery.removeEventListener('change', handleChange);
-  }, []);
+  }, [isBrowser]);
 
   React.useEffect(() => {
+    if (!isBrowser) {
+      return undefined;
+    }
+
     const handleScroll = () => {
       setHasScrolled(window.scrollY > 18);
     };
@@ -90,7 +99,7 @@ function App() {
     window.addEventListener('scroll', handleScroll, { passive: true });
 
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [isBrowser]);
 
   const visibleGalleryItems = useMemo(
     () => (isMobileGallery ? pageContent.gallery : pageContent.gallery.slice(0, visibleGalleryCount)),
@@ -99,7 +108,7 @@ function App() {
   const hasMoreGalleryItems = !isMobileGallery && visibleGalleryCount < pageContent.gallery.length;
 
   React.useEffect(() => {
-    if (activeGalleryIndex === null) {
+    if (!isBrowser || activeGalleryIndex === null) {
       return undefined;
     }
 
@@ -118,7 +127,7 @@ function App() {
     window.addEventListener('keydown', handleKeyDown);
 
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [activeGalleryIndex, visibleGalleryItems.length]);
+  }, [activeGalleryIndex, isBrowser, visibleGalleryItems.length]);
 
   const handleViewMorePhotos = () => {
     setVisibleGalleryCount((count) => Math.min(count + GALLERY_BATCH_SIZE, pageContent.gallery.length));
@@ -169,7 +178,7 @@ function App() {
   };
 
   const handleAboutMouseDown = (event) => {
-    const isDesktopPointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    const isDesktopPointer = isBrowser && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
     if (!isDesktopPointer || event.button !== 0) {
       return;
     }
@@ -193,6 +202,10 @@ function App() {
   };
 
   React.useEffect(() => {
+    if (!isBrowser) {
+      return undefined;
+    }
+
     const handleAboutMouseMove = (event) => {
       if (!aboutDragRef.current.isMouseDown) {
         return;
@@ -220,10 +233,10 @@ function App() {
       window.removeEventListener('mousemove', handleAboutMouseMove);
       window.removeEventListener('mouseup', handleWindowMouseUp);
     };
-  }, [scrollToAboutSlide]);
+  }, [isBrowser, scrollToAboutSlide]);
 
   const handleAboutMouseMove = (event) => {
-    const isDesktopPointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    const isDesktopPointer = isBrowser && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
     if (!isDesktopPointer) {
       return;
     }
@@ -267,7 +280,7 @@ function App() {
   };
 
   const handleAboutTrackClick = (event) => {
-    const isDesktopPointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    const isDesktopPointer = isBrowser && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
     if (!isDesktopPointer) {
       return;
     }
