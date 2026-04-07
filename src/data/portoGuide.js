@@ -88,6 +88,22 @@ export const portoNeighborhoods = [
     ],
   },
   {
+    id: 'neighborhood-matosinhos',
+    name: 'Matosinhos',
+    area: 'Coastal Urban District',
+    subtitle: 'coastal, practical, local',
+    description: 'A broader, more open coastal district with beaches, seafood restaurants, surf culture, and a more everyday local rhythm. Less romantic than central Porto, but very livable, useful, and connected to the ocean.',
+    notes: 'Oceanfront, relaxed, everyday.',
+    polygon: [
+      [41.1969, -8.7012],
+      [41.1974, -8.6758],
+      [41.1888, -8.6611],
+      [41.1754, -8.6648],
+      [41.1723, -8.6899],
+      [41.1831, -8.7035],
+    ],
+  },
+  {
     id: 'neighborhood-boavista',
     name: 'Boavista',
     area: 'Business & Culture Axis',
