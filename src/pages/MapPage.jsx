@@ -98,12 +98,20 @@ function unproject(x, y, zoom) {
   return { lat, lng };
 }
 
-function normalizeInstagramHandle(handle) {
-  if (!handle) {
+function buildGoogleMapsUrl(place) {
+  if (!place) {
     return null;
   }
 
-  return handle.replace('@', '').trim();
+  if (place.googleMapsUrl) {
+    return place.googleMapsUrl;
+  }
+
+  if (typeof place.lat !== 'number' || typeof place.lng !== 'number') {
+    return null;
+  }
+
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${place.lat},${place.lng}`)}`;
 }
 
 function computeBoundsFromPlaces(places) {
@@ -543,6 +551,8 @@ function MapPage() {
       };
     });
   }, [isNeighborhoodsMode, leftTileWorld, tileScale, tileZoom, topTileWorld]);
+  const googleMapsUrl = buildGoogleMapsUrl(selectedPlace);
+  const showSerralvesInstagram = selectedPlace?.name === 'Serralves';
 
   const beginDrag = (event) => {
     if (event.button !== 0) {
@@ -838,15 +848,27 @@ function MapPage() {
                 <p className="map-details-panel__area">{selectedPlace.subtitle ?? selectedPlace.area}</p>
                 <p>{selectedPlace.description}</p>
                 {selectedPlace.notes ? <p className="map-details-panel__notes">{selectedPlace.notes}</p> : null}
-                {selectedPlace.instagram ? (
-                  <a
-                    className="map-details-panel__instagram"
-                    href={`https://instagram.com/${normalizeInstagramHandle(selectedPlace.instagram)}`}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    @{normalizeInstagramHandle(selectedPlace.instagram)}
-                  </a>
+                {googleMapsUrl ? (
+                  <p className="map-details-panel__actions">
+                    <a className="map-details-panel__link" href={googleMapsUrl} target="_blank" rel="noopener noreferrer">
+                      Open in Google Maps
+                    </a>
+                    {showSerralvesInstagram ? (
+                      <a
+                        className="map-details-panel__link map-details-panel__icon-link"
+                        href="https://instagram.com/serralves"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Open Serralves Instagram"
+                      >
+                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                          <rect x="4.5" y="4.5" width="15" height="15" rx="4" ry="4" fill="none" stroke="currentColor" strokeWidth="1.8" />
+                          <circle cx="12" cy="12" r="3.4" fill="none" stroke="currentColor" strokeWidth="1.8" />
+                          <circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" />
+                        </svg>
+                      </a>
+                    ) : null}
+                  </p>
                 ) : null}
               </article>
             </>
