@@ -1,5 +1,5 @@
 import React from 'react';
-import { defaultMapCategory, mapCategories, portoGuidePlaces } from '../data/portoGuide';
+import { defaultMapCategory, mapCategories, portoGuidePlaces, portoNeighborhoods } from '../data/portoGuide';
 
 const TILE_SIZE = 256;
 const TILE_PROVIDER_URL = 'https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png';
@@ -70,6 +70,8 @@ const CATEGORY_MARKER_TONES = {
   'Street Food': 'marker-apricot',
   Shopping: 'marker-slate',
 };
+const NEIGHBORHOODS_CATEGORY = 'Neighborhoods';
+const NEIGHBORHOOD_FILL_TONES = ['tone-moss', 'tone-sand', 'tone-clay', 'tone-sage', 'tone-lilac', 'tone-slate', 'tone-ocean', 'tone-olive'];
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
@@ -123,6 +125,38 @@ function computeBoundsFromPlaces(places) {
       west: 180,
     }
   );
+}
+
+function computeBoundsFromPolygonAreas(areas) {
+  if (!areas.length) {
+    return null;
+  }
+
+  return areas.reduce(
+    (accumulator, area) => {
+      area.polygon.forEach(([lat, lng]) => {
+        accumulator.north = Math.max(accumulator.north, lat);
+        accumulator.south = Math.min(accumulator.south, lat);
+        accumulator.east = Math.max(accumulator.east, lng);
+        accumulator.west = Math.min(accumulator.west, lng);
+      });
+      return accumulator;
+    },
+    { north: -90, south: 90, east: -180, west: 180 }
+  );
+}
+
+function getPolygonCentroid(points) {
+  if (!points.length) {
+    return { lat: 0, lng: 0 };
+  }
+
+  const totals = points.reduce(
+    (accumulator, [lat, lng]) => ({ lat: accumulator.lat + lat, lng: accumulator.lng + lng }),
+    { lat: 0, lng: 0 }
+  );
+
+  return { lat: totals.lat / points.length, lng: totals.lng / points.length };
 }
 
 function fitBoundsToViewport(bounds, mapSize, options = {}) {
@@ -200,6 +234,7 @@ function MapPage() {
   const [isDetailsOpen, setIsDetailsOpen] = React.useState(true);
   const [viewport, setViewport] = React.useState({ lat: 41.15, lng: -8.61, zoom: 13 });
   const [mapSize, setMapSize] = React.useState({ width: 0, height: 0 });
+  const [hoveredNeighborhoodId, setHoveredNeighborhoodId] = React.useState(null);
   const [isMobileLayout, setIsMobileLayout] = React.useState(() =>
     typeof window !== 'undefined' ? window.matchMedia(MOBILE_BREAKPOINT_QUERY).matches : false
   );
@@ -231,10 +266,14 @@ function MapPage() {
   const visiblePlaces = React.useMemo(() => {
     return placesByCategory[activeCategory] ?? [];
   }, [activeCategory, placesByCategory]);
+  const isNeighborhoodsMode = activeCategory === NEIGHBORHOODS_CATEGORY;
 
   const selectedPlace = React.useMemo(() => {
+    if (isNeighborhoodsMode) {
+      return portoNeighborhoods.find((neighborhood) => neighborhood.id === selectedPlaceId) ?? portoNeighborhoods[0] ?? null;
+    }
     return portoGuidePlaces.find((place) => place.id === selectedPlaceId) ?? visiblePlaces[0] ?? portoGuidePlaces[0];
-  }, [selectedPlaceId, visiblePlaces]);
+  }, [isNeighborhoodsMode, selectedPlaceId, visiblePlaces]);
 
   React.useEffect(() => {
     viewportRef.current = viewport;
@@ -304,21 +343,28 @@ function MapPage() {
   }, []);
 
   React.useEffect(() => {
+    if (isNeighborhoodsMode) {
+      if (!portoNeighborhoods.some((neighborhood) => neighborhood.id === selectedPlaceId)) {
+        setSelectedPlaceId(portoNeighborhoods[0]?.id ?? portoGuidePlaces[0]?.id);
+        setIsDetailsOpen(true);
+      }
+      return;
+    }
+
     if (!visiblePlaces.some((place) => place.id === selectedPlaceId)) {
       setSelectedPlaceId(visiblePlaces[0]?.id ?? portoGuidePlaces[0]?.id);
       setIsDetailsOpen(true);
     }
-  }, [activeCategory, selectedPlaceId, visiblePlaces]);
+  }, [isNeighborhoodsMode, selectedPlaceId, visiblePlaces]);
 
   React.useEffect(() => {
-    if (!mapSize.width || !mapSize.height || !visiblePlaces.length) {
+    if (!mapSize.width || !mapSize.height) {
       return;
     }
 
     const categoryConfig = CATEGORY_VIEWPORT_CONFIG[activeCategory] ?? null;
-    const relevantPlaces = visiblePlaces;
-
-    const bounds = categoryConfig?.bounds ?? computeBoundsFromPlaces(relevantPlaces);
+    const neighborhoodBounds = isNeighborhoodsMode ? computeBoundsFromPolygonAreas(portoNeighborhoods) : null;
+    const bounds = categoryConfig?.bounds ?? neighborhoodBounds ?? computeBoundsFromPlaces(visiblePlaces);
     const categoryTargetZoom = categoryConfig?.targetZoom ?? MIN_ZOOM;
     const nextViewport = fitBoundsToViewport(bounds, mapSize, {
       paddingX: isMobileLayout ? 44 : mapSize.width > 1200 ? 140 : 96,
@@ -337,7 +383,7 @@ function MapPage() {
       window.clearTimeout(releaseSuppressTimer);
       suppressSelectionRecenteringRef.current = false;
     };
-  }, [activeCategory, animateViewportTo, isMobileLayout, mapSize.height, mapSize.width, visiblePlaces]);
+  }, [activeCategory, animateViewportTo, isMobileLayout, isNeighborhoodsMode, mapSize.height, mapSize.width, visiblePlaces]);
 
   React.useEffect(() => {
     if (!selectedPlace || !mapSize.width || !mapSize.height) {
@@ -457,6 +503,10 @@ function MapPage() {
 
   const markerTone = CATEGORY_MARKER_TONES[activeCategory] ?? 'marker-sage';
   const mapMarkers = React.useMemo(() => {
+    if (isNeighborhoodsMode) {
+      return [];
+    }
+
     return visiblePlaces.map((place) => {
       const pixelPoint = project(place.lat, place.lng, tileZoom);
       return {
@@ -466,7 +516,33 @@ function MapPage() {
         y: (pixelPoint.y - topTileWorld) * tileScale,
       };
     });
-  }, [activeCategory, leftTileWorld, markerTone, tileScale, tileZoom, topTileWorld, visiblePlaces]);
+  }, [activeCategory, isNeighborhoodsMode, leftTileWorld, markerTone, tileScale, tileZoom, topTileWorld, visiblePlaces]);
+
+  const mapNeighborhoods = React.useMemo(() => {
+    if (!isNeighborhoodsMode) {
+      return [];
+    }
+
+    return portoNeighborhoods.map((neighborhood, index) => {
+      const points = neighborhood.polygon.map(([lat, lng]) => {
+        const pixelPoint = project(lat, lng, tileZoom);
+        return {
+          x: (pixelPoint.x - leftTileWorld) * tileScale,
+          y: (pixelPoint.y - topTileWorld) * tileScale,
+        };
+      });
+      const centroid = getPolygonCentroid(neighborhood.polygon);
+      const centroidPoint = project(centroid.lat, centroid.lng, tileZoom);
+
+      return {
+        ...neighborhood,
+        tone: NEIGHBORHOOD_FILL_TONES[index % NEIGHBORHOOD_FILL_TONES.length],
+        points: points.map((point) => `${point.x},${point.y}`).join(' '),
+        labelX: (centroidPoint.x - leftTileWorld) * tileScale,
+        labelY: (centroidPoint.y - topTileWorld) * tileScale,
+      };
+    });
+  }, [isNeighborhoodsMode, leftTileWorld, tileScale, tileZoom, topTileWorld]);
 
   const beginDrag = (event) => {
     if (event.button !== 0) {
@@ -631,12 +707,12 @@ function MapPage() {
         <header className="map-sidebar__header">
           <p className="eyebrow">Porto2You</p>
           <h1>Curated Porto Map</h1>
-          <p>Discover Porto and Gaia through a local, premium list of places across nine practical categories.</p>
+          <p>Discover Porto and Gaia through a local, premium list of places and neighborhood stories.</p>
         </header>
 
         <nav className="map-category-list" aria-label="Map categories">
           {mapCategories.map((category) => {
-            const categoryCount = placesByCategory[category]?.length ?? 0;
+            const categoryCount = category === NEIGHBORHOODS_CATEGORY ? portoNeighborhoods.length : placesByCategory[category]?.length ?? 0;
             return (
               <button
                 key={category}
@@ -651,7 +727,7 @@ function MapPage() {
           })}
         </nav>
         <section className="map-place-list" ref={mapPlaceListRef} aria-label={`${activeCategory} places`}>
-          {visiblePlaces.map((place) => (
+          {(isNeighborhoodsMode ? portoNeighborhoods : visiblePlaces).map((place) => (
             <button
               key={place.id}
               type="button"
@@ -670,7 +746,7 @@ function MapPage() {
               }}
             >
               <strong>{place.name}</strong>
-              <span>{place.area}</span>
+              <span>{place.subtitle ?? place.area}</span>
             </button>
           ))}
         </section>
@@ -698,6 +774,31 @@ function MapPage() {
           ))}
 
           <div className="map-surface-wash" aria-hidden="true" />
+
+          {isNeighborhoodsMode ? (
+            <svg className="map-neighborhood-overlay" aria-hidden="true">
+              {mapNeighborhoods.map((area) => (
+                <g key={area.id}>
+                  <polygon
+                    className={`map-neighborhood-shape ${area.tone} ${
+                      selectedPlace?.id === area.id ? 'is-selected' : ''
+                    } ${hoveredNeighborhoodId === area.id ? 'is-hovered' : ''}`}
+                    points={area.points}
+                    onMouseEnter={() => setHoveredNeighborhoodId(area.id)}
+                    onMouseLeave={() => setHoveredNeighborhoodId(null)}
+                    onClick={() => {
+                      selectionSourceRef.current = 'marker';
+                      setSelectedPlaceId(area.id);
+                      setIsDetailsOpen(true);
+                    }}
+                  />
+                  <text x={area.labelX} y={area.labelY} className="map-neighborhood-label">
+                    {area.name}
+                  </text>
+                </g>
+              ))}
+            </svg>
+          ) : null}
 
           {mapMarkers.map((marker) => (
             <button
@@ -732,9 +833,9 @@ function MapPage() {
                 >
                   <span aria-hidden="true">×</span>
                 </button>
-                <p className="eyebrow">{selectedPlace.category}</p>
+                <p className="eyebrow">{isNeighborhoodsMode ? NEIGHBORHOODS_CATEGORY : selectedPlace.category}</p>
                 <h2>{selectedPlace.name}</h2>
-                <p className="map-details-panel__area">{selectedPlace.area}</p>
+                <p className="map-details-panel__area">{selectedPlace.subtitle ?? selectedPlace.area}</p>
                 <p>{selectedPlace.description}</p>
                 {selectedPlace.notes ? <p className="map-details-panel__notes">{selectedPlace.notes}</p> : null}
                 {selectedPlace.instagram ? (
