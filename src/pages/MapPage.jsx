@@ -244,6 +244,7 @@ function MapPage() {
     return featuredInCategory?.id ?? portoGuidePlaces[0]?.id;
   });
   const [isDetailsOpen, setIsDetailsOpen] = React.useState(true);
+  const [isDetailsExpanded, setIsDetailsExpanded] = React.useState(false);
   const [viewport, setViewport] = React.useState({ lat: 41.15, lng: -8.61, zoom: 13 });
   const [mapSize, setMapSize] = React.useState({ width: 0, height: 0 });
   const [hoveredNeighborhoodId, setHoveredNeighborhoodId] = React.useState(null);
@@ -368,6 +369,10 @@ function MapPage() {
       setIsDetailsOpen(true);
     }
   }, [isNeighborhoodsMode, selectedPlaceId, visiblePlaces]);
+
+  React.useEffect(() => {
+    setIsDetailsExpanded(false);
+  }, [selectedPlaceId]);
 
   React.useEffect(() => {
     if (!mapSize.width || !mapSize.height) {
@@ -730,7 +735,10 @@ function MapPage() {
                 key={category}
                 type="button"
                 className={`map-category-chip ${activeCategory === category ? 'is-active' : ''}`}
-                onClick={() => setActiveCategory(category)}
+                onClick={() => {
+                  setActiveCategory(category);
+                  setIsDetailsExpanded(false);
+                }}
               >
                 <span>{category}</span>
                 <small>{categoryCount}</small>
@@ -755,6 +763,7 @@ function MapPage() {
                 selectionSourceRef.current = 'list';
                 setSelectedPlaceId(place.id);
                 setIsDetailsOpen(true);
+                setIsDetailsExpanded(false);
               }}
             >
               <strong>{place.name}</strong>
@@ -802,6 +811,7 @@ function MapPage() {
                       selectionSourceRef.current = 'marker';
                       setSelectedPlaceId(area.id);
                       setIsDetailsOpen(true);
+                      setIsDetailsExpanded(false);
                     }}
                   />
                   <text x={area.labelX} y={area.labelY} className="map-neighborhood-label">
@@ -824,6 +834,7 @@ function MapPage() {
                 selectionSourceRef.current = 'marker';
                 setSelectedPlaceId(marker.id);
                 setIsDetailsOpen(true);
+                setIsDetailsExpanded(false);
               }}
               title={marker.name}
               aria-label={marker.name}
@@ -836,12 +847,15 @@ function MapPage() {
           {selectedPlace && isDetailsOpen ? (
             <>
               <div className="map-details-backdrop" aria-hidden="true" />
-              <article className="map-details-panel" aria-live="polite">
+              <article className={`map-details-panel ${isDetailsExpanded ? 'is-expanded' : 'is-collapsed'}`} aria-live="polite">
                 <header className="map-details-panel__header">
                   <button
                     type="button"
                     className="map-details-panel__close"
-                    onClick={() => setIsDetailsOpen(false)}
+                    onClick={() => {
+                      setIsDetailsOpen(false);
+                      setIsDetailsExpanded(false);
+                    }}
                     aria-label="Close place details"
                   >
                     <span aria-hidden="true">×</span>
@@ -851,34 +865,45 @@ function MapPage() {
                   <p className="map-details-panel__area">{selectedPlace.subtitle ?? selectedPlace.area}</p>
                 </header>
                 <div className="map-details-panel__content">
-                  <p>{selectedPlace.description}</p>
-                  {selectedPlace.notes ? <p className="map-details-panel__notes">{selectedPlace.notes}</p> : null}
-                  {selectedPlace.googleMapsUrl ? (
-                    <a
-                      className="map-details-panel__instagram"
-                      href={selectedPlace.googleMapsUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Open in Google Maps
-                    </a>
-                  ) : null}
-                  {selectedPlace.instagram ? (
-                    <a
-                      className="map-details-panel__instagram"
-                      href={getInstagramUrl(selectedPlace.instagram)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label="Open Instagram"
-                    >
-                      <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
-                        <path
-                          fill="currentColor"
-                          d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2m0 1.5A4.25 4.25 0 0 0 3.5 7.75v8.5a4.25 4.25 0 0 0 4.25 4.25h8.5a4.25 4.25 0 0 0 4.25-4.25v-8.5a4.25 4.25 0 0 0-4.25-4.25zm8.75 1.75a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5M12 6.5A5.5 5.5 0 1 1 6.5 12 5.5 5.5 0 0 1 12 6.5m0 1.5A4 4 0 1 0 16 12a4 4 0 0 0-4-4"
-                        />
-                      </svg>
-                    </a>
-                  ) : null}
+                  {!isDetailsExpanded ? (
+                    <>
+                      <p className="map-details-panel__description-preview">{selectedPlace.description}</p>
+                      <button type="button" className="map-details-panel__read-more" onClick={() => setIsDetailsExpanded(true)}>
+                        Read more
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <p>{selectedPlace.description}</p>
+                      {selectedPlace.notes ? <p className="map-details-panel__notes">{selectedPlace.notes}</p> : null}
+                      {selectedPlace.googleMapsUrl ? (
+                        <a
+                          className="map-details-panel__instagram"
+                          href={selectedPlace.googleMapsUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Open in Google Maps
+                        </a>
+                      ) : null}
+                      {selectedPlace.instagram ? (
+                        <a
+                          className="map-details-panel__instagram"
+                          href={getInstagramUrl(selectedPlace.instagram)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label="Open Instagram"
+                        >
+                          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
+                            <path
+                              fill="currentColor"
+                              d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2m0 1.5A4.25 4.25 0 0 0 3.5 7.75v8.5a4.25 4.25 0 0 0 4.25 4.25h8.5a4.25 4.25 0 0 0 4.25-4.25v-8.5a4.25 4.25 0 0 0-4.25-4.25zm8.75 1.75a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5M12 6.5A5.5 5.5 0 1 1 6.5 12 5.5 5.5 0 0 1 12 6.5m0 1.5A4 4 0 1 0 16 12a4 4 0 0 0-4-4"
+                            />
+                          </svg>
+                        </a>
+                      ) : null}
+                    </>
+                  )}
                 </div>
               </article>
             </>
