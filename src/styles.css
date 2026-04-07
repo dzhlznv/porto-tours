@@ -1132,6 +1132,67 @@ h1 {
   --marker-color: #5f6672;
 }
 
+.map-neighborhood-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+}
+
+.map-neighborhood-shape {
+  --area-fill: rgba(126, 144, 154, 0.3);
+  --area-stroke: rgba(88, 101, 109, 0.58);
+  fill: var(--area-fill);
+  stroke: var(--area-stroke);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+  cursor: pointer;
+  transition: opacity 180ms ease, fill 180ms ease;
+  opacity: 0.68;
+}
+
+.map-neighborhood-shape.is-hovered,
+.map-neighborhood-shape.is-selected {
+  opacity: 0.92;
+}
+
+.map-neighborhood-shape.tone-moss {
+  --area-fill: rgba(117, 137, 126, 0.3);
+}
+.map-neighborhood-shape.tone-sand {
+  --area-fill: rgba(166, 149, 126, 0.28);
+}
+.map-neighborhood-shape.tone-clay {
+  --area-fill: rgba(162, 127, 118, 0.3);
+}
+.map-neighborhood-shape.tone-sage {
+  --area-fill: rgba(132, 151, 146, 0.3);
+}
+.map-neighborhood-shape.tone-lilac {
+  --area-fill: rgba(143, 136, 161, 0.28);
+}
+.map-neighborhood-shape.tone-slate {
+  --area-fill: rgba(124, 137, 152, 0.28);
+}
+.map-neighborhood-shape.tone-ocean {
+  --area-fill: rgba(111, 148, 157, 0.29);
+}
+.map-neighborhood-shape.tone-olive {
+  --area-fill: rgba(141, 149, 121, 0.3);
+}
+
+.map-neighborhood-label {
+  fill: rgba(30, 44, 54, 0.84);
+  font-size: 0.82rem;
+  letter-spacing: 0.03em;
+  font-weight: 600;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  pointer-events: none;
+  text-shadow: 0 1px 1px rgba(248, 250, 252, 0.8);
+}
+
 .map-zoom-controls {
   position: absolute;
   top: 0.85rem;
