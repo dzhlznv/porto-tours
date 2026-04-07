@@ -79,7 +79,7 @@ body {
 .site-logo {
   font-size: 0.82rem;
   letter-spacing: 0.08em;
-  text-transform: lowercase;
+  text-transform: none;
   text-decoration: none;
   color: var(--ink-strong);
   white-space: nowrap;
