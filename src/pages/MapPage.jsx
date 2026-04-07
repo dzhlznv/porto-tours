@@ -244,6 +244,7 @@ function MapPage() {
     return featuredInCategory?.id ?? portoGuidePlaces[0]?.id;
   });
   const [isDetailsOpen, setIsDetailsOpen] = React.useState(true);
+  const [isDetailsExpanded, setIsDetailsExpanded] = React.useState(false);
   const [viewport, setViewport] = React.useState({ lat: 41.15, lng: -8.61, zoom: 13 });
   const [mapSize, setMapSize] = React.useState({ width: 0, height: 0 });
   const [hoveredNeighborhoodId, setHoveredNeighborhoodId] = React.useState(null);
@@ -359,6 +360,7 @@ function MapPage() {
       if (!portoNeighborhoods.some((neighborhood) => neighborhood.id === selectedPlaceId)) {
         setSelectedPlaceId(portoNeighborhoods[0]?.id ?? portoGuidePlaces[0]?.id);
         setIsDetailsOpen(true);
+        setIsDetailsExpanded(false);
       }
       return;
     }
@@ -366,6 +368,7 @@ function MapPage() {
     if (!visiblePlaces.some((place) => place.id === selectedPlaceId)) {
       setSelectedPlaceId(visiblePlaces[0]?.id ?? portoGuidePlaces[0]?.id);
       setIsDetailsOpen(true);
+      setIsDetailsExpanded(false);
     }
   }, [isNeighborhoodsMode, selectedPlaceId, visiblePlaces]);
 
@@ -755,6 +758,7 @@ function MapPage() {
                 selectionSourceRef.current = 'list';
                 setSelectedPlaceId(place.id);
                 setIsDetailsOpen(true);
+                setIsDetailsExpanded(false);
               }}
             >
               <strong>{place.name}</strong>
@@ -802,6 +806,7 @@ function MapPage() {
                       selectionSourceRef.current = 'marker';
                       setSelectedPlaceId(area.id);
                       setIsDetailsOpen(true);
+                      setIsDetailsExpanded(false);
                     }}
                   />
                   <text x={area.labelX} y={area.labelY} className="map-neighborhood-label">
@@ -824,6 +829,7 @@ function MapPage() {
                 selectionSourceRef.current = 'marker';
                 setSelectedPlaceId(marker.id);
                 setIsDetailsOpen(true);
+                setIsDetailsExpanded(false);
               }}
               title={marker.name}
               aria-label={marker.name}
@@ -836,12 +842,15 @@ function MapPage() {
           {selectedPlace && isDetailsOpen ? (
             <>
               <div className="map-details-backdrop" aria-hidden="true" />
-              <article className="map-details-panel" aria-live="polite">
+              <article className={`map-details-panel ${isDetailsExpanded ? 'is-expanded' : 'is-collapsed'}`} aria-live="polite">
                 <header className="map-details-panel__header">
                   <button
                     type="button"
                     className="map-details-panel__close"
-                    onClick={() => setIsDetailsOpen(false)}
+                    onClick={() => {
+                      setIsDetailsOpen(false);
+                      setIsDetailsExpanded(false);
+                    }}
                     aria-label="Close place details"
                   >
                     <span aria-hidden="true">×</span>
@@ -851,9 +860,14 @@ function MapPage() {
                   <p className="map-details-panel__area">{selectedPlace.subtitle ?? selectedPlace.area}</p>
                 </header>
                 <div className="map-details-panel__content">
-                  <p>{selectedPlace.description}</p>
-                  {selectedPlace.notes ? <p className="map-details-panel__notes">{selectedPlace.notes}</p> : null}
-                  {selectedPlace.googleMapsUrl ? (
+                  <p className={isDetailsExpanded ? '' : 'map-details-panel__description-preview'}>{selectedPlace.description}</p>
+                  {!isDetailsExpanded ? (
+                    <button type="button" className="map-details-panel__read-more" onClick={() => setIsDetailsExpanded(true)}>
+                      Read more
+                    </button>
+                  ) : null}
+                  {isDetailsExpanded && selectedPlace.notes ? <p className="map-details-panel__notes">{selectedPlace.notes}</p> : null}
+                  {isDetailsExpanded && selectedPlace.googleMapsUrl ? (
                     <a
                       className="map-details-panel__instagram"
                       href={selectedPlace.googleMapsUrl}
@@ -863,7 +877,7 @@ function MapPage() {
                       Open in Google Maps
                     </a>
                   ) : null}
-                  {selectedPlace.instagram ? (
+                  {isDetailsExpanded && selectedPlace.instagram ? (
                     <a
                       className="map-details-panel__instagram"
                       href={getInstagramUrl(selectedPlace.instagram)}
