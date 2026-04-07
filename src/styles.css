@@ -1337,6 +1337,33 @@ h1 {
   font-size: 0.82rem;
 }
 
+.map-details-panel__description {
+  transition: opacity 180ms ease;
+}
+
+.map-details-panel__description.is-clamped {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.map-details-panel__toggle-description {
+  border: 0;
+  background: transparent;
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: 0.76rem;
+  line-height: 1.2;
+  padding: 0;
+  margin: 0.2rem 0 0;
+  text-align: left;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 0.12em;
+  width: fit-content;
+}
+
 .map-details-panel__area {
   color: var(--ink-soft);
   font-size: 0.76rem !important;
