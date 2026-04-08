@@ -724,8 +724,8 @@ function MapPage() {
       <aside className="map-sidebar">
         <header className="map-sidebar__header">
           <p className="eyebrow">Porto2You</p>
-          <h1>Curated Porto Map</h1>
-          <p>Discover Porto and Gaia through a local, premium list of places and neighborhood stories.</p>
+          <h1>Porto, as I see it</h1>
+          <p>A curated map of places I come back to — coffee, walks, views, and everyday spots across the city.</p>
         </header>
 
         <nav className="map-category-list" aria-label="Map categories">
