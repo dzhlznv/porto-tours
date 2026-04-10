@@ -890,7 +890,7 @@ function MapPage() {
                     {selectedPlace.notes ? <p className="map-details-panel__notes">{selectedPlace.notes}</p> : null}
                     {selectedPlace.googleMapsUrl ? (
                       <a
-                        className="map-details-panel__instagram"
+                        className="map-details-panel__instagram map-details-panel__maps-link"
                         href={selectedPlace.googleMapsUrl}
                         target="_blank"
                         rel="noopener noreferrer"
