@@ -976,11 +976,28 @@ h1 {
   }
 
   .site-nav {
+    margin-left: auto;
+    display: flex;
+    gap: 0.35rem;
+  }
+
+  .desktop-nav-item {
     display: none;
   }
 
+  .mobile-map-nav-item {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid color-mix(in srgb, var(--line-strong) 78%, white);
+    border-radius: 999px;
+    padding: 0.33rem 0.68rem;
+    font-size: 0.74rem;
+    color: var(--ink-strong);
+    opacity: 1;
+  }
+
   .site-header-cta {
-    margin-left: auto;
+    margin-left: 0.35rem;
     padding: 0.33rem 0.68rem;
     font-size: 0.74rem;
   }

@@ -314,9 +314,13 @@ function App({ initialPathname = '/' }) {
             Porto2You
           </a>
           <nav className="site-nav" aria-label="Section links">
-            <a href="#about">About</a>
-            <a href="#experience">Experience</a>
-            <a href="https://map.porto2you.com/map" target="_blank" rel="noopener noreferrer">
+            <a className="desktop-nav-item" href="#about">
+              About
+            </a>
+            <a className="desktop-nav-item" href="#experience">
+              Experience
+            </a>
+            <a className="mobile-map-nav-item" href="https://map.porto2you.com/map" target="_blank" rel="noopener noreferrer">
               Map
             </a>
           </nav>
