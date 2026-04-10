@@ -1375,6 +1375,10 @@ h1 {
   text-decoration: none;
 }
 
+.map-details-panel__maps-link {
+  text-decoration-line: underline;
+}
+
 .map-details-panel__description-preview {
   display: -webkit-box;
   -webkit-line-clamp: 3;
