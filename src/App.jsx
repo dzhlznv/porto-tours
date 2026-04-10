@@ -319,7 +319,6 @@ function App({ initialPathname = '/' }) {
             <a href="https://map.porto2you.com/map" target="_blank" rel="noopener noreferrer">
               Map
             </a>
-            <a href="#contact">Contact</a>
           </nav>
           <a className="site-header-cta" href="#contact">
             Plan a day
@@ -425,13 +424,12 @@ function App({ initialPathname = '/' }) {
             </p>
             <a
               className="map-entry-button"
-              href="https://map.porto2you.com"
+              href="https://map.porto2you.com/map"
               target="_blank"
               rel="noopener noreferrer"
             >
               Open the map
             </a>
-            <p className="map-entry-caption">Live map</p>
           </div>
         </Section>
 
