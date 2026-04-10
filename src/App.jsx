@@ -436,9 +436,6 @@ function App({ initialPathname = '/' }) {
                 Open the map
               </a>
             </div>
-            <div className="map-preview-frame framed-image placeholder" role="img" aria-label="Map preview placeholder">
-              <span>Map preview</span>
-            </div>
           </div>
         </Section>
 
