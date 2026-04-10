@@ -8,11 +8,11 @@
           "value": "map.porto2you.com"
         }
       ],
-      "dest": "/map.html"
+      "dest": "/index.html"
     },
     {
       "src": "/map",
-      "dest": "/map.html"
+      "dest": "/index.html"
     },
     {
       "handle": "filesystem"
