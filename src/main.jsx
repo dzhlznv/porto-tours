@@ -16,15 +16,15 @@ function normalizePathname(pathname) {
 function resolveRoute(pathname) {
   const normalizedPath = normalizePathname(pathname);
 
-  if (normalizedPath === '/home') {
+  if (normalizedPath === '/' || normalizedPath === '/home') {
     return <LandingPage />;
   }
 
-  if (normalizedPath === '/' || normalizedPath === '/map') {
+  if (normalizedPath === '/map') {
     return <MapPage />;
   }
 
-  return <MapPage />;
+  return <LandingPage />;
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(
