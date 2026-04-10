@@ -101,6 +101,11 @@ body {
   opacity: 0.9;
 }
 
+.site-nav a[aria-current='page'] {
+  color: var(--ink-strong);
+  opacity: 1;
+}
+
 .site-header-cta {
   margin-left: 0.7rem;
   font-size: 0.76rem;
@@ -789,8 +794,48 @@ h1 {
 
 #about,
 #experience,
-#contact {
+#contact,
+#map {
   scroll-margin-top: calc(var(--header-height) + 2.1rem);
+}
+
+#map {
+  padding-top: 3.8rem;
+}
+
+.map-cta-copy {
+  margin: 0;
+}
+
+.map-cta-link {
+  margin-top: 1rem;
+}
+
+.map-page-shell {
+  align-items: flex-start;
+}
+
+.map-page-content {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.map-hero {
+  padding: 2.4rem 0 0.4rem;
+}
+
+.map-embed-section {
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--paper-elevated) 65%, white);
+}
+
+.map-embed-frame {
+  width: 100%;
+  min-height: 70vh;
+  border: 0;
+  display: block;
 }
 
 #what-people-say {

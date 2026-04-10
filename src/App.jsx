@@ -41,10 +41,54 @@ function InstagramIcon() {
   );
 }
 
+function MapPage() {
+  return (
+    <div className="page-shell map-page-shell">
+      <header className="site-header is-scrolled" aria-label="Primary navigation">
+        <div className="site-header-inner">
+          <a className="site-logo" href="/" aria-label="Go to homepage">
+            Porto2You
+          </a>
+          <nav className="site-nav" aria-label="Section links">
+            <a href="/">Home</a>
+            <a href="/map" aria-current="page">
+              Map
+            </a>
+            <a href="/#contact">Contact</a>
+          </nav>
+          <a className="site-header-cta" href="/#contact">
+            Plan a day
+          </a>
+        </div>
+      </header>
+      <main className="page-content map-page-content">
+        <section className="map-hero" id="top">
+          <p className="eyebrow">Porto, Portugal · City spots map</p>
+          <h1>Porto map</h1>
+          <p className="hero-subtitle">
+            A live map of local Porto spots with neighborhoods, viewpoints, and practical waypoints for planning your day.
+          </p>
+        </section>
+        <section className="map-embed-section" aria-label="Interactive Porto map">
+          <iframe
+            className="map-embed-frame"
+            title="Porto city map"
+            src="https://www.openstreetmap.org/export/embed.html?bbox=-8.75%2C41.11%2C-8.55%2C41.21&layer=mapnik&marker=41.1579%2C-8.6291"
+          />
+        </section>
+      </main>
+    </div>
+  );
+}
+
 function App({ initialPathname = '/' }) {
   const isBrowser = typeof window !== 'undefined';
   const pathname = isBrowser ? window.location.pathname : initialPathname;
   const normalizedPathname = pathname.endsWith('/') && pathname.length > 1 ? pathname.slice(0, -1) : pathname;
+
+  if (normalizedPathname === '/map') {
+    return <MapPage />;
+  }
 
   if (normalizedPathname !== '/') {
     return <NotFound />;
@@ -316,6 +360,7 @@ function App({ initialPathname = '/' }) {
           <nav className="site-nav" aria-label="Section links">
             <a href="#about">About</a>
             <a href="#experience">Experience</a>
+            <a href="/map">Map</a>
             <a href="#contact">Contact</a>
           </nav>
           <a className="site-header-cta" href="#contact">
@@ -505,6 +550,15 @@ function App({ initialPathname = '/' }) {
               />
             </div>
           ) : null}
+        </Section>
+
+        <Section title="Explore Porto on the map" id="map">
+          <p className="map-cta-copy">
+            Browse key neighborhoods and routes before your day in Porto.
+          </p>
+          <a className="cta map-cta-link" href="/map">
+            Open map
+          </a>
         </Section>
 
         <Section title="FAQ" id="faq">

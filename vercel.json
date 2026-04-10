@@ -1,20 +1,6 @@
 {
   "routes": [
     {
-      "src": "/(.*)",
-      "has": [
-        {
-          "type": "host",
-          "value": "map.porto2you.com"
-        }
-      ],
-      "dest": "/map.html"
-    },
-    {
-      "src": "/map",
-      "dest": "/map.html"
-    },
-    {
       "handle": "filesystem"
     },
     {
