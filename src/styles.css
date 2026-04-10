@@ -899,6 +899,18 @@ h1 {
   font-size: 0.9rem;
 }
 
+.map-sidebar__home-link {
+  text-decoration: none;
+  display: inline-flex;
+  width: fit-content;
+  transition: opacity 160ms ease;
+}
+
+.map-sidebar__home-link:hover,
+.map-sidebar__home-link:focus-visible {
+  opacity: 0.72;
+}
+
 .map-category-list {
   display: flex;
   flex-wrap: wrap;
