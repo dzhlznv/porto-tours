@@ -418,18 +418,23 @@ function App({ initialPathname = '/' }) {
         </Section>
 
         <Section title="Porto, as I see it" id="map">
-          <div className="map-entry">
-            <p className="map-entry-description">
-              A map of places I keep coming back to — coffee, food, walks, views, and everyday spots.
-            </p>
-            <a
-              className="map-entry-button"
-              href="https://map.porto2you.com/map"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Open the map
-            </a>
+          <div className="map-layout">
+            <div className="map-entry">
+              <p className="map-entry-description">
+                A map of places I keep coming back to — coffee, food, walks, views, and everyday spots.
+              </p>
+              <a
+                className="map-entry-button"
+                href="https://map.porto2you.com/map"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Open the map
+              </a>
+            </div>
+            <div className="map-preview-frame framed-image placeholder" role="img" aria-label="Map preview placeholder">
+              <span>Map preview</span>
+            </div>
           </div>
         </Section>
 
