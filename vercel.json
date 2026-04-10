@@ -4,6 +4,10 @@
       "handle": "filesystem"
     },
     {
+      "src": "/map",
+      "dest": "/map.html"
+    },
+    {
       "src": "/(.*)",
       "dest": "/index.html"
     }
