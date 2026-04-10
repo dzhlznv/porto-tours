@@ -394,6 +394,48 @@ h1 {
   color: var(--ink-soft);
 }
 
+.map-entry {
+  display: grid;
+  gap: 0.8rem;
+  max-width: 44ch;
+  padding: 0.4rem 0 0.2rem;
+}
+
+.map-entry-description {
+  color: var(--ink-soft);
+  line-height: 1.74;
+}
+
+.map-entry-button {
+  width: fit-content;
+  margin-top: 0.3rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.6rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  padding: 0.55rem 1.1rem;
+  color: var(--ink-strong);
+  text-decoration: none;
+  font-size: 0.89rem;
+  transition: border-color 160ms ease, color 160ms ease, background-color 160ms ease;
+}
+
+.map-entry-button:hover,
+.map-entry-button:focus-visible {
+  border-color: color-mix(in srgb, var(--line-strong) 90%, var(--accent));
+  background: color-mix(in srgb, var(--paper-elevated) 68%, white);
+}
+
+.map-entry-caption {
+  margin-top: -0.05rem !important;
+  font-size: 0.76rem;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+  opacity: 0.72;
+}
+
 .classic-day-paragraph + .classic-day-paragraph,
 .classic-day-paragraph + .section-follow-up {
   margin-top: 1rem !important;

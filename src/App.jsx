@@ -316,6 +316,9 @@ function App({ initialPathname = '/' }) {
           <nav className="site-nav" aria-label="Section links">
             <a href="#about">About</a>
             <a href="#experience">Experience</a>
+            <a href="https://map.porto2you.com/map" target="_blank" rel="noopener noreferrer">
+              Map
+            </a>
             <a href="#contact">Contact</a>
           </nav>
           <a className="site-header-cta" href="#contact">
@@ -412,6 +415,23 @@ function App({ initialPathname = '/' }) {
                 <p>{item.description}</p>
               </article>
             ))}
+          </div>
+        </Section>
+
+        <Section title="Porto, as I see it" id="map">
+          <div className="map-entry">
+            <p className="map-entry-description">
+              A map of places I keep coming back to — coffee, food, walks, views, and everyday spots.
+            </p>
+            <a
+              className="map-entry-button"
+              href="https://map.porto2you.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Open the map
+            </a>
+            <p className="map-entry-caption">Live map</p>
           </div>
         </Section>
 
