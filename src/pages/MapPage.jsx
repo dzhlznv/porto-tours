@@ -66,6 +66,7 @@ const CATEGORY_MARKER_TONES = {
   Parks: 'marker-green',
   'Brunch': 'marker-sand',
   'Coffee & Breakfast': 'marker-umber',
+  'Bakeries & Pastries': 'marker-apricot',
   'Food & Wine': 'marker-wine',
   'Street Food': 'marker-apricot',
   Shopping: 'marker-slate',
