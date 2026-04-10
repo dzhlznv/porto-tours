@@ -95,10 +95,21 @@ body {
 .site-nav a {
   font-size: 0.78rem;
   letter-spacing: 0.02em;
+  font-weight: 400;
   text-decoration: none;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
   color: color-mix(in srgb, var(--ink-soft) 92%, var(--ink));
-  transition: color 180ms ease, opacity 180ms ease;
+  transition: color 180ms ease, opacity 180ms ease, text-decoration-color 180ms ease;
   opacity: 0.9;
+}
+
+.site-nav a[aria-current='page'] {
+  color: var(--ink-strong);
+  opacity: 1;
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: currentColor;
 }
 
 .site-header-cta {
@@ -119,6 +130,8 @@ body {
   .site-nav a:focus-visible {
     color: var(--ink-strong);
     opacity: 1;
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, currentColor 68%, transparent);
   }
 
   .site-header-cta:hover,
@@ -986,14 +999,7 @@ h1 {
   }
 
   .mobile-map-nav-item {
-    display: inline-flex;
-    align-items: center;
-    border: 1px solid color-mix(in srgb, var(--line-strong) 78%, white);
-    border-radius: 999px;
-    padding: 0.33rem 0.68rem;
-    font-size: 0.74rem;
-    color: var(--ink-strong);
-    opacity: 1;
+    display: inline;
   }
 
   .site-header-cta {
