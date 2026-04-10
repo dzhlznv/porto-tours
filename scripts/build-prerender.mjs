@@ -15,11 +15,16 @@ await build({
 });
 
 const templatePath = path.join(rootDir, 'dist/index.html');
+const mapTemplatePath = path.join(rootDir, 'dist/map.html');
 const serverEntryPath = path.join(rootDir, 'dist/server/entry-server.js');
 
 const template = await fs.readFile(templatePath, 'utf-8');
 const { render } = await import(pathToFileURL(serverEntryPath).href);
-const appHtml = render('/');
-const rendered = template.replace('<!--app-html-->', appHtml);
 
-await fs.writeFile(templatePath, rendered, 'utf-8');
+const routeTemplates = {
+  '/': template.replace('<!--app-html-->', render('/')),
+  '/map': template.replace('<!--app-html-->', render('/map')),
+};
+
+await fs.writeFile(templatePath, routeTemplates['/'], 'utf-8');
+await fs.writeFile(mapTemplatePath, routeTemplates['/map'], 'utf-8');
