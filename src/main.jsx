@@ -13,15 +13,28 @@ function normalizePathname(pathname) {
   return trimmed || '/';
 }
 
-function resolveRoute(pathname) {
-  const normalizedPath = normalizePathname(pathname);
-
-  if (normalizedPath === '/' || normalizedPath === '/home') {
-    return <LandingPage />;
+function isMapSubdomain(hostname) {
+  if (!hostname) {
+    return false;
   }
+
+  return hostname === 'map.porto2you.com' || hostname.startsWith('map.');
+}
+
+function resolveRoute(pathname, hostname) {
+  const normalizedPath = normalizePathname(pathname);
+  const onMapSubdomain = isMapSubdomain(hostname);
 
   if (normalizedPath === '/map') {
     return <MapPage />;
+  }
+
+  if (normalizedPath === '/' && onMapSubdomain) {
+    return <MapPage />;
+  }
+
+  if (normalizedPath === '/' || normalizedPath === '/home') {
+    return <LandingPage />;
   }
 
   return <LandingPage />;
@@ -29,6 +42,6 @@ function resolveRoute(pathname) {
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    {resolveRoute(window.location.pathname)}
+    {resolveRoute(window.location.pathname, window.location.hostname)}
   </React.StrictMode>
 );
