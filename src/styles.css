@@ -902,8 +902,18 @@ h1 {
 .map-sidebar__home-link {
   text-decoration: none;
   display: inline-flex;
+  align-items: center;
   width: fit-content;
+  max-width: 100%;
   transition: opacity 160ms ease;
+}
+
+.map-sidebar__home-logo {
+  display: block;
+  width: clamp(132px, 38vw, 178px);
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
 }
 
 .map-sidebar__home-link:hover,
@@ -1506,6 +1516,10 @@ h1 {
 
   .map-details-panel__close {
     display: inline-grid;
+  }
+
+  .map-sidebar__home-logo {
+    width: clamp(118px, 46vw, 152px);
   }
 
   .map-sidebar__header p {
