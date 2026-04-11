@@ -13,14 +13,43 @@ function normalizePathname(pathname) {
   return trimmed || '/';
 }
 
-function resolveRoute(pathname) {
+function isMapHostname(hostname) {
+  if (!hostname) {
+    return false;
+  }
+
+  const normalizedHost = hostname.toLowerCase();
+
+  if (normalizedHost.includes('map.porto2you.com')) {
+    return true;
+  }
+
+  return normalizedHost.includes('map') && normalizedHost.includes('vercel.app');
+}
+
+function getRouteKey(hostname, pathname) {
   const normalizedPath = normalizePathname(pathname);
+  const mapHost = isMapHostname(hostname);
+
+  if (mapHost && (normalizedPath === '/' || normalizedPath === '/map')) {
+    return 'map';
+  }
 
   if (normalizedPath === '/' || normalizedPath === '/home') {
-    return <LandingPage />;
+    return 'landing';
   }
 
   if (normalizedPath === '/map') {
+    return 'map';
+  }
+
+  return 'landing';
+}
+
+function resolveRoute(hostname, pathname) {
+  const routeKey = getRouteKey(hostname, pathname);
+
+  if (routeKey === 'map') {
     return <MapPage />;
   }
 
@@ -29,6 +58,6 @@ function resolveRoute(pathname) {
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    {resolveRoute(window.location.pathname)}
+    {resolveRoute(window.location.hostname, window.location.pathname)}
   </React.StrictMode>
 );
