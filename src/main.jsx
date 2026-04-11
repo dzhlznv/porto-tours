@@ -16,10 +16,6 @@ function normalizePathname(pathname) {
 function resolveRoute(pathname) {
   const normalizedPath = normalizePathname(pathname);
 
-  if (normalizedPath === '/' || normalizedPath === '/home') {
-    return <LandingPage />;
-  }
-
   if (normalizedPath === '/map') {
     return <MapPage />;
   }
