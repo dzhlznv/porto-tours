@@ -900,7 +900,9 @@ h1 {
 }
 
 .map-sidebar__home-link {
-  text-decoration: none;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+  text-decoration-thickness: 0.08em;
   display: inline-flex;
   align-items: center;
   font-size: 0.76rem;
@@ -909,15 +911,14 @@ h1 {
   text-transform: uppercase;
   color: var(--ink-soft);
   width: fit-content;
-  transition: opacity 160ms ease, color 160ms ease;
+  transition: opacity 160ms ease, color 160ms ease, text-decoration-color 160ms ease;
 }
 
 .map-sidebar__home-link:hover,
 .map-sidebar__home-link:focus-visible {
   opacity: 0.72;
   color: var(--ink);
-  text-decoration: underline;
-  text-underline-offset: 0.18em;
+  text-decoration: none;
 }
 
 .map-category-list {
