@@ -7,7 +7,7 @@
   --line: #d6d2c9;
   --line-strong: #c7c1b6;
   --accent: #485f5a;
-  --header-height: 3.35rem;
+  --header-height: 3.9rem;
 
   color: var(--ink);
   background-color: var(--paper);
@@ -77,12 +77,17 @@ body {
 }
 
 .site-logo {
-  font-size: 0.82rem;
-  letter-spacing: 0.08em;
-  text-transform: none;
   text-decoration: none;
-  color: var(--ink-strong);
-  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.site-logo-image {
+  display: block;
+  height: 2.3rem;
+  width: auto;
+  max-width: min(42vw, 200px);
 }
 
 .site-nav {
@@ -957,7 +962,7 @@ h1 {
 
 @media (max-width: 520px) {
   :root {
-    --header-height: 3rem;
+    --header-height: 3.45rem;
   }
 
   .hero {
@@ -971,6 +976,11 @@ h1 {
   .site-header-inner {
     width: calc(100% - 1.2rem);
     padding: 0.4rem 0.75rem;
+  }
+
+  .site-logo-image {
+    height: 2rem;
+    max-width: min(50vw, 180px);
   }
 
   .site-nav {
