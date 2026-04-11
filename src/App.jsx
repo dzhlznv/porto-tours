@@ -1,12 +1,14 @@
 import heroImg from './assets/hero.jpg';
 import aboutImg from './assets/about.jpg';
 import aboutGalleryImg from './assets/gallery-29.jpg';
+import logoImg from './assets/p2u-logo.png';
 import React, { useMemo, useRef, useState } from 'react';
 import { pageContent } from './content';
 import { Section } from './components/Section';
 import { FaqItem } from './components/FaqItem';
 import { WaitlistForm } from './components/WaitlistForm';
 import { ParallaxImageCard } from './components/ParallaxImageCard';
+import { NotFound } from './components/NotFound';
 
 function FramedImage({ src, alt, className }) {
   const [hasImageError, setHasImageError] = useState(false);
@@ -40,13 +42,21 @@ function InstagramIcon() {
   );
 }
 
-function App() {
+function App({ initialPathname = '/' }) {
+  const isBrowser = typeof window !== 'undefined';
+  const pathname = isBrowser ? window.location.pathname : initialPathname;
+  const normalizedPathname = pathname.endsWith('/') && pathname.length > 1 ? pathname.slice(0, -1) : pathname;
+
+  if (normalizedPathname !== '/') {
+    return <NotFound />;
+  }
   const instagramUrl = 'https://www.instagram.com/porto2u/';
   const INITIAL_GALLERY_COUNT = 12;
   const GALLERY_BATCH_SIZE = 9;
-  const [isMobileGallery, setIsMobileGallery] = useState(() => window.matchMedia('(max-width: 768px)').matches);
+  const [isMobileGallery, setIsMobileGallery] = useState(false);
   const [visibleGalleryCount, setVisibleGalleryCount] = useState(INITIAL_GALLERY_COUNT);
   const [activeGalleryIndex, setActiveGalleryIndex] = useState(null);
+  const [hasScrolled, setHasScrolled] = useState(false);
   const [activeAboutImageIndex, setActiveAboutImageIndex] = useState(0);
   const [isAboutDragging, setIsAboutDragging] = useState(false);
   const [aboutHoverZone, setAboutHoverZone] = useState('center');
@@ -65,13 +75,32 @@ function App() {
   ];
 
   React.useEffect(() => {
+    if (!isBrowser) {
+      return undefined;
+    }
+
     const mediaQuery = window.matchMedia('(max-width: 768px)');
     const handleChange = () => setIsMobileGallery(mediaQuery.matches);
     handleChange();
     mediaQuery.addEventListener('change', handleChange);
 
     return () => mediaQuery.removeEventListener('change', handleChange);
-  }, []);
+  }, [isBrowser]);
+
+  React.useEffect(() => {
+    if (!isBrowser) {
+      return undefined;
+    }
+
+    const handleScroll = () => {
+      setHasScrolled(window.scrollY > 18);
+    };
+
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [isBrowser]);
 
   const visibleGalleryItems = useMemo(
     () => (isMobileGallery ? pageContent.gallery : pageContent.gallery.slice(0, visibleGalleryCount)),
@@ -80,7 +109,7 @@ function App() {
   const hasMoreGalleryItems = !isMobileGallery && visibleGalleryCount < pageContent.gallery.length;
 
   React.useEffect(() => {
-    if (activeGalleryIndex === null) {
+    if (!isBrowser || activeGalleryIndex === null) {
       return undefined;
     }
 
@@ -99,7 +128,7 @@ function App() {
     window.addEventListener('keydown', handleKeyDown);
 
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [activeGalleryIndex, visibleGalleryItems.length]);
+  }, [activeGalleryIndex, isBrowser, visibleGalleryItems.length]);
 
   const handleViewMorePhotos = () => {
     setVisibleGalleryCount((count) => Math.min(count + GALLERY_BATCH_SIZE, pageContent.gallery.length));
@@ -150,7 +179,7 @@ function App() {
   };
 
   const handleAboutMouseDown = (event) => {
-    const isDesktopPointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    const isDesktopPointer = isBrowser && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
     if (!isDesktopPointer || event.button !== 0) {
       return;
     }
@@ -174,6 +203,10 @@ function App() {
   };
 
   React.useEffect(() => {
+    if (!isBrowser) {
+      return undefined;
+    }
+
     const handleAboutMouseMove = (event) => {
       if (!aboutDragRef.current.isMouseDown) {
         return;
@@ -201,10 +234,10 @@ function App() {
       window.removeEventListener('mousemove', handleAboutMouseMove);
       window.removeEventListener('mouseup', handleWindowMouseUp);
     };
-  }, [scrollToAboutSlide]);
+  }, [isBrowser, scrollToAboutSlide]);
 
   const handleAboutMouseMove = (event) => {
-    const isDesktopPointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    const isDesktopPointer = isBrowser && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
     if (!isDesktopPointer) {
       return;
     }
@@ -248,7 +281,7 @@ function App() {
   };
 
   const handleAboutTrackClick = (event) => {
-    const isDesktopPointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    const isDesktopPointer = isBrowser && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
     if (!isDesktopPointer) {
       return;
     }
@@ -276,6 +309,27 @@ function App() {
 
   return (
     <div className="page-shell">
+      <header className={`site-header ${hasScrolled ? 'is-scrolled' : ''}`} aria-label="Primary navigation">
+        <div className="site-header-inner">
+          <a className="site-logo" href="#top" aria-label="Go to top">
+            <img className="site-logo-image" src={logoImg} alt="Porto2You" />
+          </a>
+          <nav className="site-nav" aria-label="Section links">
+            <a className="desktop-nav-item" href="#about">
+              About
+            </a>
+            <a className="desktop-nav-item" href="#experience">
+              Experience
+            </a>
+            <a className="mobile-map-nav-item" href="https://map.porto2you.com/map" target="_blank" rel="noopener noreferrer">
+              Map
+            </a>
+          </nav>
+          <a className="site-header-cta" href="#contact">
+            Plan a day
+          </a>
+        </div>
+      </header>
       <main className="page-content">
         <section className="hero" id="top">
           <div className="hero-copy">
@@ -290,7 +344,7 @@ function App() {
               </ul>
             </div>
             <p className="hero-supporting">{pageContent.hero.supportingLine}</p>
-            <a className="cta" href="#join">
+            <a className="cta" href="#contact">
               {pageContent.hero.cta}
             </a>
             <p className="hero-note">{pageContent.hero.note}</p>
@@ -357,7 +411,7 @@ function App() {
           </div>
         </Section>
 
-        <Section title="What this day includes" id="what-day-includes">
+        <Section title="What this day includes" id="experience">
           <div className="includes-grid">
             {pageContent.dayIncludes.map((item) => (
               <article key={item.title} className="includes-card">
@@ -365,6 +419,24 @@ function App() {
                 <p>{item.description}</p>
               </article>
             ))}
+          </div>
+        </Section>
+
+        <Section title="Porto, as I see it" id="map">
+          <div className="map-layout">
+            <div className="map-entry">
+              <p className="map-entry-description">
+                A map of places I keep coming back to — coffee, food, walks, views, and everyday spots.
+              </p>
+              <a
+                className="map-entry-button"
+                href="https://map.porto2you.com/map"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Open the map
+              </a>
+            </div>
           </div>
         </Section>
 
@@ -477,7 +549,7 @@ function App() {
           </div>
         </Section>
 
-        <Section title="Join the waitlist" id="join">
+        <Section title="Join the waitlist" id="contact">
           <p className="waitlist-trust-note">No spam. I’ll only reach out when new dates open.</p>
           <WaitlistForm />
         </Section>
