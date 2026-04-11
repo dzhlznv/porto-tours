@@ -902,8 +902,17 @@ h1 {
 .map-sidebar__home-link {
   text-decoration: none;
   display: inline-flex;
+  align-items: center;
   width: fit-content;
   transition: opacity 160ms ease;
+}
+
+.map-sidebar__logo {
+  display: block;
+  width: clamp(132px, 16vw, 168px);
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
 }
 
 .map-sidebar__home-link:hover,
