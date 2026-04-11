@@ -1,6 +1,7 @@
 import heroImg from './assets/hero.jpg';
 import aboutImg from './assets/about.jpg';
 import aboutGalleryImg from './assets/gallery-29.jpg';
+import logoImg from './assets/p2u-logo.png';
 import React, { useMemo, useRef, useState } from 'react';
 import { pageContent } from './content';
 import { Section } from './components/Section';
@@ -311,7 +312,7 @@ function App({ initialPathname = '/' }) {
       <header className={`site-header ${hasScrolled ? 'is-scrolled' : ''}`} aria-label="Primary navigation">
         <div className="site-header-inner">
           <a className="site-logo" href="#top" aria-label="Go to top">
-            Porto2You
+            <img className="site-logo-image" src={logoImg} alt="Porto2You" />
           </a>
           <nav className="site-nav" aria-label="Section links">
             <a className="desktop-nav-item" href="#about">
