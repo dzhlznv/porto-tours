@@ -902,8 +902,21 @@ h1 {
 .map-sidebar__home-link {
   text-decoration: none;
   display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
   width: fit-content;
   transition: opacity 160ms ease;
+}
+
+.map-sidebar__logo {
+  width: 2rem;
+  height: 2rem;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.map-sidebar__home-link-text {
+  line-height: 1;
 }
 
 .map-sidebar__home-link:hover,
