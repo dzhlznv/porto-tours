@@ -724,8 +724,9 @@ function MapPage() {
     <main className="map-page" aria-label="Porto2You curated guide map">
       <aside className="map-sidebar">
         <header className="map-sidebar__header">
-          <a className="eyebrow map-sidebar__home-link" href="https://porto2you.com">
-            Porto2You
+          <a className="map-sidebar__home-link" href="https://porto2you.com" aria-label="Porto2You home">
+            <img src="/p2u-logo.png" alt="Porto2You logo" className="map-sidebar__logo" loading="eager" />
+            <span className="eyebrow map-sidebar__home-link-text">Porto2You</span>
           </a>
           <h1>Porto, as I see it</h1>
           <p>A map of places I come back to — coffee, food, walks, views, and everyday spots.</p>
