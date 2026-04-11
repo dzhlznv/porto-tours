@@ -16,10 +16,6 @@ function normalizePathname(pathname) {
 function resolveRoute(pathname) {
   const normalizedPath = normalizePathname(pathname);
 
-  if (normalizedPath === '/' || normalizedPath === '/home') {
-    return <LandingPage />;
-  }
-
   if (normalizedPath === '/map') {
     return <MapPage />;
   }
@@ -28,7 +24,5 @@ function resolveRoute(pathname) {
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    {resolveRoute(window.location.pathname)}
-  </React.StrictMode>
+  <React.StrictMode>{resolveRoute(window.location.pathname)}</React.StrictMode>
 );
