@@ -9,6 +9,9 @@ const ZOOM_BUTTON_STEP = 0.5;
 const DEFAULT_TRANSITION_MS = 420;
 const MOBILE_BREAKPOINT_QUERY = '(max-width: 980px)';
 const MOBILE_SELECTED_PLACE_ZOOM = 15;
+const MOBILE_SHEET_COLLAPSED_VISIBLE_PX = 50;
+const MOBILE_SHEET_HALF_VISIBLE_RATIO = 0.5;
+const MOBILE_SHEET_EXPANDED_VISIBLE_RATIO = 0.88;
 const PAN_INTERACTION_RECENTER_COOLDOWN_MS = 700;
 const PAN_SOFT_MARGIN_RATIO = 0.38;
 const PAN_MIN_SOFT_MARGIN_LAT = 0.01;
@@ -253,10 +256,21 @@ function MapPage() {
   const [isMobileLayout, setIsMobileLayout] = React.useState(() =>
     typeof window !== 'undefined' ? window.matchMedia(MOBILE_BREAKPOINT_QUERY).matches : false
   );
+  const [mobileSheetSnap, setMobileSheetSnap] = React.useState('collapsed');
+  const [mobileSheetTranslateY, setMobileSheetTranslateY] = React.useState(0);
+  const [isMobileSheetDragging, setIsMobileSheetDragging] = React.useState(false);
 
   const mapViewportRef = React.useRef(null);
   const mapPlaceListRef = React.useRef(null);
   const mapPlaceRowRefs = React.useRef(new Map());
+  const mobileSheetRef = React.useRef(null);
+  const mobileSheetSnapPointsRef = React.useRef({ collapsed: 0, half: 0, expanded: 0 });
+  const mobileSheetDragRef = React.useRef({
+    active: false,
+    pointerId: null,
+    startY: 0,
+    startTranslateY: 0,
+  });
   const dragStateRef = React.useRef({
     mode: null,
     startX: 0,
@@ -356,6 +370,37 @@ function MapPage() {
 
     return () => mediaQuery.removeEventListener('change', updateLayout);
   }, []);
+
+  React.useEffect(() => {
+    if (!isMobileLayout) {
+      return;
+    }
+
+    const updateMobileSheetBounds = () => {
+      const sheetHeight = mobileSheetRef.current?.offsetHeight ?? window.innerHeight;
+      const collapsed = Math.max(sheetHeight - MOBILE_SHEET_COLLAPSED_VISIBLE_PX, 0);
+      const half = Math.max(sheetHeight * (1 - MOBILE_SHEET_HALF_VISIBLE_RATIO), 0);
+      const expanded = Math.max(sheetHeight * (1 - MOBILE_SHEET_EXPANDED_VISIBLE_RATIO), 0);
+      mobileSheetSnapPointsRef.current = { collapsed, half, expanded };
+      setMobileSheetTranslateY((current) => {
+        const preferred = mobileSheetSnapPointsRef.current[mobileSheetSnap];
+        if (Number.isFinite(preferred)) {
+          return preferred;
+        }
+        const nearest = Object.values(mobileSheetSnapPointsRef.current).reduce((best, point) => {
+          if (!Number.isFinite(best) || Math.abs(point - current) < Math.abs(best - current)) {
+            return point;
+          }
+          return best;
+        }, collapsed);
+        return nearest;
+      });
+    };
+
+    updateMobileSheetBounds();
+    window.addEventListener('resize', updateMobileSheetBounds);
+    return () => window.removeEventListener('resize', updateMobileSheetBounds);
+  }, [isMobileLayout, mobileSheetSnap]);
 
   React.useEffect(() => {
     if (isNeighborhoodsMode) {
@@ -720,63 +765,133 @@ function MapPage() {
     setViewport((current) => ({ ...current, zoom: clamp(current.zoom + delta, MIN_ZOOM, MAX_ZOOM) }));
   }, []);
 
-  return (
-    <main className="map-page" aria-label="Porto2You curated guide map">
-      <aside className="map-sidebar">
-        <header className="map-sidebar__header">
-          <a className="eyebrow map-sidebar__home-link" href="https://porto2you.com">
-            Back to homepage
-          </a>
-          <h1>Porto, as I see it</h1>
-          <p>A map of places I come back to — coffee, food, walks, views, and everyday spots.</p>
-        </header>
+  const getNearestMobileSheetSnap = React.useCallback((value) => {
+    const entries = Object.entries(mobileSheetSnapPointsRef.current);
+    if (!entries.length) {
+      return { key: 'collapsed', value: 0 };
+    }
+    return entries.reduce((closest, [key, snapValue]) => {
+      if (Math.abs(snapValue - value) < Math.abs(closest.value - value)) {
+        return { key, value: snapValue };
+      }
+      return closest;
+    }, { key: entries[0][0], value: entries[0][1] });
+  }, []);
 
-        <nav className="map-category-list" aria-label="Map categories">
-          {mapCategories.map((category) => {
-            const categoryCount = category === NEIGHBORHOODS_CATEGORY ? portoNeighborhoods.length : placesByCategory[category]?.length ?? 0;
-            return (
-              <button
-                key={category}
-                type="button"
-                className={`map-category-chip ${activeCategory === category ? 'is-active' : ''}`}
-                aria-pressed={activeCategory === category}
-                onClick={() => {
-                  setActiveCategory(category);
-                  setIsDetailsExpanded(false);
-                }}
-              >
-                <span>{category}</span>
-                <small>{categoryCount}</small>
-              </button>
-            );
-          })}
-        </nav>
-        <section className="map-place-list" ref={mapPlaceListRef} aria-label={`${activeCategory} places`}>
-          {(isNeighborhoodsMode ? portoNeighborhoods : visiblePlaces).map((place) => (
+  const beginMobileSheetDrag = React.useCallback((event) => {
+    if (!isMobileLayout) {
+      return;
+    }
+
+    const target = event.target;
+    if (!(target instanceof HTMLElement) || !target.closest('[data-sheet-drag-handle="true"]')) {
+      return;
+    }
+
+    mobileSheetDragRef.current = {
+      active: true,
+      pointerId: event.pointerId,
+      startY: event.clientY,
+      startTranslateY: mobileSheetTranslateY,
+    };
+    setIsMobileSheetDragging(true);
+    event.currentTarget.setPointerCapture(event.pointerId);
+    event.preventDefault();
+  }, [isMobileLayout, mobileSheetTranslateY]);
+
+  const moveMobileSheet = React.useCallback((event) => {
+    const dragState = mobileSheetDragRef.current;
+    if (!dragState.active || dragState.pointerId !== event.pointerId) {
+      return;
+    }
+
+    const snapPoints = mobileSheetSnapPointsRef.current;
+    const minTranslate = Math.min(snapPoints.expanded, snapPoints.half, snapPoints.collapsed);
+    const maxTranslate = Math.max(snapPoints.expanded, snapPoints.half, snapPoints.collapsed);
+    const deltaY = event.clientY - dragState.startY;
+    setMobileSheetTranslateY(clamp(dragState.startTranslateY + deltaY, minTranslate, maxTranslate));
+  }, []);
+
+  const endMobileSheetDrag = React.useCallback((event) => {
+    const dragState = mobileSheetDragRef.current;
+    if (!dragState.active || dragState.pointerId !== event.pointerId) {
+      return;
+    }
+
+    const nearest = getNearestMobileSheetSnap(mobileSheetTranslateY);
+    setMobileSheetSnap(nearest.key);
+    setMobileSheetTranslateY(nearest.value);
+    setIsMobileSheetDragging(false);
+    mobileSheetDragRef.current = {
+      active: false,
+      pointerId: null,
+      startY: 0,
+      startTranslateY: nearest.value,
+    };
+    event.currentTarget.releasePointerCapture(event.pointerId);
+  }, [getNearestMobileSheetSnap, mobileSheetTranslateY]);
+
+  const renderMapSidebarContent = () => (
+    <>
+      <header className="map-sidebar__header">
+        <a className="eyebrow map-sidebar__home-link" href="https://porto2you.com">
+          Back to homepage
+        </a>
+        <h1>Porto, as I see it</h1>
+        <p>A map of places I come back to — coffee, food, walks, views, and everyday spots.</p>
+      </header>
+
+      <nav className="map-category-list" aria-label="Map categories">
+        {mapCategories.map((category) => {
+          const categoryCount = category === NEIGHBORHOODS_CATEGORY ? portoNeighborhoods.length : placesByCategory[category]?.length ?? 0;
+          return (
             <button
-              key={place.id}
+              key={category}
               type="button"
-              ref={(node) => {
-                if (node) {
-                  mapPlaceRowRefs.current.set(place.id, node);
-                } else {
-                  mapPlaceRowRefs.current.delete(place.id);
-                }
-              }}
-              className={`map-place-row ${selectedPlace?.id === place.id ? 'is-selected' : ''}`}
+              className={`map-category-chip ${activeCategory === category ? 'is-active' : ''}`}
+              aria-pressed={activeCategory === category}
               onClick={() => {
-                selectionSourceRef.current = 'list';
-                setSelectedPlaceId(place.id);
-                setIsDetailsOpen(true);
+                setActiveCategory(category);
                 setIsDetailsExpanded(false);
               }}
             >
-              <strong>{place.name}</strong>
-              <span>{place.subtitle ?? place.area}</span>
+              <span>{category}</span>
+              <small>{categoryCount}</small>
             </button>
-          ))}
-        </section>
-      </aside>
+          );
+        })}
+      </nav>
+      <section className="map-place-list" ref={mapPlaceListRef} aria-label={`${activeCategory} places`}>
+        {(isNeighborhoodsMode ? portoNeighborhoods : visiblePlaces).map((place) => (
+          <button
+            key={place.id}
+            type="button"
+            ref={(node) => {
+              if (node) {
+                mapPlaceRowRefs.current.set(place.id, node);
+              } else {
+                mapPlaceRowRefs.current.delete(place.id);
+              }
+            }}
+            className={`map-place-row ${selectedPlace?.id === place.id ? 'is-selected' : ''}`}
+            onClick={() => {
+              selectionSourceRef.current = 'list';
+              setSelectedPlaceId(place.id);
+              setIsDetailsOpen(true);
+              setIsDetailsExpanded(false);
+            }}
+          >
+            <strong>{place.name}</strong>
+            <span>{place.subtitle ?? place.area}</span>
+          </button>
+        ))}
+      </section>
+    </>
+  );
+
+  return (
+    <main className="map-page" aria-label="Porto2You curated guide map">
+      {!isMobileLayout ? <aside className="map-sidebar">{renderMapSidebarContent()}</aside> : null}
 
       <section className="map-canvas-panel">
         <div
@@ -951,7 +1066,22 @@ function MapPage() {
             </a>
           </div>
         </div>
-
+        {isMobileLayout ? (
+          <aside
+            ref={mobileSheetRef}
+            className={`map-mobile-sheet ${isMobileSheetDragging ? 'is-dragging' : ''} is-${mobileSheetSnap}`}
+            style={{ transform: `translate3d(0, ${mobileSheetTranslateY}px, 0)` }}
+            onPointerDown={beginMobileSheetDrag}
+            onPointerMove={moveMobileSheet}
+            onPointerUp={endMobileSheetDrag}
+            onPointerCancel={endMobileSheetDrag}
+          >
+            <div className="map-mobile-sheet__drag-zone" data-sheet-drag-handle="true">
+              <span className="map-mobile-sheet__drag-handle" aria-hidden="true" />
+            </div>
+            <div className="map-mobile-sheet__content">{renderMapSidebarContent()}</div>
+          </aside>
+        ) : null}
       </section>
     </main>
   );
