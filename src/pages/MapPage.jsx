@@ -9,6 +9,9 @@ const ZOOM_BUTTON_STEP = 0.5;
 const DEFAULT_TRANSITION_MS = 420;
 const MOBILE_BREAKPOINT_QUERY = '(max-width: 980px)';
 const MOBILE_SELECTED_PLACE_ZOOM = 15;
+const MOBILE_SHEET_PEEK_HEIGHT = 210;
+const MOBILE_SHEET_SNAP_MID_RATIO = 0.5;
+const MOBILE_SHEET_SNAP_THRESHOLD = 38;
 const PAN_INTERACTION_RECENTER_COOLDOWN_MS = 700;
 const PAN_SOFT_MARGIN_RATIO = 0.38;
 const PAN_MIN_SOFT_MARGIN_LAT = 0.01;
@@ -253,9 +256,12 @@ function MapPage() {
   const [isMobileLayout, setIsMobileLayout] = React.useState(() =>
     typeof window !== 'undefined' ? window.matchMedia(MOBILE_BREAKPOINT_QUERY).matches : false
   );
+  const [mobileSheetOffset, setMobileSheetOffset] = React.useState(0);
+  const [isMobileSheetDragging, setIsMobileSheetDragging] = React.useState(false);
 
   const mapViewportRef = React.useRef(null);
   const mapPlaceListRef = React.useRef(null);
+  const mapSidebarRef = React.useRef(null);
   const mapPlaceRowRefs = React.useRef(new Map());
   const dragStateRef = React.useRef({
     mode: null,
@@ -270,6 +276,16 @@ function MapPage() {
   const selectionSourceRef = React.useRef('initial');
   const viewportRef = React.useRef(viewport);
   const lastManualPanRef = React.useRef(0);
+  const sheetDragRef = React.useRef({
+    pointerId: null,
+    startY: 0,
+    startOffset: 0,
+    maxTravel: 0,
+  });
+  const sheetMetricsRef = React.useRef({
+    maxTravel: 0,
+    snaps: [0],
+  });
 
   const placesByCategory = React.useMemo(() => {
     return mapCategories.reduce((accumulator, category) => {
@@ -356,6 +372,103 @@ function MapPage() {
 
     return () => mediaQuery.removeEventListener('change', updateLayout);
   }, []);
+
+  const getNearestSheetSnap = React.useCallback((value) => {
+    const { snaps } = sheetMetricsRef.current;
+    return snaps.reduce((nearest, candidate) => {
+      return Math.abs(candidate - value) < Math.abs(nearest - value) ? candidate : nearest;
+    }, snaps[0] ?? 0);
+  }, []);
+
+  React.useEffect(() => {
+    if (!isMobileLayout) {
+      sheetMetricsRef.current = { maxTravel: 0, snaps: [0] };
+      setMobileSheetOffset(0);
+      return undefined;
+    }
+
+    const updateSheetMetrics = () => {
+      const sheetNode = mapSidebarRef.current;
+      if (!sheetNode) {
+        return;
+      }
+
+      const sheetHeight = sheetNode.getBoundingClientRect().height;
+      const maxTravel = Math.max(sheetHeight - MOBILE_SHEET_PEEK_HEIGHT, 0);
+      const midSnap = maxTravel * MOBILE_SHEET_SNAP_MID_RATIO;
+      sheetMetricsRef.current = {
+        maxTravel,
+        snaps: [0, midSnap, maxTravel],
+      };
+      setMobileSheetOffset((current) => {
+        if (current === 0 && maxTravel > MOBILE_SHEET_SNAP_THRESHOLD) {
+          return maxTravel;
+        }
+        return clamp(current, 0, maxTravel);
+      });
+    };
+
+    updateSheetMetrics();
+    window.addEventListener('resize', updateSheetMetrics);
+    return () => window.removeEventListener('resize', updateSheetMetrics);
+  }, [isMobileLayout]);
+
+  const handleSheetDragStart = React.useCallback(
+    (event) => {
+      if (!isMobileLayout || event.pointerType === 'mouse') {
+        return;
+      }
+
+      const { maxTravel } = sheetMetricsRef.current;
+      if (maxTravel <= 0) {
+        return;
+      }
+
+      sheetDragRef.current = {
+        pointerId: event.pointerId,
+        startY: event.clientY,
+        startOffset: mobileSheetOffset,
+        maxTravel,
+      };
+      setIsMobileSheetDragging(true);
+      event.currentTarget.setPointerCapture(event.pointerId);
+    },
+    [isMobileLayout, mobileSheetOffset]
+  );
+
+  const handleSheetDragMove = React.useCallback((event) => {
+    const sheetDrag = sheetDragRef.current;
+    if (sheetDrag.pointerId !== event.pointerId) {
+      return;
+    }
+
+    const deltaY = event.clientY - sheetDrag.startY;
+    const nextOffset = clamp(sheetDrag.startOffset + deltaY, 0, sheetDrag.maxTravel);
+    setMobileSheetOffset(nextOffset);
+    event.preventDefault();
+  }, []);
+
+  const handleSheetDragEnd = React.useCallback(
+    (event) => {
+      const sheetDrag = sheetDragRef.current;
+      if (sheetDrag.pointerId !== event.pointerId) {
+        return;
+      }
+
+      sheetDragRef.current = {
+        pointerId: null,
+        startY: 0,
+        startOffset: 0,
+        maxTravel: sheetMetricsRef.current.maxTravel,
+      };
+      setIsMobileSheetDragging(false);
+      setMobileSheetOffset((current) => getNearestSheetSnap(current));
+    },
+    [getNearestSheetSnap]
+  );
+
+  const isMobileSheetExpanded =
+    isMobileLayout && mobileSheetOffset <= sheetMetricsRef.current.maxTravel * 0.35;
 
   React.useEffect(() => {
     if (isNeighborhoodsMode) {
@@ -722,7 +835,26 @@ function MapPage() {
 
   return (
     <main className="map-page" aria-label="Porto2You curated guide map">
-      <aside className="map-sidebar">
+      <aside
+        className={`map-sidebar ${isMobileLayout ? 'is-mobile-sheet' : ''} ${
+          isMobileSheetExpanded ? 'is-mobile-sheet-expanded' : ''
+        }`}
+        ref={mapSidebarRef}
+        style={isMobileLayout ? { transform: `translate3d(0, ${mobileSheetOffset}px, 0)` } : undefined}
+      >
+        {isMobileLayout ? (
+          <button
+            type="button"
+            className="map-mobile-sheet-handle"
+            aria-label="Drag map list panel"
+            onPointerDown={handleSheetDragStart}
+            onPointerMove={handleSheetDragMove}
+            onPointerUp={handleSheetDragEnd}
+            onPointerCancel={handleSheetDragEnd}
+          >
+            <span aria-hidden="true" />
+          </button>
+        ) : null}
         <header className="map-sidebar__header">
           <a className="eyebrow map-sidebar__home-link" href="https://porto2you.com">
             Back to homepage
