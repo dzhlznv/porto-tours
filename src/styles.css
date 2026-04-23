@@ -46,7 +46,7 @@ body {
 
 .site-header {
   position: fixed;
-  top: 0.9rem;
+  top: 1.15rem;
   left: 0;
   right: 0;
   z-index: 20;
@@ -57,23 +57,28 @@ body {
 
 .site-header-inner {
   pointer-events: auto;
-  width: min(100% - 2.5rem, 930px);
+  width: min(100% - 2.2rem, 700px);
   min-height: var(--header-height);
-  padding: 0.45rem 0.95rem;
+  padding: 0.5rem 0.82rem 0.5rem 1rem;
   display: flex;
   align-items: center;
-  gap: 1rem;
-  border-radius: 999px;
-  transition: background-color 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
-  border: 1px solid transparent;
+  gap: 0.88rem;
+  border-radius: 18px;
+  transition: background-color 220ms ease, box-shadow 220ms ease, border-color 220ms ease, transform 220ms ease;
+  background: color-mix(in srgb, var(--paper-elevated) 70%, transparent);
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
+  border: 1px solid color-mix(in srgb, var(--line) 35%, transparent);
+  box-shadow: 0 6px 20px rgba(38, 41, 40, 0.035);
 }
 
 .site-header.is-scrolled .site-header-inner {
-  background: color-mix(in srgb, var(--paper-elevated) 76%, transparent);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-color: color-mix(in srgb, var(--line-strong) 60%, white);
-  box-shadow: 0 6px 22px rgba(42, 45, 44, 0.05);
+  background: color-mix(in srgb, var(--paper-elevated) 80%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-color: color-mix(in srgb, var(--line-strong) 34%, white);
+  box-shadow: 0 10px 28px rgba(35, 38, 37, 0.08);
+  transform: translateY(-1px);
 }
 
 .site-logo {
@@ -94,7 +99,7 @@ body {
   margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 1.05rem;
+  gap: 1.18rem;
 }
 
 .site-nav a {
@@ -118,16 +123,18 @@ body {
 }
 
 .site-header-cta {
-  margin-left: 0.7rem;
+  margin-left: 0.35rem;
   font-size: 0.76rem;
   letter-spacing: 0.03em;
   text-decoration: none;
   color: var(--ink-strong);
-  border: 1px solid color-mix(in srgb, var(--line-strong) 78%, white);
+  border: 1px solid color-mix(in srgb, var(--line-strong) 58%, white);
   border-radius: 999px;
-  padding: 0.36rem 0.78rem;
-  transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease;
+  padding: 0.34rem 0.72rem;
+  background: color-mix(in srgb, var(--paper-elevated) 55%, transparent);
+  transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease, opacity 180ms ease;
   white-space: nowrap;
+  opacity: 0.94;
 }
 
 @media (hover: hover) {
@@ -970,12 +977,14 @@ h1 {
   }
 
   .site-header {
-    top: 0.65rem;
+    top: 0.75rem;
   }
 
   .site-header-inner {
-    width: calc(100% - 1.2rem);
-    padding: 0.4rem 0.75rem;
+    width: calc(100% - 1rem);
+    max-width: 540px;
+    padding: 0.38rem 0.66rem 0.38rem 0.8rem;
+    border-radius: 15px;
   }
 
   .site-logo-image {
