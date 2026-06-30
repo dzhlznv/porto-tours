@@ -1041,8 +1041,19 @@ function MapPage() {
               disabled={userLocationStatus === 'loading'}
               title={userLocationStatus === 'error' ? 'Location unavailable' : 'Show my location'}
             >
-              <span aria-hidden="true">⌖</span>
-              <span className="map-location-button__text">{userLocationStatus === 'loading' ? 'Locating…' : 'Show my location'}</span>
+              <svg
+                className="map-location-button__icon"
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                focusable="false"
+              >
+                <path d="M12 3v3" />
+                <path d="M12 18v3" />
+                <path d="M3 12h3" />
+                <path d="M18 12h3" />
+                <circle cx="12" cy="12" r="5.25" />
+                <circle cx="12" cy="12" r="1.6" />
+              </svg>
             </button>
           </div>
 
