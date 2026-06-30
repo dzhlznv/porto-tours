@@ -325,7 +325,7 @@ function LandingPage() {
             <a className="desktop-nav-item" href="#experience">
               Experience
             </a>
-            <a className="mobile-map-nav-item" href="https://map.porto2you.com/map" target="_blank" rel="noopener noreferrer">
+            <a className="mobile-map-nav-item" href="https://porto2you.com/map" target="_blank" rel="noopener noreferrer">
               Map
             </a>
           </nav>
@@ -434,7 +434,7 @@ function LandingPage() {
               </p>
               <a
                 className="map-entry-button"
-                href="https://map.porto2you.com/map"
+                href="https://porto2you.com/map"
                 target="_blank"
                 rel="noopener noreferrer"
               >
