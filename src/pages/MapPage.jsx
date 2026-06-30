@@ -891,6 +891,10 @@ function MapPage() {
                   <div className="map-details-panel__content">
                     <p>{selectedPlace.description}</p>
                     {selectedPlace.notes ? <p className="map-details-panel__notes">{selectedPlace.notes}</p> : null}
+                  </div>
+                ) : null}
+                {selectedPlace.googleMapsUrl || selectedPlace.instagram ? (
+                  <footer className="map-details-panel__actions" aria-label="Place actions">
                     {selectedPlace.googleMapsUrl ? (
                       <a
                         className="map-details-panel__instagram map-details-panel__maps-link"
@@ -917,7 +921,7 @@ function MapPage() {
                         </svg>
                       </a>
                     ) : null}
-                  </div>
+                  </footer>
                 ) : null}
               </article>
             </>

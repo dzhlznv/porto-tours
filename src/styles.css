@@ -1520,15 +1520,12 @@ h1 {
   box-shadow: 0 14px 30px rgba(10, 20, 26, 0.14);
   z-index: 4;
   display: grid;
-  grid-template-rows: auto;
+  grid-template-rows: auto auto;
   gap: 0.45rem;
 }
 
 .map-details-panel.is-expanded {
-  max-height: none;
-  height: auto;
-  overflow: visible;
-  grid-template-rows: auto auto;
+  grid-template-rows: auto minmax(0, 1fr) auto;
 }
 
 .map-details-panel__header {
@@ -1539,6 +1536,18 @@ h1 {
 .map-details-panel__content {
   display: grid;
   gap: 0.35rem;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 0.15rem;
+}
+
+.map-details-panel__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  min-height: 1.5rem;
 }
 
 .map-details-backdrop {
@@ -1603,7 +1612,10 @@ h1 {
 }
 
 .map-details-panel__instagram {
-  margin-top: 0.15rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
   font-size: 0.78rem;
   color: var(--accent);
   text-decoration: none;
@@ -1706,11 +1718,12 @@ h1 {
   }
 
   .map-details-panel.is-expanded {
-    max-height: none;
+    grid-template-rows: auto minmax(0, 1fr) auto;
   }
 
   .map-details-panel__header,
-  .map-details-panel__content {
+  .map-details-panel__content,
+  .map-details-panel__actions {
     pointer-events: auto;
   }
 
