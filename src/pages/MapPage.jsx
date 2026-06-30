@@ -76,6 +76,8 @@ const CATEGORY_MARKER_TONES = {
   Shopping: 'marker-slate',
 };
 const NEIGHBORHOODS_CATEGORY = 'Neighborhoods';
+const getPlaceSelectionKey = (place) => `${place.category}:${place.id}`;
+const getNeighborhoodSelectionKey = (neighborhood) => `${NEIGHBORHOODS_CATEGORY}:${neighborhood.id}`;
 const NEIGHBORHOOD_FILL_TONES = ['tone-moss', 'tone-sand', 'tone-clay', 'tone-sage', 'tone-lilac', 'tone-slate', 'tone-ocean', 'tone-olive'];
 
 function clamp(value, min, max) {
@@ -244,9 +246,10 @@ function constrainViewportCenter(center, zoom, mapSize, bounds = PAN_REFERENCE_B
 
 function MapPage() {
   const [activeCategory, setActiveCategory] = React.useState(defaultMapCategory);
-  const [selectedPlaceId, setSelectedPlaceId] = React.useState(() => {
+  const [selectedPlaceKey, setSelectedPlaceKey] = React.useState(() => {
     const featuredInCategory = portoGuidePlaces.find((place) => place.category === defaultMapCategory && place.featured);
-    return featuredInCategory?.id ?? portoGuidePlaces[0]?.id;
+    const initialPlace = featuredInCategory ?? portoGuidePlaces[0];
+    return initialPlace ? getPlaceSelectionKey(initialPlace) : null;
   });
   const [isDetailsOpen, setIsDetailsOpen] = React.useState(true);
   const [isDetailsExpanded, setIsDetailsExpanded] = React.useState(false);
@@ -291,10 +294,10 @@ function MapPage() {
 
   const selectedPlace = React.useMemo(() => {
     if (isNeighborhoodsMode) {
-      return portoNeighborhoods.find((neighborhood) => neighborhood.id === selectedPlaceId) ?? portoNeighborhoods[0] ?? null;
+      return portoNeighborhoods.find((neighborhood) => getNeighborhoodSelectionKey(neighborhood) === selectedPlaceKey) ?? portoNeighborhoods[0] ?? null;
     }
-    return portoGuidePlaces.find((place) => place.id === selectedPlaceId) ?? visiblePlaces[0] ?? portoGuidePlaces[0];
-  }, [isNeighborhoodsMode, selectedPlaceId, visiblePlaces]);
+    return visiblePlaces.find((place) => getPlaceSelectionKey(place) === selectedPlaceKey) ?? visiblePlaces[0] ?? portoGuidePlaces[0];
+  }, [isNeighborhoodsMode, selectedPlaceKey, visiblePlaces]);
 
   React.useEffect(() => {
     viewportRef.current = viewport;
@@ -365,22 +368,22 @@ function MapPage() {
 
   React.useEffect(() => {
     if (isNeighborhoodsMode) {
-      if (!portoNeighborhoods.some((neighborhood) => neighborhood.id === selectedPlaceId)) {
-        setSelectedPlaceId(portoNeighborhoods[0]?.id ?? portoGuidePlaces[0]?.id);
+      if (!portoNeighborhoods.some((neighborhood) => getNeighborhoodSelectionKey(neighborhood) === selectedPlaceKey)) {
+        setSelectedPlaceKey(portoNeighborhoods[0] ? getNeighborhoodSelectionKey(portoNeighborhoods[0]) : null);
         setIsDetailsOpen(true);
       }
       return;
     }
 
-    if (!visiblePlaces.some((place) => place.id === selectedPlaceId)) {
-      setSelectedPlaceId(visiblePlaces[0]?.id ?? portoGuidePlaces[0]?.id);
+    if (!visiblePlaces.some((place) => getPlaceSelectionKey(place) === selectedPlaceKey)) {
+      setSelectedPlaceKey(visiblePlaces[0] ? getPlaceSelectionKey(visiblePlaces[0]) : null);
       setIsDetailsOpen(true);
     }
-  }, [isNeighborhoodsMode, selectedPlaceId, visiblePlaces]);
+  }, [isNeighborhoodsMode, selectedPlaceKey, visiblePlaces]);
 
   React.useEffect(() => {
     setIsDetailsExpanded(false);
-  }, [selectedPlaceId]);
+  }, [selectedPlaceKey]);
 
   React.useEffect(() => {
     if (!mapSize.width || !mapSize.height) {
@@ -469,7 +472,7 @@ function MapPage() {
   }, []);
 
   React.useEffect(() => {
-    if (!selectedPlaceId || !mapPlaceListRef.current) {
+    if (!selectedPlace || !mapPlaceListRef.current) {
       return;
     }
 
@@ -478,7 +481,7 @@ function MapPage() {
       return;
     }
 
-    const selectedRow = mapPlaceRowRefs.current.get(selectedPlaceId);
+    const selectedRow = mapPlaceRowRefs.current.get(selectedPlace.id);
     if (!selectedRow) {
       return;
     }
@@ -490,7 +493,7 @@ function MapPage() {
     });
 
     selectionSourceRef.current = 'initial';
-  }, [isMobileLayout, selectedPlaceId]);
+  }, [isMobileLayout, selectedPlace]);
 
   const tileZoom = Math.floor(viewport.zoom);
   const tileScale = 2 ** (viewport.zoom - tileZoom);
@@ -836,7 +839,7 @@ function MapPage() {
               className={`map-place-row ${selectedPlace?.id === place.id ? 'is-selected' : ''}`}
               onClick={() => {
                 selectionSourceRef.current = 'list';
-                setSelectedPlaceId(place.id);
+                setSelectedPlaceKey(isNeighborhoodsMode ? getNeighborhoodSelectionKey(place) : getPlaceSelectionKey(place));
                 setIsDetailsOpen(true);
                 setIsDetailsExpanded(false);
               }}
@@ -884,7 +887,7 @@ function MapPage() {
                     onMouseLeave={() => setHoveredNeighborhoodId(null)}
                     onClick={() => {
                       selectionSourceRef.current = 'marker';
-                      setSelectedPlaceId(area.id);
+                      setSelectedPlaceKey(getNeighborhoodSelectionKey(area));
                       setIsDetailsOpen(true);
                       setIsDetailsExpanded(false);
                     }}
@@ -907,7 +910,7 @@ function MapPage() {
               style={{ transform: `translate3d(${marker.x}px, ${marker.y}px, 0)` }}
               onClick={() => {
                 selectionSourceRef.current = 'marker';
-                setSelectedPlaceId(marker.id);
+                setSelectedPlaceKey(getPlaceSelectionKey(marker));
                 setIsDetailsOpen(true);
                 setIsDetailsExpanded(false);
               }}
