@@ -64,6 +64,7 @@ function LandingPage() {
   const [activeAboutImageIndex, setActiveAboutImageIndex] = useState(0);
   const [isAboutDragging, setIsAboutDragging] = useState(false);
   const [aboutHoverZone, setAboutHoverZone] = useState('center');
+  const headerRef = useRef(null);
   const aboutCarouselRef = useRef(null);
   const aboutDragRef = useRef({
     isMouseDown: false,
@@ -105,6 +106,33 @@ function LandingPage() {
 
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isBrowser]);
+
+  const scrollToWaitlist = React.useCallback(
+    (event) => {
+      if (!isBrowser) {
+        return;
+      }
+
+      event.preventDefault();
+
+      const waitlistHeading = document.querySelector('#contact .section-title');
+      if (!waitlistHeading) {
+        return;
+      }
+
+      const headerBottom = headerRef.current?.getBoundingClientRect().bottom ?? 0;
+      const headerGap = 16;
+      const targetTop = waitlistHeading.getBoundingClientRect().top + window.scrollY - headerBottom - headerGap;
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      window.history.pushState(null, '', '#contact');
+      window.scrollTo({
+        top: Math.max(0, targetTop),
+        behavior: prefersReducedMotion ? 'auto' : 'smooth',
+      });
+    },
+    [isBrowser]
+  );
 
   const visibleGalleryItems = useMemo(
     () => (isMobileGallery ? pageContent.gallery : pageContent.gallery.slice(0, visibleGalleryCount)),
@@ -313,7 +341,11 @@ function LandingPage() {
 
   return (
     <div className="page-shell">
-      <header className={`site-header ${hasScrolled ? 'is-scrolled' : ''}`} aria-label="Primary navigation">
+      <header
+        ref={headerRef}
+        className={`site-header ${hasScrolled ? 'is-scrolled' : ''}`}
+        aria-label="Primary navigation"
+      >
         <div className="site-header-inner">
           <a className="site-logo" href="#top" aria-label="Go to top">
             <img className="site-logo-image" src={logoImg} alt="Porto2You" />
@@ -329,7 +361,7 @@ function LandingPage() {
               Map
             </a>
           </nav>
-          <a className="site-header-cta" href="#contact">
+          <a className="site-header-cta" href="#contact" onClick={scrollToWaitlist}>
             Plan a day
           </a>
         </div>
@@ -348,7 +380,7 @@ function LandingPage() {
               </ul>
             </div>
             <p className="hero-supporting">{pageContent.hero.supportingLine}</p>
-            <a className="cta" href="#contact">
+            <a className="cta" href="#contact" onClick={scrollToWaitlist}>
               {pageContent.hero.cta}
             </a>
             <p className="hero-note">{pageContent.hero.note}</p>
