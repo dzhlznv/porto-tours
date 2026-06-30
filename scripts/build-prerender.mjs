@@ -19,7 +19,14 @@ const serverEntryPath = path.join(rootDir, 'dist/server/entry-server.js');
 
 const template = await fs.readFile(templatePath, 'utf-8');
 const { render } = await import(pathToFileURL(serverEntryPath).href);
-const appHtml = render('/');
-const rendered = template.replace('<!--app-html-->', appHtml);
 
-await fs.writeFile(templatePath, rendered, 'utf-8');
+async function writePrerenderedRoute(routePath, outputPath) {
+  const appHtml = render(routePath);
+  const rendered = template.replace('<!--app-html-->', appHtml);
+
+  await fs.mkdir(path.dirname(outputPath), { recursive: true });
+  await fs.writeFile(outputPath, rendered, 'utf-8');
+}
+
+await writePrerenderedRoute('/', templatePath);
+await writePrerenderedRoute('/map', path.join(rootDir, 'dist/map/index.html'));
