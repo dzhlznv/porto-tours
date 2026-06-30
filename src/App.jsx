@@ -134,6 +134,58 @@ function LandingPage() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [activeGalleryIndex, isBrowser, visibleGalleryItems.length]);
 
+  const getContactScrollTop = React.useCallback(() => {
+    if (!isBrowser) {
+      return 0;
+    }
+
+    const contactSection = document.getElementById('contact');
+    if (!contactSection) {
+      return 0;
+    }
+
+    const header = document.querySelector('.site-header');
+    const headerHeight = header ? header.getBoundingClientRect().height : 0;
+    const headerMargin = 12;
+
+    return Math.max(0, contactSection.getBoundingClientRect().top + window.scrollY - headerHeight - headerMargin);
+  }, [isBrowser]);
+
+  const scrollToContact = React.useCallback(
+    (event) => {
+      if (event) {
+        event.preventDefault();
+      }
+
+      if (!isBrowser) {
+        return;
+      }
+
+      const scrollToCurrentContactPosition = (behavior = 'smooth') => {
+        window.scrollTo({
+          top: getContactScrollTop(),
+          behavior,
+        });
+      };
+
+      scrollToCurrentContactPosition();
+
+      if (window.location.hash !== '#contact') {
+        window.history.pushState(null, '', '#contact');
+      }
+
+      const correctScrollAfterLayoutSettles = () => scrollToCurrentContactPosition('auto');
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(correctScrollAfterLayoutSettles);
+      });
+      window.setTimeout(correctScrollAfterLayoutSettles, 350);
+      if (document.fonts?.ready) {
+        document.fonts.ready.then(correctScrollAfterLayoutSettles).catch(() => {});
+      }
+    },
+    [getContactScrollTop, isBrowser]
+  );
+
   const handleViewMorePhotos = () => {
     setVisibleGalleryCount((count) => Math.min(count + GALLERY_BATCH_SIZE, pageContent.gallery.length));
   };
@@ -329,7 +381,7 @@ function LandingPage() {
               Map
             </a>
           </nav>
-          <a className="site-header-cta" href="#contact">
+          <a className="site-header-cta" href="#contact" onClick={scrollToContact}>
             Plan a day
           </a>
         </div>
@@ -348,7 +400,7 @@ function LandingPage() {
               </ul>
             </div>
             <p className="hero-supporting">{pageContent.hero.supportingLine}</p>
-            <a className="cta" href="#contact">
+            <a className="cta" href="#contact" onClick={scrollToContact}>
               {pageContent.hero.cta}
             </a>
             <p className="hero-note">{pageContent.hero.note}</p>
