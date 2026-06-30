@@ -13,6 +13,10 @@ const PAN_INTERACTION_RECENTER_COOLDOWN_MS = 700;
 const PAN_SOFT_MARGIN_RATIO = 0.38;
 const PAN_MIN_SOFT_MARGIN_LAT = 0.01;
 const PAN_MIN_SOFT_MARGIN_LNG = 0.012;
+const USER_LOCATION_ZOOM = 15;
+const MOBILE_USER_LOCATION_CENTER_RATIO = 0.36;
+const DESKTOP_USER_LOCATION_CENTER_RATIO = 0.5;
+
 const PAN_REFERENCE_BOUNDS = {
   north: 41.24,
   south: 41.08,
@@ -250,6 +254,8 @@ function MapPage() {
   const [mapSize, setMapSize] = React.useState({ width: 0, height: 0 });
   const [hoveredNeighborhoodId, setHoveredNeighborhoodId] = React.useState(null);
   const [hoveredMarkerId, setHoveredMarkerId] = React.useState(null);
+  const [userLocation, setUserLocation] = React.useState(null);
+  const [userLocationStatus, setUserLocationStatus] = React.useState('idle');
   const [isMobileLayout, setIsMobileLayout] = React.useState(() =>
     typeof window !== 'undefined' ? window.matchMedia(MOBILE_BREAKPOINT_QUERY).matches : false
   );
@@ -537,6 +543,19 @@ function MapPage() {
     });
   }, [activeCategory, isNeighborhoodsMode, leftTileWorld, markerTone, tileScale, tileZoom, topTileWorld, visiblePlaces]);
 
+  const userLocationMarker = React.useMemo(() => {
+    if (!userLocation) {
+      return null;
+    }
+
+    const pixelPoint = project(userLocation.lat, userLocation.lng, tileZoom);
+
+    return {
+      x: (pixelPoint.x - leftTileWorld) * tileScale,
+      y: (pixelPoint.y - topTileWorld) * tileScale,
+    };
+  }, [leftTileWorld, tileScale, tileZoom, topTileWorld, userLocation]);
+
   const mapNeighborhoods = React.useMemo(() => {
     if (!isNeighborhoodsMode) {
       return [];
@@ -720,6 +739,57 @@ function MapPage() {
     setViewport((current) => ({ ...current, zoom: clamp(current.zoom + delta, MIN_ZOOM, MAX_ZOOM) }));
   }, []);
 
+  const centerViewportOnUserLocation = React.useCallback(
+    (coords) => {
+      if (!coords || !mapSize.width || !mapSize.height) {
+        return;
+      }
+
+      const targetZoom = Math.max(viewportRef.current.zoom, USER_LOCATION_ZOOM);
+      const userWorld = project(coords.lat, coords.lng, targetZoom);
+      const desiredY = mapSize.height * (isMobileLayout ? MOBILE_USER_LOCATION_CENTER_RATIO : DESKTOP_USER_LOCATION_CENTER_RATIO);
+      const nextCenterWorldY = userWorld.y - (desiredY - mapSize.height / 2);
+      const nextCenter = unproject(userWorld.x, nextCenterWorldY, targetZoom);
+      const constrainedCenter = constrainViewportCenter(nextCenter, targetZoom, mapSize);
+
+      animateViewportTo(
+        {
+          lat: constrainedCenter.lat,
+          lng: constrainedCenter.lng,
+          zoom: targetZoom,
+        },
+        420
+      );
+    },
+    [animateViewportTo, isMobileLayout, mapSize]
+  );
+
+  const handleShowUserLocation = React.useCallback(() => {
+    if (typeof navigator === 'undefined' || !navigator.geolocation) {
+      setUserLocationStatus('unsupported');
+      return;
+    }
+
+    setUserLocationStatus('loading');
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const coords = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+          accuracy: position.coords.accuracy,
+        };
+
+        setUserLocation(coords);
+        setUserLocationStatus('idle');
+        centerViewportOnUserLocation(coords);
+      },
+      () => {
+        setUserLocationStatus('error');
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+    );
+  }, [centerViewportOnUserLocation]);
+
   return (
     <main className="map-page" aria-label="Porto2You curated guide map">
       <aside className="map-sidebar">
@@ -853,6 +923,19 @@ function MapPage() {
             </button>
           ))}
 
+          {userLocationMarker ? (
+            <div
+              className="map-user-location-marker"
+              style={{ transform: `translate3d(${userLocationMarker.x}px, ${userLocationMarker.y}px, 0)` }}
+              title="Your location"
+              role="img"
+              aria-label="Your location"
+            >
+              <span className="map-user-location-marker__accuracy" />
+              <span className="map-user-location-marker__dot" />
+            </div>
+          ) : null}
+
           {selectedPlace && isDetailsOpen ? (
             <>
               <div className="map-details-backdrop" aria-hidden="true" />
@@ -927,12 +1010,13 @@ function MapPage() {
             </>
           ) : null}
 
-          <div className="map-zoom-controls" role="group" aria-label="Map zoom controls">
+          <div className="map-zoom-controls" role="group" aria-label="Map controls">
             <button
               type="button"
               className="map-zoom-button"
               onClick={() => adjustZoom(ZOOM_BUTTON_STEP)}
               onMouseDown={(event) => event.stopPropagation()}
+              onTouchStart={(event) => event.stopPropagation()}
               aria-label="Zoom in"
             >
               +
@@ -942,9 +1026,23 @@ function MapPage() {
               className="map-zoom-button"
               onClick={() => adjustZoom(-ZOOM_BUTTON_STEP)}
               onMouseDown={(event) => event.stopPropagation()}
+              onTouchStart={(event) => event.stopPropagation()}
               aria-label="Zoom out"
             >
               −
+            </button>
+            <button
+              type="button"
+              className="map-location-button"
+              onClick={handleShowUserLocation}
+              onMouseDown={(event) => event.stopPropagation()}
+              onTouchStart={(event) => event.stopPropagation()}
+              aria-label="Show my location"
+              disabled={userLocationStatus === 'loading'}
+              title={userLocationStatus === 'error' ? 'Location unavailable' : 'Show my location'}
+            >
+              <span aria-hidden="true">⌖</span>
+              <span className="map-location-button__text">{userLocationStatus === 'loading' ? 'Locating…' : 'Show my location'}</span>
             </button>
           </div>
 
