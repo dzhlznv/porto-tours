@@ -6,6 +6,7 @@ const TILE_PROVIDER_URL = 'https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}
 const MIN_ZOOM = 11;
 const MAX_ZOOM = 17;
 const ZOOM_BUTTON_STEP = 0.5;
+const USER_LOCATION_ZOOM = 15;
 const DEFAULT_TRANSITION_MS = 420;
 const MOBILE_BREAKPOINT_QUERY = '(max-width: 980px)';
 const MOBILE_SELECTED_PLACE_ZOOM = 15;
@@ -250,6 +251,9 @@ function MapPage() {
   const [mapSize, setMapSize] = React.useState({ width: 0, height: 0 });
   const [hoveredNeighborhoodId, setHoveredNeighborhoodId] = React.useState(null);
   const [hoveredMarkerId, setHoveredMarkerId] = React.useState(null);
+  const [userLocation, setUserLocation] = React.useState(null);
+  const [locationStatus, setLocationStatus] = React.useState('idle');
+  const [locationMessage, setLocationMessage] = React.useState('');
   const [isMobileLayout, setIsMobileLayout] = React.useState(() =>
     typeof window !== 'undefined' ? window.matchMedia(MOBILE_BREAKPOINT_QUERY).matches : false
   );
@@ -537,6 +541,18 @@ function MapPage() {
     });
   }, [activeCategory, isNeighborhoodsMode, leftTileWorld, markerTone, tileScale, tileZoom, topTileWorld, visiblePlaces]);
 
+  const userLocationMarker = React.useMemo(() => {
+    if (!userLocation) {
+      return null;
+    }
+
+    const pixelPoint = project(userLocation.lat, userLocation.lng, tileZoom);
+    return {
+      x: (pixelPoint.x - leftTileWorld) * tileScale,
+      y: (pixelPoint.y - topTileWorld) * tileScale,
+    };
+  }, [leftTileWorld, tileScale, tileZoom, topTileWorld, userLocation]);
+
   const mapNeighborhoods = React.useMemo(() => {
     if (!isNeighborhoodsMode) {
       return [];
@@ -720,6 +736,40 @@ function MapPage() {
     setViewport((current) => ({ ...current, zoom: clamp(current.zoom + delta, MIN_ZOOM, MAX_ZOOM) }));
   }, []);
 
+  const handleShowUserLocation = React.useCallback(() => {
+    if (typeof navigator === 'undefined' || !navigator.geolocation) {
+      setLocationStatus('error');
+      setLocationMessage('Location is not available in this browser.');
+      return;
+    }
+
+    setLocationStatus('loading');
+    setLocationMessage('');
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const nextLocation = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        };
+
+        setUserLocation(nextLocation);
+        setLocationStatus('success');
+        setLocationMessage('');
+        animateViewportTo({ ...nextLocation, zoom: Math.max(viewportRef.current.zoom, USER_LOCATION_ZOOM) }, 520);
+      },
+      (error) => {
+        setLocationStatus('error');
+        setLocationMessage(
+          error.code === error.PERMISSION_DENIED
+            ? 'No worries — location permission was not granted.'
+            : 'Sorry, I could not find your location right now.'
+        );
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  }, [animateViewportTo]);
+
   return (
     <main className="map-page" aria-label="Porto2You curated guide map">
       <aside className="map-sidebar">
@@ -853,6 +903,18 @@ function MapPage() {
             </button>
           ))}
 
+          {userLocationMarker ? (
+            <div
+              className="map-user-location-marker"
+              style={{ transform: `translate3d(${userLocationMarker.x}px, ${userLocationMarker.y}px, 0)` }}
+              aria-label="Your current location"
+              role="img"
+            >
+              <span className="map-user-location-marker__ring" />
+              <span className="map-user-location-marker__dot" />
+            </div>
+          ) : null}
+
           {selectedPlace && isDetailsOpen ? (
             <>
               <div className="map-details-backdrop" aria-hidden="true" />
@@ -926,6 +988,26 @@ function MapPage() {
               </article>
             </>
           ) : null}
+
+          <div className="map-location-control">
+            <button
+              type="button"
+              className="map-location-button"
+              onClick={handleShowUserLocation}
+              onMouseDown={(event) => event.stopPropagation()}
+              onTouchStart={(event) => event.stopPropagation()}
+              aria-label="Show my location"
+              aria-busy={locationStatus === 'loading'}
+            >
+              <span aria-hidden="true">⌖</span>
+              <span>{locationStatus === 'loading' ? 'Finding…' : 'Show my location'}</span>
+            </button>
+            {locationMessage ? (
+              <p className="map-location-message" role="status">
+                {locationMessage}
+              </p>
+            ) : null}
+          </div>
 
           <div className="map-zoom-controls" role="group" aria-label="Map zoom controls">
             <button

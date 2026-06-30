@@ -1392,6 +1392,40 @@ h1 {
   --marker-color: #5f6672;
 }
 
+
+.map-user-location-marker {
+  --user-location-color: #2677d9;
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  margin-left: -12px;
+  margin-top: -12px;
+  border-radius: 999px;
+  z-index: 5;
+  pointer-events: none;
+  filter: drop-shadow(0 8px 18px rgba(16, 42, 76, 0.3));
+  will-change: transform;
+}
+
+.map-user-location-marker__ring,
+.map-user-location-marker__dot {
+  position: absolute;
+  border-radius: 999px;
+}
+
+.map-user-location-marker__ring {
+  inset: 0;
+  border: 2px solid rgba(38, 119, 217, 0.36);
+  background: rgba(38, 119, 217, 0.14);
+}
+
+.map-user-location-marker__dot {
+  inset: 6px;
+  border: 2px solid white;
+  background: var(--user-location-color);
+  box-shadow: 0 2px 8px rgba(16, 42, 76, 0.28);
+}
+
 .map-neighborhood-overlay {
   position: absolute;
   inset: 0;
@@ -1451,6 +1485,58 @@ h1 {
   dominant-baseline: middle;
   pointer-events: none;
   text-shadow: 0 1px 1px rgba(248, 250, 252, 0.8);
+}
+
+
+.map-location-control {
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+  z-index: 6;
+  display: grid;
+  justify-items: end;
+  gap: 0.45rem;
+  max-width: min(15rem, calc(100% - 5.5rem));
+}
+
+.map-location-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+  min-height: 2.1rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  padding: 0.42rem 0.7rem;
+  background: color-mix(in srgb, white 90%, var(--paper));
+  color: var(--ink-strong);
+  font: inherit;
+  font-size: 0.78rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(15, 24, 32, 0.12);
+}
+
+.map-location-button:hover,
+.map-location-button:focus-visible {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.map-location-button[aria-busy='true'] {
+  cursor: progress;
+}
+
+.map-location-message {
+  max-width: 14rem;
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0.42rem 0.58rem;
+  background: color-mix(in srgb, white 90%, var(--paper));
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  line-height: 1.35;
+  box-shadow: 0 8px 18px rgba(15, 24, 32, 0.12);
 }
 
 .map-zoom-controls {
@@ -1765,6 +1851,24 @@ h1 {
 
   .map-place-row {
     padding: 0.5rem 0.56rem;
+  }
+
+
+  .map-location-control {
+    top: 0.65rem;
+    right: 0.65rem;
+    max-width: min(12rem, calc(100% - 4.8rem));
+  }
+
+  .map-location-button {
+    min-height: 2rem;
+    padding: 0.38rem 0.58rem;
+    font-size: 0.72rem;
+  }
+
+  .map-location-message {
+    max-width: 11.5rem;
+    font-size: 0.68rem;
   }
 
   .map-attribution {
