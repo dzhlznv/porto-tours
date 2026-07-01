@@ -2,6 +2,7 @@ import heroImg from './assets/hero.jpg';
 import aboutImg from './assets/about.jpg';
 import aboutGalleryImg from './assets/gallery-29.jpg';
 import logoImg from './assets/p2u-logo.png';
+import mapImage from './assets/map.png';
 import React, { useMemo, useRef, useState } from 'react';
 import { pageContent } from './content';
 import { Section } from './components/Section';
@@ -481,6 +482,11 @@ function LandingPage() {
         <Section title="Porto, as I see it" id="map">
           <div className="map-layout">
             <div className="map-entry">
+              <img
+                src={mapImage}
+                alt="Map of Porto recommendations"
+                className="map-image"
+              />
               <p className="map-entry-description">
                 A map of places I keep coming back to — coffee, food, walks, views, and everyday spots.
               </p>
