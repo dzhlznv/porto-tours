@@ -414,7 +414,7 @@ h1 {
 
 .map-layout {
   display: grid;
-  gap: 0.6rem;
+  gap: 1.15rem;
 }
 
 .map-entry {
@@ -449,6 +449,21 @@ h1 {
 .map-entry-button:focus-visible {
   border-color: color-mix(in srgb, var(--line-strong) 90%, var(--accent));
   background: color-mix(in srgb, var(--paper-elevated) 68%, white);
+}
+
+
+.map-image-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.map-image {
+  display: block;
+  width: 100%;
+  max-height: 30rem;
+  object-fit: contain;
 }
 
 .map-entry-caption {
@@ -921,13 +936,18 @@ h1 {
   }
 
   .map-layout {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0.75rem;
+    grid-template-columns: 1.2fr 1fr;
+    align-items: start;
+    gap: 2rem;
   }
 
   .map-entry {
     max-width: 52ch;
     padding-top: 0.2rem;
+  }
+
+  .map-image-wrap {
+    justify-content: center;
   }
 
   .about-carousel-track {
