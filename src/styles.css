@@ -525,6 +525,55 @@ h1 {
   color: var(--ink-soft);
 }
 
+@media (min-width: 820px) {
+  #who-its-for {
+    display: grid;
+    grid-template-columns: minmax(250px, 0.54fr) 1fr;
+    align-items: start;
+    column-gap: 2.45rem;
+  }
+
+  #who-its-for .section-title {
+    max-width: 15ch;
+    margin: 0.2rem 0 0;
+    font-size: clamp(1.2rem, 1.95vw, 1.44rem);
+    line-height: 1.18;
+  }
+
+  #who-its-for .section-body {
+    min-width: 0;
+  }
+
+  #who-its-for .soft-list {
+    counter-reset: who-list;
+    gap: 0;
+  }
+
+  #who-its-for .soft-list li {
+    counter-increment: who-list;
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    column-gap: 1.15rem;
+    padding: 1rem 0;
+    border-top: 1px solid color-mix(in srgb, var(--line) 54%, white);
+  }
+
+  #who-its-for .soft-list li:first-child {
+    padding-top: 0.12rem;
+    border-top-color: color-mix(in srgb, var(--line) 42%, white);
+  }
+
+  #who-its-for .soft-list li::before {
+    content: counter(who-list, decimal-leading-zero);
+    position: static;
+    color: color-mix(in srgb, var(--ink-soft) 72%, white);
+    font-size: 0.78rem;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    line-height: inherit;
+  }
+}
+
 .includes-grid {
   display: grid;
   grid-template-columns: 1fr;
