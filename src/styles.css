@@ -412,26 +412,50 @@ h1 {
   color: var(--ink-soft);
 }
 
+#map {
+  padding-top: clamp(2.25rem, 5vw, 3rem);
+  padding-bottom: clamp(2.25rem, 5vw, 3rem);
+}
+
 .map-layout {
   display: grid;
-  gap: 0.6rem;
+  gap: 1.65rem;
 }
 
 .map-entry {
-  display: grid;
-  gap: 0.8rem;
-  max-width: 44ch;
-  padding: 0.4rem 0 0.2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 520px;
+  padding: 0.15rem 0 0.05rem;
+}
+
+.map-entry-eyebrow {
+  margin-bottom: 0.75rem;
+  letter-spacing: 0.13em;
+}
+
+.map-entry-headline {
+  margin: 0;
+  max-width: 12ch;
+  font-family: 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', serif;
+  font-size: clamp(2.25rem, 9.5vw, 2.625rem);
+  font-weight: 500;
+  line-height: 1.03;
+  letter-spacing: -0.025em;
+  color: var(--ink-strong);
 }
 
 .map-entry-description {
+  max-width: 520px;
+  margin-top: 1.05rem !important;
   color: var(--ink-soft);
-  line-height: 1.74;
+  line-height: 1.7;
 }
 
 .map-entry-button {
   width: fit-content;
-  margin-top: 0.3rem;
+  margin-top: 1.75rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -920,14 +944,24 @@ h1 {
     align-items: start;
   }
 
+  #map {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+
   .map-layout {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0.75rem;
+    grid-template-columns: 1.25fr 1fr;
+    align-items: center;
+    gap: 2rem;
   }
 
   .map-entry {
-    max-width: 52ch;
-    padding-top: 0.2rem;
+    max-width: 520px;
+    min-height: 17rem;
+  }
+
+  .map-entry-headline {
+    font-size: clamp(3rem, 5.5vw, 4rem);
   }
 
   .about-carousel-track {
