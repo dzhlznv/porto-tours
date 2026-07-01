@@ -600,6 +600,18 @@ h1 {
   transition: transform 0.35s ease, box-shadow 0.35s ease;
 }
 
+.gallery-grid > *:first-child {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+
+.gallery-grid > *:first-child .gallery-card,
+.gallery-grid > *:first-child .gallery-media,
+.gallery-grid > *:first-child .gallery-image,
+.gallery-grid > *:first-child .gallery-placeholder {
+  min-height: 30rem;
+}
+
 @media (hover: hover) {
   .gallery-grid > *:hover {
     transform: translateY(-4px);
@@ -1075,6 +1087,8 @@ h1 {
 
   .gallery-grid > * {
     flex: 0 0 min(86vw, 25rem);
+    grid-column: auto;
+    grid-row: auto;
     scroll-snap-align: center;
   }
 
