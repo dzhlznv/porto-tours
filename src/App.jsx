@@ -209,14 +209,14 @@ function LandingPage() {
     setVisibleGalleryCount(shuffledGallery.length);
   };
 
-  const openGalleryLightbox = (photoId) => {
-    const galleryIndex = shuffledGallery.findIndex((galleryImage) => galleryImage.id === photoId);
+  const openPhoto = (clickedPhoto) => {
+    const index = shuffledGallery.findIndex((photo) => photo.id === clickedPhoto.id);
 
-    if (galleryIndex === -1) {
+    if (index === -1) {
       return;
     }
 
-    setActiveGalleryIndex(galleryIndex);
+    setActiveGalleryIndex(index);
   };
 
   const handleAboutCarouselScroll = (event) => {
@@ -559,7 +559,7 @@ function LandingPage() {
                 key={image.id}
                 src={image.src}
                 alt={image.alt}
-                onClick={() => openGalleryLightbox(image.id)}
+                onClick={() => openPhoto(image)}
               />
             ))}
           </div>
