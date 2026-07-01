@@ -1,4 +1,5 @@
 import heroImg from './assets/hero.jpg';
+import mapImg from './assets/map.png';
 import aboutImg from './assets/about.jpg';
 import aboutGalleryImg from './assets/gallery-29.jpg';
 import logoImg from './assets/p2u-logo.png';
@@ -493,6 +494,7 @@ function LandingPage() {
                 Open the map
               </a>
             </div>
+            <FramedImage src={mapImg} alt="Porto2You curated map shown on a phone" className="hero-image map-entry-image" />
           </div>
         </Section>
 
