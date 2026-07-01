@@ -44,6 +44,18 @@ function InstagramIcon() {
   );
 }
 
+
+function shuffleGalleryItems(items) {
+  const shuffledItems = [...items];
+
+  for (let index = shuffledItems.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1));
+    [shuffledItems[index], shuffledItems[randomIndex]] = [shuffledItems[randomIndex], shuffledItems[index]];
+  }
+
+  return shuffledItems;
+}
+
 function normalizePathname(pathname) {
   if (!pathname) {
     return '/';
@@ -56,7 +68,7 @@ function normalizePathname(pathname) {
 function LandingPage() {
   const isBrowser = typeof window !== 'undefined';
   const instagramUrl = 'https://www.instagram.com/porto2u/';
-  const INITIAL_GALLERY_COUNT = 12;
+  const INITIAL_GALLERY_COUNT = 9;
   const GALLERY_BATCH_SIZE = 9;
   const [isMobileGallery, setIsMobileGallery] = useState(false);
   const [visibleGalleryCount, setVisibleGalleryCount] = useState(INITIAL_GALLERY_COUNT);
@@ -73,6 +85,8 @@ function LandingPage() {
     hasDragged: false,
     suppressClick: false,
   });
+
+  const shuffledGallery = useMemo(() => shuffleGalleryItems(pageContent.gallery), []);
 
   const aboutImages = [
     { src: aboutImg, alt: 'Neighborhood view in Porto' },
@@ -108,10 +122,10 @@ function LandingPage() {
   }, [isBrowser]);
 
   const visibleGalleryItems = useMemo(
-    () => (isMobileGallery ? pageContent.gallery : pageContent.gallery.slice(0, visibleGalleryCount)),
-    [isMobileGallery, visibleGalleryCount]
+    () => (isMobileGallery ? shuffledGallery : shuffledGallery.slice(0, visibleGalleryCount)),
+    [isMobileGallery, shuffledGallery, visibleGalleryCount]
   );
-  const hasMoreGalleryItems = !isMobileGallery && visibleGalleryCount < pageContent.gallery.length;
+  const hasMoreGalleryItems = !isMobileGallery && visibleGalleryCount < shuffledGallery.length;
 
   React.useEffect(() => {
     if (!isBrowser || activeGalleryIndex === null) {
@@ -123,17 +137,17 @@ function LandingPage() {
         setActiveGalleryIndex(null);
       }
       if (event.key === 'ArrowRight') {
-        setActiveGalleryIndex((index) => (index + 1) % visibleGalleryItems.length);
+        setActiveGalleryIndex((index) => (index + 1) % shuffledGallery.length);
       }
       if (event.key === 'ArrowLeft') {
-        setActiveGalleryIndex((index) => (index - 1 + visibleGalleryItems.length) % visibleGalleryItems.length);
+        setActiveGalleryIndex((index) => (index - 1 + shuffledGallery.length) % shuffledGallery.length);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
 
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [activeGalleryIndex, isBrowser, visibleGalleryItems.length]);
+  }, [activeGalleryIndex, isBrowser, shuffledGallery.length]);
 
   const getContactScrollTop = React.useCallback(() => {
     if (!isBrowser) {
@@ -188,7 +202,12 @@ function LandingPage() {
   );
 
   const handleViewMorePhotos = () => {
-    setVisibleGalleryCount((count) => Math.min(count + GALLERY_BATCH_SIZE, pageContent.gallery.length));
+    setVisibleGalleryCount((count) => Math.min(count + GALLERY_BATCH_SIZE, shuffledGallery.length));
+  };
+
+  const openGalleryLightbox = (image) => {
+    const galleryIndex = shuffledGallery.findIndex((galleryImage) => galleryImage.src === image.src);
+    setActiveGalleryIndex(galleryIndex >= 0 ? galleryIndex : 0);
   };
 
   const handleAboutCarouselScroll = (event) => {
@@ -526,12 +545,12 @@ function LandingPage() {
             Porto through my eyes — calm details, quiet corners, and the atmosphere that makes this city feel like home.
           </p>
           <div className="gallery-grid">
-            {visibleGalleryItems.map((image, index) => (
+            {visibleGalleryItems.map((image) => (
               <ParallaxImageCard
                 key={image.src}
                 src={image.src}
                 alt={image.alt}
-                onClick={() => setActiveGalleryIndex(index)}
+                onClick={() => openGalleryLightbox(image)}
               />
             ))}
           </div>
@@ -563,21 +582,21 @@ function LandingPage() {
                 type="button"
                 className="gallery-lightbox-nav gallery-lightbox-prev"
                 onClick={() =>
-                  setActiveGalleryIndex((index) => (index - 1 + visibleGalleryItems.length) % visibleGalleryItems.length)
+                  setActiveGalleryIndex((index) => (index - 1 + shuffledGallery.length) % shuffledGallery.length)
                 }
                 aria-label="View previous image"
               >
                 ‹
               </button>
               <img
-                src={visibleGalleryItems[activeGalleryIndex].src}
-                alt={visibleGalleryItems[activeGalleryIndex].alt}
+                src={shuffledGallery[activeGalleryIndex].src}
+                alt={shuffledGallery[activeGalleryIndex].alt}
                 className="gallery-lightbox-image"
               />
               <button
                 type="button"
                 className="gallery-lightbox-nav gallery-lightbox-next"
-                onClick={() => setActiveGalleryIndex((index) => (index + 1) % visibleGalleryItems.length)}
+                onClick={() => setActiveGalleryIndex((index) => (index + 1) % shuffledGallery.length)}
                 aria-label="View next image"
               >
                 ›
