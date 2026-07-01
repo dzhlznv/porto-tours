@@ -45,7 +45,7 @@ function InstagramIcon() {
 }
 
 
-function shuffleGalleryItems(items) {
+function shuffleArray(items) {
   const shuffledItems = [...items];
 
   for (let index = shuffledItems.length - 1; index > 0; index -= 1) {
@@ -54,6 +54,51 @@ function shuffleGalleryItems(items) {
   }
 
   return shuffledItems;
+}
+
+
+function Lightbox({ photos, currentIndex, onClose, onNext, onPrevious }) {
+  const currentPhoto = photos[currentIndex];
+
+  if (!currentPhoto) {
+    return null;
+  }
+
+  return (
+    <div className="gallery-lightbox" role="dialog" aria-modal="true" aria-label="Enlarged gallery image">
+      <button
+        type="button"
+        className="gallery-lightbox-close"
+        onClick={onClose}
+        aria-label="Close enlarged photo view"
+      >
+        ×
+      </button>
+      <button
+        type="button"
+        className="gallery-lightbox-nav gallery-lightbox-prev"
+        onClick={onPrevious}
+        aria-label="View previous image"
+      >
+        ‹
+      </button>
+      <img src={currentPhoto.src} alt={currentPhoto.alt} className="gallery-lightbox-image" />
+      <button
+        type="button"
+        className="gallery-lightbox-nav gallery-lightbox-next"
+        onClick={onNext}
+        aria-label="View next image"
+      >
+        ›
+      </button>
+      <button
+        type="button"
+        className="gallery-lightbox-backdrop"
+        onClick={onClose}
+        aria-label="Close lightbox background"
+      />
+    </div>
+  );
 }
 
 function normalizePathname(pathname) {
@@ -69,7 +114,6 @@ function LandingPage() {
   const isBrowser = typeof window !== 'undefined';
   const instagramUrl = 'https://www.instagram.com/porto2u/';
   const INITIAL_GALLERY_COUNT = 6;
-  const [isMobileGallery, setIsMobileGallery] = useState(false);
   const [visibleGalleryCount, setVisibleGalleryCount] = useState(INITIAL_GALLERY_COUNT);
   const [activeGalleryIndex, setActiveGalleryIndex] = useState(null);
   const [hasScrolled, setHasScrolled] = useState(false);
@@ -85,30 +129,13 @@ function LandingPage() {
     suppressClick: false,
   });
 
-  const [shuffledGallery] = useState(() =>
-    shuffleGalleryItems(pageContent.gallery).map((image, index) => ({
-      ...image,
-      id: image.id || image.src || `gallery-image-${index}`,
-    }))
-  );
+  const galleryPhotos = pageContent.gallery;
+  const [shuffledGallery] = useState(() => shuffleArray(galleryPhotos));
 
   const aboutImages = [
     { src: aboutImg, alt: 'Neighborhood view in Porto' },
     { src: aboutGalleryImg, alt: 'Classic Porto street scene' },
   ];
-
-  React.useEffect(() => {
-    if (!isBrowser) {
-      return undefined;
-    }
-
-    const mediaQuery = window.matchMedia('(max-width: 768px)');
-    const handleChange = () => setIsMobileGallery(mediaQuery.matches);
-    handleChange();
-    mediaQuery.addEventListener('change', handleChange);
-
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, [isBrowser]);
 
   React.useEffect(() => {
     if (!isBrowser) {
@@ -125,11 +152,11 @@ function LandingPage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isBrowser]);
 
-  const visibleGalleryItems = useMemo(
-    () => (isMobileGallery ? shuffledGallery : shuffledGallery.slice(0, visibleGalleryCount)),
-    [isMobileGallery, shuffledGallery, visibleGalleryCount]
+  const visiblePhotos = useMemo(
+    () => shuffledGallery.slice(0, visibleGalleryCount),
+    [shuffledGallery, visibleGalleryCount]
   );
-  const hasMoreGalleryItems = !isMobileGallery && visibleGalleryCount < shuffledGallery.length;
+  const hasMoreGalleryItems = visibleGalleryCount < shuffledGallery.length;
 
   React.useEffect(() => {
     if (!isBrowser || activeGalleryIndex === null) {
@@ -209,14 +236,16 @@ function LandingPage() {
     setVisibleGalleryCount(shuffledGallery.length);
   };
 
-  const openGalleryLightbox = (photoId) => {
-    const galleryIndex = shuffledGallery.findIndex((galleryImage) => galleryImage.id === photoId);
+  const openPhoto = (clickedPhoto) => {
+    const index = shuffledGallery.findIndex((photo) => {
+      return photo.src === clickedPhoto.src;
+    });
 
-    if (galleryIndex === -1) {
+    if (index === -1) {
       return;
     }
 
-    setActiveGalleryIndex(galleryIndex);
+    setActiveGalleryIndex(index);
   };
 
   const handleAboutCarouselScroll = (event) => {
@@ -554,12 +583,12 @@ function LandingPage() {
             Porto through my eyes — calm details, quiet corners, and the atmosphere that makes this city feel like home.
           </p>
           <div className="gallery-grid">
-            {visibleGalleryItems.map((image) => (
+            {visiblePhotos.map((image) => (
               <ParallaxImageCard
-                key={image.id}
+                key={image.src}
                 src={image.src}
                 alt={image.alt}
-                onClick={() => openGalleryLightbox(image.id)}
+                onClick={() => openPhoto(image)}
               />
             ))}
           </div>
@@ -578,45 +607,13 @@ function LandingPage() {
           <p className="gallery-swipe-hint">Swipe to explore →</p>
 
           {activeGalleryIndex !== null ? (
-            <div className="gallery-lightbox" role="dialog" aria-modal="true" aria-label="Enlarged gallery image">
-              <button
-                type="button"
-                className="gallery-lightbox-close"
-                onClick={() => setActiveGalleryIndex(null)}
-                aria-label="Close enlarged photo view"
-              >
-                ×
-              </button>
-              <button
-                type="button"
-                className="gallery-lightbox-nav gallery-lightbox-prev"
-                onClick={() =>
-                  setActiveGalleryIndex((index) => (index - 1 + shuffledGallery.length) % shuffledGallery.length)
-                }
-                aria-label="View previous image"
-              >
-                ‹
-              </button>
-              <img
-                src={shuffledGallery[activeGalleryIndex].src}
-                alt={shuffledGallery[activeGalleryIndex].alt}
-                className="gallery-lightbox-image"
-              />
-              <button
-                type="button"
-                className="gallery-lightbox-nav gallery-lightbox-next"
-                onClick={() => setActiveGalleryIndex((index) => (index + 1) % shuffledGallery.length)}
-                aria-label="View next image"
-              >
-                ›
-              </button>
-              <button
-                type="button"
-                className="gallery-lightbox-backdrop"
-                onClick={() => setActiveGalleryIndex(null)}
-                aria-label="Close lightbox background"
-              />
-            </div>
+            <Lightbox
+              photos={shuffledGallery}
+              currentIndex={activeGalleryIndex}
+              onClose={() => setActiveGalleryIndex(null)}
+              onNext={() => setActiveGalleryIndex((index) => (index + 1) % shuffledGallery.length)}
+              onPrevious={() => setActiveGalleryIndex((index) => (index - 1 + shuffledGallery.length) % shuffledGallery.length)}
+            />
           ) : null}
         </Section>
 
