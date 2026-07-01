@@ -68,8 +68,7 @@ function normalizePathname(pathname) {
 function LandingPage() {
   const isBrowser = typeof window !== 'undefined';
   const instagramUrl = 'https://www.instagram.com/porto2u/';
-  const INITIAL_GALLERY_COUNT = 9;
-  const GALLERY_BATCH_SIZE = 9;
+  const INITIAL_GALLERY_COUNT = 6;
   const [isMobileGallery, setIsMobileGallery] = useState(false);
   const [visibleGalleryCount, setVisibleGalleryCount] = useState(INITIAL_GALLERY_COUNT);
   const [activeGalleryIndex, setActiveGalleryIndex] = useState(null);
@@ -86,7 +85,12 @@ function LandingPage() {
     suppressClick: false,
   });
 
-  const shuffledGallery = useMemo(() => shuffleGalleryItems(pageContent.gallery), []);
+  const [shuffledGallery] = useState(() =>
+    shuffleGalleryItems(pageContent.gallery).map((image, index) => ({
+      ...image,
+      id: image.id || image.src || `gallery-image-${index}`,
+    }))
+  );
 
   const aboutImages = [
     { src: aboutImg, alt: 'Neighborhood view in Porto' },
@@ -202,12 +206,17 @@ function LandingPage() {
   );
 
   const handleViewMorePhotos = () => {
-    setVisibleGalleryCount((count) => Math.min(count + GALLERY_BATCH_SIZE, shuffledGallery.length));
+    setVisibleGalleryCount(shuffledGallery.length);
   };
 
-  const openGalleryLightbox = (image) => {
-    const galleryIndex = shuffledGallery.findIndex((galleryImage) => galleryImage.src === image.src);
-    setActiveGalleryIndex(galleryIndex >= 0 ? galleryIndex : 0);
+  const openGalleryLightbox = (photoId) => {
+    const galleryIndex = shuffledGallery.findIndex((galleryImage) => galleryImage.id === photoId);
+
+    if (galleryIndex === -1) {
+      return;
+    }
+
+    setActiveGalleryIndex(galleryIndex);
   };
 
   const handleAboutCarouselScroll = (event) => {
@@ -547,10 +556,10 @@ function LandingPage() {
           <div className="gallery-grid">
             {visibleGalleryItems.map((image) => (
               <ParallaxImageCard
-                key={image.src}
+                key={image.id}
                 src={image.src}
                 alt={image.alt}
-                onClick={() => openGalleryLightbox(image)}
+                onClick={() => openGalleryLightbox(image.id)}
               />
             ))}
           </div>
