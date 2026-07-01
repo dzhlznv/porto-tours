@@ -527,6 +527,7 @@ function LandingPage() {
                 key={image.src}
                 src={image.src}
                 alt={image.alt}
+                className={`gallery-card-${(index % 12) + 1}`}
                 onClick={() => setActiveGalleryIndex(index)}
               />
             ))}
