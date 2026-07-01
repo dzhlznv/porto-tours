@@ -493,6 +493,9 @@ function LandingPage() {
                 Open the map
               </a>
             </div>
+            <div className="map-illustration" aria-label="Illustrated Porto map preview">
+              <FramedImage src="/images/map.png" alt="Illustrated map of Porto places" className="map-illustration-image" />
+            </div>
           </div>
         </Section>
 
