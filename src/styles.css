@@ -709,7 +709,7 @@ h1 {
   background: rgba(26, 31, 31, 0.82);
 }
 
-.gallery-lightbox-image {
+.gallery-lightbox img {
   position: relative;
   z-index: 1;
   width: min(92vw, 72rem);
