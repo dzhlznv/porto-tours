@@ -539,13 +539,28 @@ function LandingPage() {
           <p className="section-follow-up">{pageContent.dayShapingLine}</p>
         </Section>
 
-        <Section title="Who this is for" id="who-its-for">
-          <ul className="soft-list">
-            {pageContent.whoItsFor.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        </Section>
+        <section className="section who-section" id="who-its-for">
+          <div className="who-section-layout">
+            <div className="who-section-heading-block">
+              <p className="eyebrow who-section-eyebrow">WHO THIS IS FOR</p>
+              <h2 className="who-section-title">
+                For people who
+                <br />
+                travel slowly.
+              </h2>
+            </div>
+            <ol className="who-list">
+              {pageContent.whoItsFor.map((item, index) => (
+                <li key={item}>
+                  <span className="who-list-number" aria-hidden="true">
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
+                  <span className="who-list-text">{item}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
 
         <Section title="Porto gallery" id="gallery">
           <div className="gallery-intro-row">
