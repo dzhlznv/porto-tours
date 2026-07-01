@@ -209,8 +209,10 @@ function LandingPage() {
     setVisibleGalleryCount(shuffledGallery.length);
   };
 
-  const openGalleryLightbox = (photoId) => {
-    const galleryIndex = shuffledGallery.findIndex((galleryImage) => galleryImage.id === photoId);
+  const openGalleryLightbox = (clickedPhoto) => {
+    const galleryIndex = shuffledGallery.findIndex((galleryImage) =>
+      galleryImage.id === clickedPhoto.id || galleryImage.src === clickedPhoto.src
+    );
 
     if (galleryIndex === -1) {
       return;
@@ -559,7 +561,7 @@ function LandingPage() {
                 key={image.id}
                 src={image.src}
                 alt={image.alt}
-                onClick={() => openGalleryLightbox(image.id)}
+                onClick={() => openGalleryLightbox(image)}
               />
             ))}
           </div>
