@@ -493,6 +493,9 @@ function LandingPage() {
                 Open the map
               </a>
             </div>
+            <div className="map-image-wrap">
+              <img className="map-image" src="/images/map.png" alt="Map of Porto recommendations" loading="lazy" />
+            </div>
           </div>
         </Section>
 
