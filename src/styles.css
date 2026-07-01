@@ -8,6 +8,8 @@
   --line-strong: #c7c1b6;
   --accent: #485f5a;
   --header-height: 3.9rem;
+  --hero-image-aspect-ratio: 3 / 4;
+  --hero-image-object-position: 56% center;
 
   color: var(--ink);
   background-color: var(--paper);
@@ -251,8 +253,11 @@ h1 {
 }
 
 .hero-image {
+  aspect-ratio: var(--hero-image-aspect-ratio);
+  height: clamp(17rem, 52vw, 30rem);
   max-height: 30rem;
   min-height: 17rem;
+  object-position: var(--hero-image-object-position);
 }
 
 .about-gallery {
@@ -414,7 +419,7 @@ h1 {
 
 .map-layout {
   display: grid;
-  gap: 0.6rem;
+  gap: 1.8rem;
 }
 
 .map-entry {
@@ -422,6 +427,10 @@ h1 {
   gap: 0.8rem;
   max-width: 44ch;
   padding: 0.4rem 0 0.2rem;
+}
+
+.map-entry-image {
+  align-self: center;
 }
 
 .map-entry-description {
@@ -921,8 +930,9 @@ h1 {
   }
 
   .map-layout {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0.75rem;
+    grid-template-columns: 1.25fr 1fr;
+    align-items: center;
+    gap: 2rem;
   }
 
   .map-entry {
