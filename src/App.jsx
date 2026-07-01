@@ -1,6 +1,7 @@
 import heroImg from './assets/hero.jpg';
 import aboutImg from './assets/about.jpg';
 import aboutGalleryImg from './assets/gallery-29.jpg';
+import mapImg from './assets/map.png';
 import logoImg from './assets/p2u-logo.png';
 import React, { useMemo, useRef, useState } from 'react';
 import { pageContent } from './content';
@@ -492,6 +493,9 @@ function LandingPage() {
               >
                 Open the map
               </a>
+            </div>
+            <div className="map-image-wrap" aria-hidden="true">
+              <img className="map-image" src={mapImg} alt="" loading="lazy" />
             </div>
           </div>
         </Section>
