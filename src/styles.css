@@ -172,7 +172,7 @@ summary {
 }
 
 h1 {
-  margin: 0.8rem 0 0;
+  margin: 0.76rem 0 0;
   max-width: 16ch;
   font-size: clamp(2rem, 6vw, 4rem);
   line-height: 1.05;
@@ -184,22 +184,22 @@ h1 {
 }
 
 .quick-facts {
-  margin-top: 0.8rem;
+  margin-top: 1rem;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   overflow: hidden;
-  border: 1px solid color-mix(in srgb, var(--line) 88%, white);
+  border: 1px solid color-mix(in srgb, var(--line) 64%, white);
   border-radius: 16px;
-  background: color-mix(in srgb, var(--paper-elevated) 42%, transparent);
+  background: color-mix(in srgb, var(--paper-elevated) 34%, transparent);
 }
 
 .quick-fact {
   min-width: 0;
-  padding: 0.82rem 0.95rem;
+  padding: 0.68rem 0.92rem;
   display: grid;
-  gap: 0.16rem;
-  border-top: 1px solid color-mix(in srgb, var(--line) 78%, white);
-  border-left: 1px solid color-mix(in srgb, var(--line) 78%, white);
+  gap: 0.12rem;
+  border-top: 1px solid color-mix(in srgb, var(--line) 58%, white);
+  border-left: 1px solid color-mix(in srgb, var(--line) 58%, white);
 }
 
 .quick-fact:nth-child(-n + 2) {
@@ -211,34 +211,34 @@ h1 {
 }
 
 .quick-fact-label {
-  font-size: 0.68rem;
-  line-height: 1.15;
-  letter-spacing: 0.14em;
+  font-size: 0.62rem;
+  line-height: 1.12;
+  letter-spacing: 0.13em;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--ink-soft) 78%, var(--ink-strong));
-  font-weight: 600;
+  color: color-mix(in srgb, var(--ink-soft) 70%, white);
+  font-weight: 500;
 }
 
 .quick-fact-value {
   color: var(--ink);
-  font-size: 0.91rem;
-  line-height: 1.35;
+  font-size: 0.9rem;
+  line-height: 1.32;
 }
 
 .hero-subtitle {
-  margin: 1rem 0 0;
+  margin: 1.08rem 0 0;
   font-size: clamp(1.02rem, 1.35vw, 1.16rem);
   line-height: 1.78;
   color: var(--ink-strong);
 }
 
 .hero-supporting {
-  margin: 0.75rem 0 0;
+  margin: 0.95rem 0 0;
   color: var(--ink);
 }
 
 .cta {
-  margin-top: 1.5rem;
+  margin-top: 1.68rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -261,10 +261,11 @@ h1 {
 }
 
 .hero-note {
-  margin: 1rem 0 0;
-  color: var(--ink-soft);
-  font-size: 0.8rem;
-  opacity: 0.72;
+  margin: 0.92rem 0 0;
+  color: color-mix(in srgb, var(--ink-soft) 82%, white);
+  font-size: 0.74rem;
+  line-height: 1.55;
+  opacity: 0.68;
 }
 
 .framed-image {

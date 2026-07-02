@@ -105,14 +105,14 @@ export const pageContent = {
       { label: 'Group', value: 'Private · 1–4 people' },
       { label: 'Duration', value: '6–8 unhurried hours' },
       { label: 'Route', value: 'Tailored after a short call' },
-      { label: 'Availability', value: '~12 days per year' }
+      { label: 'Availability', value: '1–2 days per month' }
     ],
     subtitle:
       'Not a group tour — just one day in Porto designed around your pace, your curiosities, and the kind of moments that stay with you.',
     supportingLine:
       'Share a few preferences, and I’ll shape a calm, tailored route from first coffee to final sunset view.',
     cta: 'Join the waitlist',
-    note: 'Donation-based, intentionally small, and only around 12 days each year.'
+    note: 'Donation-based, intentionally small, with availability limited to just 1–2 days each month.'
   },
   whatThisIs:
     'Think of this as a personal city day with Dmitri, not a scripted route. We start from your interests, then move through neighborhoods, cafés, and small places that feel like real Porto.',
