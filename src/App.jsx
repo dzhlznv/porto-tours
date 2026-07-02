@@ -526,8 +526,12 @@ function LandingPage() {
           </div>
         </Section>
 
-        <Section title="What this is" id="what-this-is">
-          <p>{pageContent.whatThisIs}</p>
+        <Section id="what-this-is">
+          <div className="what-this-is-content">
+            <p className="eyebrow what-this-is-eyebrow">ABOUT THE DAY</p>
+            <h2 className="section-title what-this-is-title">What this is</h2>
+            <p className="what-this-is-copy">{pageContent.whatThisIs}</p>
+          </div>
         </Section>
 
         <Section title="A classic day, reimagined" id="classic-day">
