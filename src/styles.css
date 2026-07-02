@@ -1102,7 +1102,7 @@ h1 {
   }
 
   .hero {
-    grid-template-columns: 1.25fr 1fr;
+    grid-template-columns: minmax(0, 1.22fr) minmax(0, 1fr);
     align-items: center;
     gap: 2rem;
     padding: 3.3rem 0 0.9rem;
@@ -1110,12 +1110,12 @@ h1 {
 
 
   .about-layout {
-    grid-template-columns: 1.2fr 1fr;
+    grid-template-columns: minmax(0, 1.22fr) minmax(0, 1fr);
     align-items: start;
   }
 
   .map-layout {
-    grid-template-columns: 1.25fr 1fr;
+    grid-template-columns: minmax(0, 1.22fr) minmax(0, 1fr);
     align-items: center;
     gap: 2rem;
   }
@@ -1169,7 +1169,7 @@ h1 {
   }
 
   .hero {
-    grid-template-columns: minmax(0, 1.08fr) minmax(0, 1.08fr);
+    grid-template-columns: minmax(0, 1.22fr) minmax(0, 1fr);
     gap: 3.25rem;
     padding: 3.8rem 0 1.25rem;
   }
@@ -1203,7 +1203,7 @@ h1 {
   }
 
   .hero {
-    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.2fr);
+    grid-template-columns: minmax(0, 1.22fr) minmax(0, 1fr);
     gap: 5rem;
     padding: 5rem 0 2rem;
   }
