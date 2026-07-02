@@ -419,12 +419,13 @@ function LandingPage() {
             <p className="eyebrow">Porto, Portugal · Personal city day</p>
             <h1>{pageContent.hero.title}</h1>
             <p className="hero-subtitle">{pageContent.hero.subtitle}</p>
-            <div className="hero-clarity-block">
-              <ul className="hero-clarity-list" aria-label="Experience format">
-                {pageContent.hero.clarityPoints.map((point) => (
-                  <li key={point}>{point}</li>
-                ))}
-              </ul>
+            <div className="quick-facts" aria-label="Quick facts">
+              {pageContent.hero.quickFacts.map((fact) => (
+                <div className="quick-fact" key={fact.label}>
+                  <span className="quick-fact-label">{fact.label}</span>
+                  <span className="quick-fact-value">{fact.value}</span>
+                </div>
+              ))}
             </div>
             <p className="hero-supporting">{pageContent.hero.supportingLine}</p>
             <a className="cta" href="#contact" onClick={scrollToContact}>

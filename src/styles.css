@@ -183,20 +183,46 @@ h1 {
   max-width: 58ch;
 }
 
-.hero-clarity-list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
+.quick-facts {
+  margin-top: 0.8rem;
   display: grid;
-  gap: 0.32rem;
-  max-width: 56ch;
-  color: var(--ink-soft);
-  font-size: 0.88rem;
-  opacity: 0.86;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--line) 88%, white);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--paper-elevated) 42%, transparent);
 }
 
-.hero-clarity-block {
-  margin-top: 1rem;
+.quick-fact {
+  min-width: 0;
+  padding: 0.82rem 0.95rem;
+  display: grid;
+  gap: 0.16rem;
+  border-top: 1px solid color-mix(in srgb, var(--line) 78%, white);
+  border-left: 1px solid color-mix(in srgb, var(--line) 78%, white);
+}
+
+.quick-fact:nth-child(-n + 2) {
+  border-top: 0;
+}
+
+.quick-fact:nth-child(odd) {
+  border-left: 0;
+}
+
+.quick-fact-label {
+  font-size: 0.68rem;
+  line-height: 1.15;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ink-soft) 78%, var(--ink-strong));
+  font-weight: 600;
+}
+
+.quick-fact-value {
+  color: var(--ink);
+  font-size: 0.91rem;
+  line-height: 1.35;
 }
 
 .hero-subtitle {
@@ -1043,7 +1069,7 @@ h1 {
     grid-template-columns: 1.25fr 1fr;
     align-items: center;
     gap: 2rem;
-    padding: 3.3rem 0 2.6rem;
+    padding: 3.3rem 0 0.9rem;
   }
 
   .section {
@@ -1116,7 +1142,7 @@ h1 {
   }
 
   .hero {
-    padding: 2rem 0 1.9rem;
+    padding: 2rem 0 0.35rem;
   }
 
   .site-header {
