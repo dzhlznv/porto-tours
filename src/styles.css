@@ -344,6 +344,28 @@ h1 {
   max-width: 72ch;
 }
 
+.what-this-section {
+  padding-top: 3.1rem;
+  padding-bottom: 3.1rem;
+}
+
+.what-this-eyebrow {
+  margin-bottom: 0.7rem;
+  letter-spacing: 0.13em;
+}
+
+.what-this-title {
+  margin-bottom: 0.9rem;
+  font-size: clamp(1.56rem, 2.65vw, 2rem);
+  line-height: 1.12;
+}
+
+.what-this-body p {
+  max-width: 66ch;
+  line-height: 1.78;
+  color: var(--ink);
+}
+
 .about-copy {
   max-width: 62ch;
 }
@@ -960,7 +982,6 @@ h1 {
   line-height: 1.5;
 }
 
-#what-this-is,
 #gallery,
 #faq {
   padding-top: 3.8rem;
@@ -1027,6 +1048,11 @@ h1 {
 
   .section {
     padding: 3.7rem 0;
+  }
+
+  .what-this-section {
+    padding-top: 3.2rem;
+    padding-bottom: 3.2rem;
   }
 
   .about-layout {

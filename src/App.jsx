@@ -526,9 +526,13 @@ function LandingPage() {
           </div>
         </Section>
 
-        <Section title="What this is" id="what-this-is">
-          <p>{pageContent.whatThisIs}</p>
-        </Section>
+        <section className="section what-this-section" id="what-this-is">
+          <p className="eyebrow what-this-eyebrow">ABOUT THE DAY</p>
+          <h2 className="section-title what-this-title">What this is</h2>
+          <div className="section-body what-this-body">
+            <p>{pageContent.whatThisIs}</p>
+          </div>
+        </section>
 
         <Section title="A classic day, reimagined" id="classic-day">
           {pageContent.classicDayParagraphs.map((paragraph) => (
