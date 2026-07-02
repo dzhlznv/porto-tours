@@ -449,12 +449,13 @@ function LandingPage() {
                 <p>{pageContent.scarcity}</p>
               </div>
               <a
-                className="instagram-link about-instagram-link"
+                className="about-instagram-link"
                 href={instagramUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Instagram"
+                aria-label="Follow everyday Porto on Instagram"
               >
+                <span>Follow everyday Porto</span>
                 <InstagramIcon />
               </a>
             </div>
