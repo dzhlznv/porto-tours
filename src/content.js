@@ -101,12 +101,6 @@ import g100 from './assets/gallery-100.jpg'
 export const pageContent = {
   hero: {
     title: 'A day in Porto with a local',
-    clarityPoints: [
-      'Private 1:1 or in a very small group (max 3–4 people)',
-      '6–8 unhurried hours',
-      'A personal route shaped after a short pre-call',
-      'Donation-based, limited to 12 days per year'
-    ],
     subtitle:
       'Not a group tour — just one day in Porto designed around your pace, your curiosities, and the kind of moments that stay with you.',
     supportingLine:
@@ -114,6 +108,12 @@ export const pageContent = {
     cta: 'Join the waitlist',
     note: 'Donation-based, intentionally small, and only around 12 days each year.'
   },
+  quickFacts: [
+    { label: 'FORMAT', value: 'Private 1:1 or up to 3–4 people' },
+    { label: 'DURATION', value: '6–8 unhurried hours' },
+    { label: 'ROUTE', value: 'Shaped after a short pre-call' },
+    { label: 'AVAILABILITY', value: 'Around 12 days per year' }
+  ],
   whatThisIs:
     'Think of this as a personal city day with Dmitri, not a scripted route. We start from your interests, then move through neighborhoods, cafés, and small places that feel like real Porto.',
   classicDayParagraphs: [

@@ -183,22 +183,6 @@ h1 {
   max-width: 58ch;
 }
 
-.hero-clarity-list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  gap: 0.32rem;
-  max-width: 56ch;
-  color: var(--ink-soft);
-  font-size: 0.88rem;
-  opacity: 0.86;
-}
-
-.hero-clarity-block {
-  margin-top: 1rem;
-}
-
 .hero-subtitle {
   margin: 1rem 0 0;
   font-size: clamp(1.02rem, 1.35vw, 1.16rem);
@@ -253,6 +237,50 @@ h1 {
 .hero-image {
   max-height: 30rem;
   min-height: 17rem;
+}
+
+.quick-facts {
+  padding: 0.7rem 0 3.1rem;
+}
+
+.quick-facts-title {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.quick-facts-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.quick-fact {
+  min-width: 0;
+  padding: clamp(1.25rem, 2.7vw, 1.75rem) clamp(1rem, 2.2vw, 1.35rem);
+}
+
+.quick-fact + .quick-fact {
+  border-left: 1px solid color-mix(in srgb, var(--line) 62%, transparent);
+}
+
+.quick-fact-label {
+  letter-spacing: 0.13em;
+}
+
+.quick-fact-value {
+  margin: 0.52rem 0 0;
+  color: var(--ink-strong);
+  font-size: clamp(1rem, 1.35vw, 1.12rem);
+  line-height: 1.45;
 }
 
 .about-gallery {
@@ -1043,7 +1071,11 @@ h1 {
     grid-template-columns: 1.25fr 1fr;
     align-items: center;
     gap: 2rem;
-    padding: 3.3rem 0 2.6rem;
+    padding: 3.3rem 0 2.15rem;
+  }
+
+  .quick-facts {
+    padding: 0.9rem 0 3.5rem;
   }
 
   .section {
@@ -1116,7 +1148,7 @@ h1 {
   }
 
   .hero {
-    padding: 2rem 0 1.9rem;
+    padding: 2rem 0 1.5rem;
   }
 
   .site-header {
@@ -1173,6 +1205,24 @@ h1 {
 }
 /* MOBILE GALLERY SCROLL */
 @media (max-width: 768px) {
+  .quick-facts {
+    padding: 0.45rem 0 2.55rem;
+  }
+
+  .quick-facts-grid {
+    grid-template-columns: 1fr;
+    border-radius: 16px;
+  }
+
+  .quick-fact {
+    padding: 1.15rem 1.1rem;
+  }
+
+  .quick-fact + .quick-fact {
+    border-left: 0;
+    border-top: 1px solid color-mix(in srgb, var(--line) 62%, transparent);
+  }
+
   .gallery-grid {
     display: flex;
     overflow-x: auto;

@@ -419,13 +419,6 @@ function LandingPage() {
             <p className="eyebrow">Porto, Portugal · Personal city day</p>
             <h1>{pageContent.hero.title}</h1>
             <p className="hero-subtitle">{pageContent.hero.subtitle}</p>
-            <div className="hero-clarity-block">
-              <ul className="hero-clarity-list" aria-label="Experience format">
-                {pageContent.hero.clarityPoints.map((point) => (
-                  <li key={point}>{point}</li>
-                ))}
-              </ul>
-            </div>
             <p className="hero-supporting">{pageContent.hero.supportingLine}</p>
             <a className="cta" href="#contact" onClick={scrollToContact}>
               {pageContent.hero.cta}
@@ -433,6 +426,18 @@ function LandingPage() {
             <p className="hero-note">{pageContent.hero.note}</p>
           </div>
           <FramedImage src={heroImg} alt="A cinematic Porto city moment" className="hero-image" />
+        </section>
+
+        <section className="quick-facts" aria-labelledby="quick-facts-title">
+          <h2 className="quick-facts-title" id="quick-facts-title">Quick facts</h2>
+          <div className="quick-facts-grid">
+            {pageContent.quickFacts.map((fact) => (
+              <article className="quick-fact" key={fact.label}>
+                <p className="eyebrow quick-fact-label">{fact.label}</p>
+                <p className="quick-fact-value">{fact.value}</p>
+              </article>
+            ))}
+          </div>
         </section>
 
         <Section title="About" id="about">
