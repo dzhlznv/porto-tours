@@ -68,7 +68,7 @@ function normalizePathname(pathname) {
 function LandingPage() {
   const isBrowser = typeof window !== 'undefined';
   const instagramUrl = 'https://www.instagram.com/porto2u/';
-  const INITIAL_GALLERY_COUNT = 6;
+  const INITIAL_GALLERY_COUNT = 5;
   const [isMobileGallery, setIsMobileGallery] = useState(false);
   const [visibleGalleryCount, setVisibleGalleryCount] = useState(INITIAL_GALLERY_COUNT);
   const [activeGalleryPhoto, setActiveGalleryPhoto] = useState(null);
