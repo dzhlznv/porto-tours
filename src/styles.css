@@ -344,6 +344,32 @@ h1 {
   max-width: 72ch;
 }
 
+#what-this-is {
+  padding-top: 3.75rem;
+  padding-bottom: 3.8rem;
+}
+
+.what-this-is-content {
+  width: min(100%, 760px);
+  margin: 0 auto;
+  text-align: left;
+}
+
+.what-this-is-eyebrow {
+  margin-bottom: 0.34rem;
+}
+
+.what-this-is-title {
+  margin-bottom: 0.78rem;
+  font-size: clamp(1.4rem, 2.28vw, 1.7rem);
+}
+
+.section-body .what-this-is-copy {
+  max-width: 66ch;
+  line-height: 1.7;
+  color: color-mix(in srgb, var(--ink) 88%, var(--ink-soft));
+}
+
 .about-copy {
   max-width: 62ch;
 }
