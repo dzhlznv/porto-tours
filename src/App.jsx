@@ -204,7 +204,7 @@ function LandingPage() {
   );
 
   const handleViewMorePhotos = () => {
-    setVisibleGalleryCount(displayGallery.length);
+    setVisibleGalleryCount((count) => Math.min(count + 6, displayGallery.length));
   };
 
   const handleShufflePhotos = () => {
