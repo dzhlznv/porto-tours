@@ -124,13 +124,13 @@ export const pageContent = {
   dayShapingLine:
     'Along the way, a few hidden gems make it feel personal.',
   aboutParagraphs: [
-    'I’m Dmitri, 37, and for the past three-plus years Porto has been home — not all at once, but through long walks, neighborhood cafés, and quiet corners that only reveal themselves when you stop rushing.',
-    'After living in four countries, visiting more than twenty, and spending over a decade in digital marketing, I learned to notice the small signals that make a place feel real. Here, I kept following that instinct — through old and new streets, local habits, and everyday details that rarely make it into guidebooks.',
-    'These days I move naturally between local and expat worlds, and I like sharing Porto with people who see cities in a similar way — slowly, with curiosity, and with space to let the day unfold.'
+    'I’m Dmitri, 37, and Porto has become home through long walks, neighborhood cafés, and quiet corners that only reveal themselves when there is no rush.',
+    'After living in four countries, visiting more than twenty, and spending over a decade in digital marketing, I learned to notice the small signals that make a place feel real. In Porto, that means following the light, the old and new streets, local habits, and everyday details that rarely make it into guidebooks.',
+    'These days I move naturally between local and expat worlds. Sharing the city is less about explaining it and more about spending an unhurried day together — noticing, talking, and letting Porto set the pace.'
   ],
   donation:
-    'It’s donation-based — no fixed fee, just a contribution that feels fair to you afterward.',
-  scarcity: 'I only do around 12 days like this per year.',
+    'Donation-based, with no fixed fee — just a contribution that feels fair to you afterward.',
+  scarcity: 'Kept intentionally small, around 12 days per year.',
   whoItsFor: [
     'Curious travelers who value atmosphere and conversation more than ticking sights off a list.',
     'People who enjoy coffee, unhurried walks, design, local details, and subtle city contrasts.',

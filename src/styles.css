@@ -291,7 +291,8 @@ h1 {
 }
 
 .about-gallery {
-  width: 100%;
+  width: min(100%, 34rem);
+  justify-self: end;
 }
 
 .about-carousel-shell {
@@ -406,33 +407,35 @@ h1 {
 }
 
 .about-copy {
-  max-width: 62ch;
+  max-width: 54ch;
 }
 
 .about-paragraph {
   line-height: 1.74;
+  color: color-mix(in srgb, var(--ink) 92%, white);
 }
 
 .about-paragraph + .about-paragraph {
-  margin-top: 1rem !important;
+  margin-top: 1.28rem !important;
 }
 
 .about-emphasis {
-  margin-top: 1.25rem;
-  border-left: 1px solid color-mix(in srgb, var(--line-strong) 68%, white);
-  padding: 0.3rem 0 0.35rem 0.78rem;
+  max-width: 47ch;
+  margin-top: 1.85rem;
+  border-left: 1px solid color-mix(in srgb, var(--accent) 34%, var(--line));
+  padding: 0.18rem 0 0.25rem 1rem;
 }
 
 .about-emphasis p {
   margin: 0;
-  font-size: 0.93rem;
-  line-height: 1.58;
-  color: var(--ink-strong);
+  font-size: 0.88rem;
+  line-height: 1.68;
+  color: color-mix(in srgb, var(--ink) 78%, white);
 }
 
 .about-emphasis p + p {
-  margin-top: 0.45rem;
-  color: var(--ink-soft);
+  margin-top: 0.62rem;
+  color: color-mix(in srgb, var(--ink-soft) 74%, white);
 }
 
 .instagram-link {
@@ -465,7 +468,31 @@ h1 {
 }
 
 .about-instagram-link {
-  margin-top: 1rem;
+  margin-top: 1.7rem;
+  padding-top: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.48rem;
+  border-top: 1px solid color-mix(in srgb, var(--line) 72%, transparent);
+  color: color-mix(in srgb, var(--ink-soft) 82%, white);
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color 180ms ease, opacity 180ms ease;
+}
+
+.about-instagram-link .instagram-icon {
+  width: 0.82rem;
+  height: 0.82rem;
+}
+
+@media (hover: hover) {
+  .about-instagram-link:hover,
+  .about-instagram-link:focus-visible {
+    color: var(--ink-strong);
+    opacity: 0.9;
+  }
 }
 
 .section-follow-up {
@@ -1110,8 +1137,9 @@ h1 {
 
 
   .about-layout {
-    grid-template-columns: 1.2fr 1fr;
+    grid-template-columns: minmax(0, 0.92fr) minmax(20rem, 1.08fr);
     align-items: start;
+    gap: 2rem;
   }
 
   .map-layout {
