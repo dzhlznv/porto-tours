@@ -510,7 +510,7 @@ function LandingPage() {
           <div className="map-layout">
             <div className="map-entry">
               <p className="eyebrow map-entry-eyebrow">PORTO, AS I SEE IT</p>
-              <h2 className="map-entry-headline">A map of places I keep coming back to.</h2>
+              <h2 className="map-entry-headline">A map of places I keep coming back to</h2>
               <p className="map-entry-description">
                 Coffee, food, walks, views, and everyday spots — the corners of the city that feel like home.
               </p>
