@@ -292,6 +292,7 @@ h1 {
 
 .about-gallery {
   width: 100%;
+  align-self: start;
 }
 
 .about-carousel-shell {
@@ -405,33 +406,43 @@ h1 {
   color: var(--ink);
 }
 
+#about .section-title {
+  margin-bottom: 1.85rem;
+  font-size: clamp(1.48rem, 2.45vw, 1.82rem);
+  line-height: 1.12;
+  letter-spacing: -0.018em;
+}
+
 .about-copy {
-  max-width: 62ch;
+  max-width: 64ch;
 }
 
 .about-paragraph {
-  line-height: 1.74;
+  line-height: 1.8;
+  font-weight: 380;
+  color: color-mix(in srgb, var(--ink) 92%, var(--ink-soft));
 }
 
 .about-paragraph + .about-paragraph {
-  margin-top: 1rem !important;
+  margin-top: 1.6rem !important;
 }
 
 .about-emphasis {
-  margin-top: 1.25rem;
-  border-left: 1px solid color-mix(in srgb, var(--line-strong) 68%, white);
-  padding: 0.3rem 0 0.35rem 0.78rem;
+  margin: 1.85rem 0 0.25rem;
+  border-left: 1px solid color-mix(in srgb, var(--accent) 58%, var(--line-strong));
+  padding: 0.55rem 0 0.6rem 1.15rem;
 }
 
 .about-emphasis p {
   margin: 0;
   font-size: 0.93rem;
-  line-height: 1.58;
+  line-height: 1.7;
+  font-weight: 390;
   color: var(--ink-strong);
 }
 
 .about-emphasis p + p {
-  margin-top: 0.45rem;
+  margin-top: 0.62rem;
   color: var(--ink-soft);
 }
 
@@ -465,7 +476,7 @@ h1 {
 }
 
 .about-instagram-link {
-  margin-top: 1rem;
+  margin-top: 1.2rem;
 }
 
 .section-follow-up {
@@ -551,7 +562,7 @@ h1 {
 
 .about-layout {
   display: grid;
-  gap: 1.15rem;
+  gap: 1.55rem;
 }
 
 .pill-line {
