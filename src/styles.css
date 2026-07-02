@@ -1322,18 +1322,19 @@ h1 {
 }
 @media (max-width: 768px) {
   .gallery-grid {
+    --gallery-mobile-edge: 1.25rem;
     display: flex;
     grid-template-columns: none;
     grid-auto-rows: unset;
     gap: 1rem;
     width: auto;
     max-width: none;
-    padding: 0 1.35rem 0.85rem;
-    margin: 18px -1.35rem 0;
+    padding: 0 var(--gallery-mobile-edge) 0.85rem;
+    margin: 18px calc(var(--gallery-mobile-edge) * -1) 0;
     overflow-x: auto;
     overflow-y: hidden;
     scroll-snap-type: x mandatory;
-    scroll-padding-inline: 1.35rem;
+    scroll-padding-inline: var(--gallery-mobile-edge);
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-x: contain;
   }
