@@ -1137,6 +1137,76 @@ h1 {
   }
 }
 
+@media (min-width: 1440px) {
+  .page-shell {
+    padding: calc(4.35rem + var(--header-height)) 3rem 3.8rem;
+  }
+
+  .page-content,
+  .site-header-inner {
+    width: min(100%, 1080px);
+  }
+
+  .hero {
+    grid-template-columns: minmax(0, 1.08fr) minmax(0, 1.08fr);
+    gap: 3.25rem;
+    padding: 3.8rem 0 1.25rem;
+  }
+
+  .hero-copy {
+    max-width: 39rem;
+  }
+
+  .hero-subtitle,
+  .hero-supporting {
+    max-width: 60ch;
+  }
+
+  .quick-facts {
+    max-width: 38rem;
+  }
+
+  .hero-image {
+    max-height: 34rem;
+    min-height: 24rem;
+  }
+}
+
+@media (min-width: 1920px) {
+  .page-shell {
+    padding: calc(5.3rem + var(--header-height)) 4.5rem 4.8rem;
+  }
+
+  .page-content,
+  .site-header-inner {
+    width: min(100%, 1240px);
+  }
+
+  .hero {
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.2fr);
+    gap: 5rem;
+    padding: 5rem 0 2rem;
+  }
+
+  .hero-copy {
+    max-width: 41rem;
+  }
+
+  .hero-subtitle,
+  .hero-supporting {
+    max-width: 61ch;
+  }
+
+  .quick-facts {
+    max-width: 39rem;
+  }
+
+  .hero-image {
+    max-height: 43rem;
+    min-height: 31rem;
+  }
+}
+
 @media (max-width: 520px) {
   :root {
     --header-height: 3.45rem;
