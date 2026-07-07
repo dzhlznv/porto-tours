@@ -700,12 +700,14 @@ h1 {
   transition: transform 260ms ease;
 }
 
-.includes-card h3 {
+.day-card-heading {
   margin: 0;
-  font-size: 1.1rem;
-  font-weight: 650;
+  font-family: 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', serif;
+  font-size: 1.08rem;
+  font-weight: 400;
   letter-spacing: -0.01em;
-  line-height: 1.25;
+  line-height: 1.28;
+  color: var(--ink-strong);
 }
 
 .includes-card p {
@@ -2282,12 +2284,6 @@ h1 {
 
 .classic-day-copy h3 {
   min-height: calc(1.28em * 2);
-  margin: 0;
-  font-size: 1.08rem;
-  font-weight: 400;
-  letter-spacing: -0.01em;
-  line-height: 1.28;
-  color: var(--ink-strong);
 }
 
 .classic-day-copy p:not(.classic-day-eyebrow) {

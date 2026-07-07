@@ -529,7 +529,7 @@ function LandingPage() {
           <div className="includes-grid">
             {pageContent.dayIncludes.map((item) => (
               <article key={item.title} className="includes-card">
-                <h3>{item.title}</h3>
+                <h3 className="day-card-heading">{item.title}</h3>
                 <p>{item.description}</p>
               </article>
             ))}
@@ -577,7 +577,7 @@ function LandingPage() {
                 <FramedImage src={card.image} alt={card.alt} className="classic-day-image" />
                 <div className="classic-day-copy">
                   <p className="eyebrow classic-day-eyebrow">{card.eyebrow}</p>
-                  <h3>{card.title}</h3>
+                  <h3 className="day-card-heading">{card.title}</h3>
                   <p>{card.description}</p>
                 </div>
               </article>
