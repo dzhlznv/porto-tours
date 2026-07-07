@@ -528,8 +528,15 @@ function LandingPage() {
         </Section>
 
         <section className="section what-this-section" id="what-this-is">
-          <p className="eyebrow what-this-eyebrow">ABOUT THE DAY</p>
-          <h2 className="section-title what-this-title">What this is</h2>
+          <div className="what-this-header">
+            <div>
+              <p className="eyebrow what-this-eyebrow">ABOUT THE DAY</p>
+              <h2 className="section-title what-this-title">What this is</h2>
+            </div>
+            <a className="cta what-this-cta" href="#contact" onClick={scrollToContact}>
+              Join the waitlist
+            </a>
+          </div>
           <div className="section-body what-this-body">
             <p>{pageContent.whatThisIs}</p>
           </div>
