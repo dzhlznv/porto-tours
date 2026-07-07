@@ -72,7 +72,6 @@ function LandingPage() {
   const isBrowser = typeof window !== 'undefined';
   const instagramUrl = 'https://www.instagram.com/porto2u/';
   const INITIAL_GALLERY_COUNT = 5;
-  const [isMobileGallery, setIsMobileGallery] = useState(false);
   const [visibleGalleryCount, setVisibleGalleryCount] = useState(INITIAL_GALLERY_COUNT);
   const [activeGalleryPhoto, setActiveGalleryPhoto] = useState(null);
   const [hasScrolled, setHasScrolled] = useState(false);
@@ -127,19 +126,6 @@ function LandingPage() {
       return undefined;
     }
 
-    const mediaQuery = window.matchMedia('(max-width: 768px)');
-    const handleChange = () => setIsMobileGallery(mediaQuery.matches);
-    handleChange();
-    mediaQuery.addEventListener('change', handleChange);
-
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, [isBrowser]);
-
-  React.useEffect(() => {
-    if (!isBrowser) {
-      return undefined;
-    }
-
     const handleScroll = () => {
       setHasScrolled(window.scrollY > 18);
     };
@@ -151,10 +137,10 @@ function LandingPage() {
   }, [isBrowser]);
 
   const visibleGalleryItems = useMemo(
-    () => (isMobileGallery ? displayGallery : displayGallery.slice(0, visibleGalleryCount)),
-    [displayGallery, isMobileGallery, visibleGalleryCount]
+    () => displayGallery.slice(0, visibleGalleryCount),
+    [displayGallery, visibleGalleryCount]
   );
-  const hasMoreGalleryItems = !isMobileGallery && visibleGalleryCount < displayGallery.length;
+  const hasMoreGalleryItems = visibleGalleryCount < displayGallery.length;
   const activeGalleryPhotoIndex = displayGallery.findIndex((photo) => photo.src === activeGalleryPhoto?.src);
 
   React.useEffect(() => {
