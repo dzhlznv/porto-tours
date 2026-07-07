@@ -2248,3 +2248,61 @@ h1 {
     opacity: 0.72;
   }
 }
+
+.classic-day-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.45rem;
+  align-items: stretch;
+}
+
+.classic-day-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.classic-day-image {
+  height: clamp(12rem, 20vw, 14rem);
+  min-height: 0;
+  max-height: none;
+  aspect-ratio: 4 / 3;
+}
+
+.classic-day-copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding-top: 1.35rem;
+}
+
+.classic-day-eyebrow {
+  margin: 0 0 0.58rem;
+}
+
+.classic-day-copy h3 {
+  margin: 0;
+  font-size: 1.08rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  line-height: 1.28;
+  color: var(--ink-strong);
+}
+
+.classic-day-copy p:not(.classic-day-eyebrow) {
+  margin: 0.78rem 0 0;
+  font-size: 0.96rem;
+  line-height: 1.72;
+  color: color-mix(in srgb, var(--ink-soft) 86%, white);
+}
+
+@media (max-width: 760px) {
+  .classic-day-grid {
+    grid-template-columns: 1fr;
+    gap: 1.8rem;
+  }
+
+  .classic-day-image {
+    height: clamp(12rem, 58vw, 15rem);
+  }
+}
