@@ -108,7 +108,7 @@ function LandingPage() {
       eyebrow: 'Midday',
       title: 'Historic streets & hidden corners',
       description:
-        'We wander through the historic center, quiet neighborhoods, hidden corners, and azulejos, seeing Porto from a different angle.',
+        'We wander through the historic center, quiet neighborhoods, hidden corners, and azulejos, seeing Porto from a different angle',
       image: middayImg,
       alt: 'Historic Porto streets',
     },
