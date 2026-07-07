@@ -72,7 +72,6 @@ function LandingPage() {
   const isBrowser = typeof window !== 'undefined';
   const instagramUrl = 'https://www.instagram.com/porto2u/';
   const INITIAL_GALLERY_COUNT = 5;
-  const [isMobileGallery, setIsMobileGallery] = useState(false);
   const [visibleGalleryCount, setVisibleGalleryCount] = useState(INITIAL_GALLERY_COUNT);
   const [activeGalleryPhoto, setActiveGalleryPhoto] = useState(null);
   const [hasScrolled, setHasScrolled] = useState(false);
@@ -127,19 +126,6 @@ function LandingPage() {
       return undefined;
     }
 
-    const mediaQuery = window.matchMedia('(max-width: 768px)');
-    const handleChange = () => setIsMobileGallery(mediaQuery.matches);
-    handleChange();
-    mediaQuery.addEventListener('change', handleChange);
-
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, [isBrowser]);
-
-  React.useEffect(() => {
-    if (!isBrowser) {
-      return undefined;
-    }
-
     const handleScroll = () => {
       setHasScrolled(window.scrollY > 18);
     };
@@ -150,11 +136,15 @@ function LandingPage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isBrowser]);
 
-  const visibleGalleryItems = useMemo(
-    () => (isMobileGallery ? displayGallery : displayGallery.slice(0, visibleGalleryCount)),
-    [displayGallery, isMobileGallery, visibleGalleryCount]
+  const initialGalleryItems = useMemo(
+    () => displayGallery.slice(0, INITIAL_GALLERY_COUNT),
+    [displayGallery]
   );
-  const hasMoreGalleryItems = !isMobileGallery && visibleGalleryCount < displayGallery.length;
+  const extraGalleryItems = useMemo(
+    () => displayGallery.slice(INITIAL_GALLERY_COUNT, visibleGalleryCount),
+    [displayGallery, visibleGalleryCount]
+  );
+  const hasMoreGalleryItems = visibleGalleryCount < displayGallery.length;
   const activeGalleryPhotoIndex = displayGallery.findIndex((photo) => photo.src === activeGalleryPhoto?.src);
 
   React.useEffect(() => {
@@ -609,7 +599,7 @@ function LandingPage() {
             </button>
           </div>
           <div className="gallery-grid">
-            {visibleGalleryItems.map((image) => (
+            {initialGalleryItems.map((image) => (
               <ParallaxImageCard
                 key={image.id || image.src}
                 src={image.src}
@@ -618,6 +608,18 @@ function LandingPage() {
               />
             ))}
           </div>
+          {extraGalleryItems.length > 0 ? (
+            <div className="gallery-grid-extra">
+              {extraGalleryItems.map((image) => (
+                <ParallaxImageCard
+                  key={image.id || image.src}
+                  src={image.src}
+                  alt={image.alt}
+                  onClick={() => openGalleryLightbox(image)}
+                />
+              ))}
+            </div>
+          ) : null}
           {hasMoreGalleryItems ? (
             <div className="gallery-actions">
               <button
