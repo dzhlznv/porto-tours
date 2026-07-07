@@ -4,7 +4,8 @@ import aboutGalleryImg from './assets/gallery-29.jpg';
 import logoImg from './assets/p2u-logo.png';
 import mapImg from './assets/map.png';
 import morningImg from './assets/gallery-100.jpg';
-import middayImg from './assets/gallery-64.jpg';
+import middayImg from './assets/gallery-82.jpg';
+import sunsetImg from './assets/gallery-28.jpg';
 import React, { useMemo, useRef, useState } from 'react';
 import { pageContent } from './content';
 import { Section } from './components/Section';
@@ -107,7 +108,7 @@ function LandingPage() {
       eyebrow: 'Midday',
       title: 'Historic streets & hidden corners',
       description:
-        'We move through the historic center, neighborhoods, hidden corners, and azulejos—seeing Porto from a different angle.',
+        'We wander through the historic center, quiet neighborhoods, hidden corners, and azulejos—seeing Porto from a different angle.',
       image: middayImg,
       alt: 'Historic Porto streets',
     },
@@ -115,8 +116,8 @@ function LandingPage() {
       eyebrow: 'Toward sunset',
       title: 'From the river to the ocean',
       description:
-        'The route finds its own rhythm toward the bridges, the river, and finally the ocean, ending where the light is at its best.',
-      image: heroImg,
+        'We follow the changing light toward the Atlantic, ending the day where Porto feels its calmest.',
+      image: sunsetImg,
       alt: 'Porto light toward sunset',
     },
   ];

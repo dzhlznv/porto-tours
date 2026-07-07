@@ -2273,7 +2273,7 @@ h1 {
   display: flex;
   flex: 1;
   flex-direction: column;
-  padding-top: 1.35rem;
+  padding-top: 1.65rem;
 }
 
 .classic-day-eyebrow {
@@ -2281,6 +2281,7 @@ h1 {
 }
 
 .classic-day-copy h3 {
+  min-height: calc(1.28em * 2);
   margin: 0;
   font-size: 1.08rem;
   font-weight: 650;
@@ -2304,5 +2305,9 @@ h1 {
 
   .classic-day-image {
     height: clamp(12rem, 58vw, 15rem);
+  }
+
+  .classic-day-copy h3 {
+    min-height: 0;
   }
 }
