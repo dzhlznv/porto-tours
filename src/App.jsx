@@ -3,6 +3,8 @@ import aboutImg from './assets/about.jpg';
 import aboutGalleryImg from './assets/gallery-29.jpg';
 import logoImg from './assets/p2u-logo.png';
 import mapImg from './assets/map.png';
+import morningImg from './assets/gallery-100.jpg';
+import middayImg from './assets/gallery-64.jpg';
 import React, { useMemo, useRef, useState } from 'react';
 import { pageContent } from './content';
 import { Section } from './components/Section';
@@ -90,6 +92,33 @@ function LandingPage() {
   const aboutImages = [
     { src: aboutImg, alt: 'Neighborhood view in Porto' },
     { src: aboutGalleryImg, alt: 'Classic Porto street scene' },
+  ];
+
+  const classicDayCards = [
+    {
+      eyebrow: 'Morning',
+      title: 'It starts with good coffee.',
+      description:
+        'A day often begins with good coffee and an unhurried start, letting the city set the pace before we begin exploring.',
+      image: morningImg,
+      alt: 'Good coffee in Porto',
+    },
+    {
+      eyebrow: 'Midday',
+      title: 'Historic streets & hidden corners',
+      description:
+        'We move through the historic center, neighborhoods, hidden corners, and azulejos—seeing Porto from a different angle.',
+      image: middayImg,
+      alt: 'Historic Porto streets',
+    },
+    {
+      eyebrow: 'Toward sunset',
+      title: 'From the river to the ocean',
+      description:
+        'The route finds its own rhythm toward the bridges, the river, and finally the ocean, ending where the light is at its best.',
+      image: heroImg,
+      alt: 'Porto light toward sunset',
+    },
   ];
 
   React.useEffect(() => {
@@ -541,12 +570,18 @@ function LandingPage() {
         </section>
 
         <Section title="A classic day, reimagined" id="classic-day">
-          {pageContent.classicDayParagraphs.map((paragraph) => (
-            <p key={paragraph} className="classic-day-paragraph">
-              {paragraph}
-            </p>
-          ))}
-          <p className="section-follow-up">{pageContent.dayShapingLine}</p>
+          <div className="classic-day-grid">
+            {classicDayCards.map((card) => (
+              <article key={card.eyebrow} className="classic-day-card">
+                <FramedImage src={card.image} alt={card.alt} className="classic-day-image" />
+                <div className="classic-day-copy">
+                  <p className="eyebrow classic-day-eyebrow">{card.eyebrow}</p>
+                  <h3>{card.title}</h3>
+                  <p>{card.description}</p>
+                </div>
+              </article>
+            ))}
+          </div>
         </Section>
 
         <Section title="Who this is for" id="who-its-for">
