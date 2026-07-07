@@ -198,11 +198,11 @@ export const pageContent = {
     }
   ],
   gallery: [
-  { src: g1, alt: 'Porto moment' },
-  { src: g2, alt: 'Porto moment' },
-  { src: g3, alt: 'Porto moment' },
-  { src: g4, alt: 'Porto moment' },
-  { src: g5, alt: 'Porto moment' },
+  { src: g8, alt: 'Porto moment' },
+  { src: g55, alt: 'Porto moment' },
+  { src: g92, alt: 'Porto moment' },
+  { src: g36, alt: 'Porto moment' },
+  { src: g21, alt: 'Porto moment' },
   { src: g6, alt: 'Porto moment' },
   { src: g7, alt: 'Porto moment' },
   { src: g8, alt: 'Porto moment' },
