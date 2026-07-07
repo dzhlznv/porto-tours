@@ -98,9 +98,9 @@ function LandingPage() {
   const classicDayCards = [
     {
       eyebrow: 'Morning',
-      title: 'It starts with good coffee.',
+      title: 'It starts with good coffee',
       description:
-        'A day often begins with good coffee and an unhurried start, letting the city set the pace before we begin exploring.',
+        'A day often begins with good coffee and an unhurried start, letting the city set the pace before we begin exploring',
       image: morningImg,
       alt: 'Good coffee in Porto',
     },
@@ -108,7 +108,7 @@ function LandingPage() {
       eyebrow: 'Midday',
       title: 'Historic streets & hidden corners',
       description:
-        'We wander through the historic center, quiet neighborhoods, hidden corners, and azulejos—seeing Porto from a different angle.',
+        'We wander through the historic center, quiet neighborhoods, hidden corners, and azulejos—seeing Porto from a different angle',
       image: middayImg,
       alt: 'Historic Porto streets',
     },
@@ -116,7 +116,7 @@ function LandingPage() {
       eyebrow: 'Toward sunset',
       title: 'From the river to the ocean',
       description:
-        'We follow the changing light toward the Atlantic, ending the day where Porto feels its calmest.',
+        'We follow the changing light toward the Atlantic, ending the day where Porto feels its calmest',
       image: sunsetImg,
       alt: 'Porto light toward sunset',
     },
