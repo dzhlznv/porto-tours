@@ -388,21 +388,91 @@ h1 {
   padding-bottom: var(--content-to-divider);
 }
 
+.what-this-heading-group {
+  min-width: 0;
+}
+
 .what-this-eyebrow {
   margin-bottom: 0.7rem;
   letter-spacing: 0.13em;
 }
 
 .what-this-title {
-  margin-bottom: var(--heading-to-content);
-  font-size: clamp(1.56rem, 2.65vw, 2rem);
-  line-height: 1.12;
+  font-size: clamp(1.3rem, 2.1vw, 1.56rem);
+  font-weight: 500;
+  line-height: 1.62;
+  letter-spacing: -0.013em;
 }
 
 .what-this-body p {
   max-width: 66ch;
   line-height: 1.78;
   color: var(--ink);
+}
+
+.what-this-cta {
+  width: fit-content;
+  margin-top: 1.7rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.22rem;
+  color: color-mix(in srgb, var(--ink-soft) 88%, var(--accent));
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.015em;
+  line-height: 1.45;
+  text-decoration: none;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.24em;
+  transition: color 180ms ease;
+}
+
+.what-this-cta-arrow {
+  display: inline-block;
+  transition: transform 180ms ease;
+}
+
+.what-this-cta:hover,
+.what-this-cta:focus-visible {
+  color: var(--ink-strong);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 56%, transparent);
+}
+
+.what-this-cta:hover .what-this-cta-arrow,
+.what-this-cta:focus-visible .what-this-cta-arrow {
+  transform: translateX(3px);
+}
+
+@media (min-width: 820px) {
+  .what-this-section {
+    display: grid;
+    grid-template-columns: minmax(250px, 0.54fr) 1fr;
+    align-items: start;
+    column-gap: 2.45rem;
+  }
+
+  .what-this-title {
+    margin-bottom: 0;
+  }
+
+  .what-this-body {
+    min-width: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    column-gap: 2rem;
+  }
+
+  .what-this-body p {
+    max-width: 58ch;
+  }
+
+  .what-this-cta {
+    margin-top: 0.25rem;
+    justify-self: end;
+    white-space: nowrap;
+  }
 }
 
 .about-copy {
