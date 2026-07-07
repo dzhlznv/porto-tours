@@ -648,9 +648,9 @@ function LandingPage() {
 
         <Section title={pageContent.testimonial.title} id="what-people-say">
           <div className="testimonial-wrap">
-            <p className="testimonial-quote">{pageContent.testimonial.quote}</p>
-            <p className="testimonial-quote">{pageContent.testimonial.quoteSecond}</p>
-            <p className="testimonial-quote">{pageContent.testimonial.quoteThird}</p>
+            <p className="testimonial-quote testimonial-quote--lead">{pageContent.testimonial.quote}</p>
+            <p className="testimonial-quote testimonial-quote--supporting">{pageContent.testimonial.quoteSecond}</p>
+            <p className="testimonial-quote testimonial-quote--supporting">{pageContent.testimonial.quoteThird}</p>
             <p className="testimonial-author">{pageContent.testimonial.author}</p>
           </div>
         </Section>
