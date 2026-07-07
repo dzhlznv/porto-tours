@@ -388,15 +388,27 @@ h1 {
   padding-bottom: var(--content-to-divider);
 }
 
+.what-this-header {
+  margin-bottom: var(--heading-to-content);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem 2rem;
+}
+
 .what-this-eyebrow {
   margin-bottom: 0.7rem;
   letter-spacing: 0.13em;
 }
 
 .what-this-title {
-  margin-bottom: var(--heading-to-content);
-  font-size: clamp(1.56rem, 2.65vw, 2rem);
-  line-height: 1.12;
+  margin-bottom: 0;
+}
+
+.what-this-cta {
+  margin-top: 0;
+  flex-shrink: 0;
 }
 
 .what-this-body p {
