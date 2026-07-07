@@ -1127,6 +1127,28 @@ h1 {
   line-height: 1.5;
 }
 
+@media (min-width: 769px) {
+  #contact .form-wrap {
+    max-width: none;
+  }
+
+  #contact .waitlist-form {
+    grid-template-columns: minmax(0, 30rem) 1fr;
+    align-items: center;
+  }
+
+  #contact .waitlist-form label {
+    grid-column: 1;
+  }
+
+  #contact .waitlist-form button {
+    grid-column: 2;
+    grid-row: 1 / 4;
+    justify-self: end;
+    align-self: center;
+  }
+}
+
 #about,
 #experience,
 #contact {
