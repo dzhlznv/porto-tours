@@ -154,6 +154,8 @@ function LandingPage() {
     () => (isMobileGallery ? displayGallery : displayGallery.slice(0, visibleGalleryCount)),
     [displayGallery, isMobileGallery, visibleGalleryCount]
   );
+  const initialGalleryItems = visibleGalleryItems.slice(0, INITIAL_GALLERY_COUNT);
+  const loadedGalleryItems = visibleGalleryItems.slice(INITIAL_GALLERY_COUNT);
   const hasMoreGalleryItems = !isMobileGallery && visibleGalleryCount < displayGallery.length;
   const activeGalleryPhotoIndex = displayGallery.findIndex((photo) => photo.src === activeGalleryPhoto?.src);
 
@@ -609,7 +611,7 @@ function LandingPage() {
             </button>
           </div>
           <div className="gallery-grid">
-            {visibleGalleryItems.map((image) => (
+            {initialGalleryItems.map((image) => (
               <ParallaxImageCard
                 key={image.id || image.src}
                 src={image.src}
@@ -618,6 +620,18 @@ function LandingPage() {
               />
             ))}
           </div>
+          {loadedGalleryItems.length > 0 ? (
+            <div className="gallery-grid gallery-grid-extra">
+              {loadedGalleryItems.map((image) => (
+                <ParallaxImageCard
+                  key={image.id || image.src}
+                  src={image.src}
+                  alt={image.alt}
+                  onClick={() => openGalleryLightbox(image)}
+                />
+              ))}
+            </div>
+          ) : null}
           {hasMoreGalleryItems ? (
             <div className="gallery-actions">
               <button
