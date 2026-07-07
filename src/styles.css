@@ -399,10 +399,22 @@ h1 {
   line-height: 1.12;
 }
 
+.what-this-content {
+  display: grid;
+  grid-template-columns: minmax(0, 66ch) auto;
+  align-items: center;
+  column-gap: var(--editorial-grid-column-gap, 2rem);
+}
+
 .what-this-body p {
   max-width: 66ch;
   line-height: 1.78;
   color: var(--ink);
+}
+
+.what-this-cta {
+  justify-self: start;
+  margin-top: 0;
 }
 
 .about-copy {
@@ -1297,6 +1309,16 @@ h1 {
   .hero-image {
     max-height: 43rem;
     min-height: 31rem;
+  }
+}
+
+@media (max-width: 819px) {
+  .what-this-content {
+    display: block;
+  }
+
+  .what-this-cta {
+    margin-top: 1.75rem;
   }
 }
 
