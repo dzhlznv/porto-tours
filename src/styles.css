@@ -823,11 +823,6 @@ h1 {
   grid-row: 1 / span 2;
 }
 
-.gallery-grid > *:nth-child(n + 6) {
-  grid-column: auto;
-  grid-row: auto;
-}
-
 .gallery-grid > *:first-child,
 .gallery-grid > *:first-child .gallery-media,
 .gallery-grid > *:first-child .gallery-image,
@@ -835,13 +830,43 @@ h1 {
   min-height: calc((var(--gallery-row-height) * 2) + var(--gallery-gap));
 }
 
+.gallery-grid-extra {
+  --gallery-gap: clamp(1.25rem, 2vw, 1.5rem);
+  --gallery-card-radius: 18px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--gallery-gap);
+  width: 88%;
+  max-width: min(1200px, calc(var(--content-max-width) * 0.9));
+  margin: var(--gallery-gap) auto 0;
+}
+
+.gallery-grid-extra > * {
+  min-height: 14.5rem;
+  border-radius: var(--gallery-card-radius);
+  overflow: hidden;
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+
+.gallery-grid-extra .gallery-card,
+.gallery-grid-extra .gallery-media,
+.gallery-grid-extra .gallery-image,
+.gallery-grid-extra .gallery-placeholder {
+  min-height: 14.5rem;
+}
+
 @media (hover: hover) {
   .gallery-grid > *:hover {
     box-shadow: 0 14px 34px rgba(0, 0, 0, 0.1);
   }
 
-  .gallery-grid > *:hover .gallery-image {
+  .gallery-grid > *:hover .gallery-image,
+  .gallery-grid-extra > *:hover .gallery-image {
     transform: scale(1.02);
+  }
+
+  .gallery-grid-extra > *:hover {
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.1);
   }
 }
 
@@ -1389,8 +1414,7 @@ h1 {
   }
 
   .gallery-grid > *,
-  .gallery-grid > *:first-child,
-  .gallery-grid > *:nth-child(n + 6) {
+  .gallery-grid > *:first-child {
     grid-column: auto;
     grid-row: auto;
   }
@@ -1444,8 +1468,7 @@ h1 {
   }
 
   .gallery-grid > *,
-  .gallery-grid > *:first-child,
-  .gallery-grid > *:nth-child(n + 6) {
+  .gallery-grid > *:first-child {
     flex: 0 0 min(82vw, 21rem);
     grid-column: auto;
     grid-row: auto;
@@ -1460,6 +1483,22 @@ h1 {
   .gallery-grid > *:first-child .gallery-media,
   .gallery-grid > *:first-child .gallery-image,
   .gallery-grid > *:first-child .gallery-placeholder {
+    min-height: 15.725rem;
+  }
+
+  .gallery-grid-extra {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: auto;
+    max-width: none;
+    margin: 1rem 0 0;
+  }
+
+  .gallery-grid-extra > *,
+  .gallery-grid-extra .gallery-card,
+  .gallery-grid-extra .gallery-media,
+  .gallery-grid-extra .gallery-image,
+  .gallery-grid-extra .gallery-placeholder {
     min-height: 15.725rem;
   }
 
