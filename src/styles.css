@@ -729,7 +729,7 @@ h1 {
 .testimonial-quote--lead {
   max-width: 58ch;
   font-size: clamp(1.11rem, 1.18vw, 1.18rem);
-  font-weight: 450;
+  font-weight: 400;
   letter-spacing: -0.018em;
   color: var(--ink-strong);
 }
