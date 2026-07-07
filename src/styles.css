@@ -384,6 +384,7 @@ h1 {
 }
 
 .what-this-section {
+  position: relative;
   padding-top: var(--divider-to-heading);
   padding-bottom: var(--content-to-divider);
 }
@@ -416,6 +417,15 @@ h1 {
   justify-self: end;
   align-self: center;
   margin-top: 0;
+}
+
+@media (min-width: 820px) {
+  .what-this-cta {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+  }
 }
 
 .about-copy {
