@@ -1,6 +1,9 @@
 import heroImg from './assets/hero.jpg';
 import aboutImg from './assets/about.jpg';
 import aboutGalleryImg from './assets/gallery-29.jpg';
+import classicMorningImg from './assets/gallery-7.jpg';
+import classicMiddayImg from './assets/gallery-18.jpg';
+import classicSunsetImg from './assets/gallery-28.jpg';
 import logoImg from './assets/p2u-logo.png';
 import mapImg from './assets/map.png';
 import React, { useMemo, useRef, useState } from 'react';
@@ -90,6 +93,33 @@ function LandingPage() {
   const aboutImages = [
     { src: aboutImg, alt: 'Neighborhood view in Porto' },
     { src: aboutGalleryImg, alt: 'Classic Porto street scene' },
+  ];
+
+  const classicDayMoments = [
+    {
+      label: 'Morning',
+      heading: 'Good coffee, slowly',
+      description:
+        'A day often begins with good coffee and an unhurried start, letting the city set the pace before the route unfolds.',
+      image: classicMorningImg,
+      alt: 'A calm Porto morning detail',
+    },
+    {
+      label: 'Midday',
+      heading: 'Historic streets and small details',
+      description:
+        'We move through the historic center, neighborhoods, hidden streets, and azulejos — noticing Porto from a different angle.',
+      image: classicMiddayImg,
+      alt: 'Azulejo details and historic Porto streets',
+    },
+    {
+      label: 'Toward sunset',
+      heading: 'River light to the ocean',
+      description:
+        'The route finds its own rhythm toward the bridges, the river, and the ocean, with quiet pauses and a final view.',
+      image: classicSunsetImg,
+      alt: 'Porto river light toward sunset',
+    },
   ];
 
   React.useEffect(() => {
@@ -541,12 +571,18 @@ function LandingPage() {
         </section>
 
         <Section title="A classic day, reimagined" id="classic-day">
-          {pageContent.classicDayParagraphs.map((paragraph) => (
-            <p key={paragraph} className="classic-day-paragraph">
-              {paragraph}
-            </p>
-          ))}
-          <p className="section-follow-up">{pageContent.dayShapingLine}</p>
+          <div className="classic-day-grid">
+            {classicDayMoments.map((moment) => (
+              <article className="classic-day-card" key={moment.label}>
+                <FramedImage src={moment.image} alt={moment.alt} className="classic-day-image" />
+                <div className="classic-day-copy">
+                  <p className="eyebrow classic-day-eyebrow">{moment.label}</p>
+                  <h3>{moment.heading}</h3>
+                  <p>{moment.description}</p>
+                </div>
+              </article>
+            ))}
+          </div>
         </Section>
 
         <Section title="Who this is for" id="who-its-for">

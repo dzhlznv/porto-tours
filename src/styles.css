@@ -567,9 +567,58 @@ h1 {
   opacity: 0.72;
 }
 
-.classic-day-paragraph + .classic-day-paragraph,
-.classic-day-paragraph + .section-follow-up {
-  margin-top: 1rem !important;
+.classic-day-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(1.35rem, 3vw, 2.25rem);
+}
+
+.classic-day-card {
+  min-width: 0;
+}
+
+.classic-day-image {
+  aspect-ratio: 4 / 3;
+  height: auto;
+  max-height: none;
+  min-height: 0;
+}
+
+.classic-day-copy {
+  padding-top: 1rem;
+}
+
+.classic-day-eyebrow {
+  margin-bottom: 0.55rem;
+  letter-spacing: 0.13em;
+}
+
+.classic-day-card h3 {
+  margin: 0;
+  font-size: clamp(1.12rem, 1.8vw, 1.32rem);
+  line-height: 1.18;
+}
+
+.classic-day-card p:not(.eyebrow) {
+  margin: 0.7rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+  line-height: 1.68;
+}
+
+@media (max-width: 819px) {
+  .classic-day-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .classic-day-image {
+    aspect-ratio: 16 / 10;
+  }
+
+  .classic-day-copy {
+    padding-top: 0.9rem;
+  }
 }
 
 .about-layout {
