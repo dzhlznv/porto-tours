@@ -964,14 +964,58 @@ h1 {
 
 .faq-item {
   border-bottom: 1px solid var(--line);
-  padding: 0.85rem 0;
   list-style: none;
 }
 
 .faq-item summary {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.85rem 3rem 0.85rem 0;
   list-style: none;
   cursor: pointer;
   font-size: 1.03rem;
+  color: var(--ink);
+  transition: color 190ms ease;
+}
+
+.faq-item summary::before,
+.faq-item summary::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 0;
+  width: 17px;
+  height: 1.25px;
+  background: color-mix(in srgb, var(--line-strong) 84%, var(--ink-soft));
+  border-radius: 999px;
+  transform: translateY(-50%);
+  transform-origin: center;
+  transition: background-color 190ms ease, transform 190ms ease;
+}
+
+.faq-item summary::after {
+  transform: translateY(-50%) rotate(90deg);
+}
+
+.faq-item[open] summary::before {
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.faq-item[open] summary::after {
+  transform: translateY(-50%) rotate(135deg);
+}
+
+@media (hover: hover) {
+  .faq-item summary:hover {
+    color: var(--ink-strong);
+  }
+
+  .faq-item summary:hover::before,
+  .faq-item summary:hover::after {
+    background: color-mix(in srgb, var(--ink-soft) 82%, var(--ink));
+  }
 }
 
 .faq-item summary::marker {
