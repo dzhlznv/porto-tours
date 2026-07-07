@@ -413,7 +413,8 @@ h1 {
 }
 
 .what-this-cta {
-  justify-self: start;
+  justify-self: end;
+  align-self: center;
   margin-top: 0;
 }
 
