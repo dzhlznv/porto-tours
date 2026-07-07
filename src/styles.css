@@ -798,47 +798,65 @@ h1 {
   --gallery-row-height: 13.4rem;
   --gallery-card-radius: 18px;
   display: grid;
+  gap: var(--gallery-gap);
+  width: 88%;
+  max-width: min(1200px, calc(var(--content-max-width) * 0.9));
+  margin: 1.35rem auto 0;
+}
+
+.gallery-group {
+  display: grid;
   grid-template-columns: minmax(0, 1.08fr) repeat(2, minmax(0, 0.54fr));
   grid-auto-rows: var(--gallery-row-height);
   grid-auto-flow: row dense;
   column-gap: var(--gallery-column-gap);
   row-gap: var(--gallery-gap);
   align-items: stretch;
-  width: 88%;
-  max-width: min(1200px, calc(var(--content-max-width) * 0.9));
-  margin: 1.35rem auto 0;
 }
 
-.gallery-grid > * {
+.gallery-group > * {
   min-height: 0;
   border-radius: var(--gallery-card-radius);
   overflow: hidden;
   transition: transform 0.35s ease, box-shadow 0.35s ease;
 }
 
-.gallery-grid > *:first-child {
+.gallery-group > *:first-child {
   grid-column: 1 / span 1;
   grid-row: 1 / span 2;
 }
 
-.gallery-grid > *:nth-child(n + 6) {
+.gallery-group--mirrored {
+  grid-template-columns: repeat(2, minmax(0, 0.54fr)) minmax(0, 1.08fr);
+}
+
+.gallery-group--mirrored > *:first-child {
   grid-column: auto;
   grid-row: auto;
 }
 
-.gallery-grid > *:first-child,
-.gallery-grid > *:first-child .gallery-media,
-.gallery-grid > *:first-child .gallery-image,
-.gallery-grid > *:first-child .gallery-placeholder {
+.gallery-group--mirrored > *:last-child {
+  grid-column: 3 / span 1;
+  grid-row: 1 / span 2;
+}
+
+.gallery-group > *:first-child,
+.gallery-group > *:first-child .gallery-media,
+.gallery-group > *:first-child .gallery-image,
+.gallery-group > *:first-child .gallery-placeholder,
+.gallery-group--mirrored > *:last-child,
+.gallery-group--mirrored > *:last-child .gallery-media,
+.gallery-group--mirrored > *:last-child .gallery-image,
+.gallery-group--mirrored > *:last-child .gallery-placeholder {
   min-height: calc((var(--gallery-row-height) * 2) + var(--gallery-gap));
 }
 
 @media (hover: hover) {
-  .gallery-grid > *:hover {
+  .gallery-group > *:hover {
     box-shadow: 0 14px 34px rgba(0, 0, 0, 0.1);
   }
 
-  .gallery-grid > *:hover .gallery-image {
+  .gallery-group > *:hover .gallery-image {
     transform: scale(1.02);
   }
 }
@@ -1386,9 +1404,13 @@ h1 {
     gap: var(--gallery-gap);
   }
 
-  .gallery-grid > *,
-  .gallery-grid > *:first-child,
-  .gallery-grid > *:nth-child(n + 6) {
+  .gallery-group {
+    display: contents;
+  }
+
+  .gallery-group > *,
+  .gallery-group > *:first-child,
+  .gallery-group--mirrored > *:last-child {
     grid-column: auto;
     grid-row: auto;
   }
@@ -1397,17 +1419,20 @@ h1 {
   .gallery-media,
   .gallery-image,
   .gallery-placeholder,
-  .gallery-grid > *:first-child,
-  .gallery-grid > *:first-child .gallery-media,
-  .gallery-grid > *:first-child .gallery-image,
-  .gallery-grid > *:first-child .gallery-placeholder {
+  .gallery-group > *:first-child,
+  .gallery-group > *:first-child .gallery-media,
+  .gallery-group > *:first-child .gallery-image,
+  .gallery-group > *:first-child .gallery-placeholder,
+  .gallery-group--mirrored > *:last-child,
+  .gallery-group--mirrored > *:last-child .gallery-media,
+  .gallery-group--mirrored > *:last-child .gallery-image,
+  .gallery-group--mirrored > *:last-child .gallery-placeholder {
     min-height: 14.5rem;
   }
 }
 
 @media (min-width: 1080px) {
   .gallery-grid {
-    grid-template-columns: minmax(0, 1.08fr) repeat(2, minmax(0, 0.54fr));
     width: 88%;
     max-width: min(1200px, calc(var(--content-max-width) * 0.9));
   }
@@ -1441,9 +1466,13 @@ h1 {
     overscroll-behavior-x: contain;
   }
 
-  .gallery-grid > *,
-  .gallery-grid > *:first-child,
-  .gallery-grid > *:nth-child(n + 6) {
+  .gallery-group {
+    display: contents;
+  }
+
+  .gallery-group > *,
+  .gallery-group > *:first-child,
+  .gallery-group--mirrored > *:last-child {
     flex: 0 0 min(82vw, 21rem);
     grid-column: auto;
     grid-row: auto;
@@ -1454,10 +1483,14 @@ h1 {
   .gallery-media,
   .gallery-image,
   .gallery-placeholder,
-  .gallery-grid > *:first-child,
-  .gallery-grid > *:first-child .gallery-media,
-  .gallery-grid > *:first-child .gallery-image,
-  .gallery-grid > *:first-child .gallery-placeholder {
+  .gallery-group > *:first-child,
+  .gallery-group > *:first-child .gallery-media,
+  .gallery-group > *:first-child .gallery-image,
+  .gallery-group > *:first-child .gallery-placeholder,
+  .gallery-group--mirrored > *:last-child,
+  .gallery-group--mirrored > *:last-child .gallery-media,
+  .gallery-group--mirrored > *:last-child .gallery-image,
+  .gallery-group--mirrored > *:last-child .gallery-placeholder {
     min-height: 15.725rem;
   }
 

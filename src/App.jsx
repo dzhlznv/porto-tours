@@ -154,6 +154,15 @@ function LandingPage() {
     () => (isMobileGallery ? displayGallery : displayGallery.slice(0, visibleGalleryCount)),
     [displayGallery, isMobileGallery, visibleGalleryCount]
   );
+  const visibleGalleryGroups = useMemo(() => {
+    const groups = [];
+
+    for (let index = 0; index < visibleGalleryItems.length; index += INITIAL_GALLERY_COUNT) {
+      groups.push(visibleGalleryItems.slice(index, index + INITIAL_GALLERY_COUNT));
+    }
+
+    return groups;
+  }, [visibleGalleryItems]);
   const hasMoreGalleryItems = !isMobileGallery && visibleGalleryCount < displayGallery.length;
   const activeGalleryPhotoIndex = displayGallery.findIndex((photo) => photo.src === activeGalleryPhoto?.src);
 
@@ -234,7 +243,7 @@ function LandingPage() {
   );
 
   const handleViewMorePhotos = () => {
-    setVisibleGalleryCount((count) => Math.min(count + 6, displayGallery.length));
+    setVisibleGalleryCount((count) => Math.min(count + INITIAL_GALLERY_COUNT, displayGallery.length));
   };
 
   const handleShufflePhotos = () => {
@@ -609,13 +618,20 @@ function LandingPage() {
             </button>
           </div>
           <div className="gallery-grid">
-            {visibleGalleryItems.map((image) => (
-              <ParallaxImageCard
-                key={image.id || image.src}
-                src={image.src}
-                alt={image.alt}
-                onClick={() => openGalleryLightbox(image)}
-              />
+            {visibleGalleryGroups.map((group, groupIndex) => (
+              <div
+                className={`gallery-group${groupIndex % 2 === 1 ? ' gallery-group--mirrored' : ''}`}
+                key={group.map((image) => image.id || image.src).join('-')}
+              >
+                {group.map((image) => (
+                  <ParallaxImageCard
+                    key={image.id || image.src}
+                    src={image.src}
+                    alt={image.alt}
+                    onClick={() => openGalleryLightbox(image)}
+                  />
+                ))}
+              </div>
             ))}
           </div>
           {hasMoreGalleryItems ? (
