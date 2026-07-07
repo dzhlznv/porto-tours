@@ -700,17 +700,33 @@ h1 {
 .testimonial-quote {
   line-height: 1.84;
   font-style: italic;
-  font-size: 1.04rem;
+  text-wrap: pretty;
+}
+
+.testimonial-quote--lead {
+  max-width: 58ch;
+  font-size: clamp(1.11rem, 1.18vw, 1.18rem);
+  font-weight: 450;
+  letter-spacing: -0.018em;
   color: var(--ink-strong);
 }
 
-.testimonial-quote + .testimonial-quote {
+.testimonial-quote--lead + .testimonial-quote--supporting {
+  margin-top: 1.75rem !important;
+}
+
+.testimonial-quote--supporting {
+  font-size: 1.01rem;
+  color: color-mix(in srgb, var(--ink-strong) 82%, var(--ink-soft));
+}
+
+.testimonial-quote--supporting + .testimonial-quote--supporting {
   margin-top: 0.85rem !important;
 }
 
 .testimonial-author {
-  margin-top: 1.15rem !important;
-  font-size: 0.88rem;
+  margin-top: 1.65rem !important;
+  font-size: 0.82rem;
   color: var(--ink-soft);
 }
 
