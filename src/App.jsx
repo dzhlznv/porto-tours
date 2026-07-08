@@ -72,6 +72,7 @@ function LandingPage() {
   const isBrowser = typeof window !== 'undefined';
   const instagramUrl = 'https://www.instagram.com/porto2u/';
   const INITIAL_GALLERY_COUNT = 5;
+  const GALLERY_LOAD_INCREMENT = 8;
   const [isMobileGallery, setIsMobileGallery] = useState(false);
   const [visibleGalleryCount, setVisibleGalleryCount] = useState(INITIAL_GALLERY_COUNT);
   const [activeGalleryPhoto, setActiveGalleryPhoto] = useState(null);
@@ -154,7 +155,7 @@ function LandingPage() {
     () => (isMobileGallery ? displayGallery : displayGallery.slice(0, visibleGalleryCount)),
     [displayGallery, isMobileGallery, visibleGalleryCount]
   );
-  const hasMoreGalleryItems = !isMobileGallery && visibleGalleryCount < displayGallery.length;
+  const hasMoreGalleryItems = !isMobileGallery && visibleGalleryCount + GALLERY_LOAD_INCREMENT <= displayGallery.length;
   const activeGalleryPhotoIndex = displayGallery.findIndex((photo) => photo.src === activeGalleryPhoto?.src);
 
   React.useEffect(() => {
@@ -234,7 +235,7 @@ function LandingPage() {
   );
 
   const handleViewMorePhotos = () => {
-    setVisibleGalleryCount((count) => Math.min(count + 6, displayGallery.length));
+    setVisibleGalleryCount((count) => count + GALLERY_LOAD_INCREMENT);
   };
 
   const handleShufflePhotos = () => {
@@ -608,7 +609,7 @@ function LandingPage() {
               Surprise me ↻
             </button>
           </div>
-          <div className="gallery-grid">
+          <div className={`gallery-grid${visibleGalleryCount > INITIAL_GALLERY_COUNT ? ' gallery-grid--expanded' : ''}`}>
             {visibleGalleryItems.map((image) => (
               <ParallaxImageCard
                 key={image.id || image.src}
