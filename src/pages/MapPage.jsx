@@ -145,7 +145,6 @@ function computeBoundsFromPlaces(places) {
     }
   );
 }
-
 function computeBoundsFromPolygonAreas(areas) {
   if (!areas.length) {
     return null;
@@ -163,6 +162,14 @@ function computeBoundsFromPolygonAreas(areas) {
     },
     { north: -90, south: 90, east: -180, west: 180 }
   );
+}
+
+function computeBoundsFromPolygonArea(area) {
+  if (!area?.polygon?.length) {
+    return null;
+  }
+
+  return computeBoundsFromPolygonAreas([area]);
 }
 
 function getPolygonCentroid(points) {
@@ -279,6 +286,7 @@ function MapPage() {
   const selectionSourceRef = React.useRef('initial');
   const viewportRef = React.useRef(viewport);
   const lastManualPanRef = React.useRef(0);
+  const lastNeighborhoodViewportKeyRef = React.useRef(null);
 
   const placesByCategory = React.useMemo(() => {
     return mapCategories.reduce((accumulator, category) => {
@@ -423,6 +431,31 @@ function MapPage() {
     if (dragStateRef.current.mode) {
       return;
     }
+    if (isNeighborhoodsMode) {
+      const neighborhoodViewportKey = `${selectedPlaceKey}:${mapSize.width}x${mapSize.height}:${isMobileLayout ? 'mobile' : 'desktop'}`;
+      if (lastNeighborhoodViewportKeyRef.current === neighborhoodViewportKey) {
+        return;
+      }
+
+      const bounds = computeBoundsFromPolygonArea(selectedPlace);
+      const nextViewport = fitBoundsToViewport(bounds, mapSize, {
+        paddingX: isMobileLayout ? 58 : mapSize.width > 1200 ? 180 : 128,
+        paddingY: isMobileLayout ? 76 : mapSize.height > 800 ? 150 : 112,
+      });
+      const constrainedCenter = constrainViewportCenter({ lat: nextViewport.lat, lng: nextViewport.lng }, nextViewport.zoom, mapSize);
+
+      lastNeighborhoodViewportKeyRef.current = neighborhoodViewportKey;
+      animateViewportTo(
+        {
+          lat: constrainedCenter.lat,
+          lng: constrainedCenter.lng,
+          zoom: nextViewport.zoom,
+        },
+        320
+      );
+      return;
+    }
+
     if (Date.now() - lastManualPanRef.current < PAN_INTERACTION_RECENTER_COOLDOWN_MS) {
       return;
     }
@@ -453,7 +486,7 @@ function MapPage() {
         320
       );
     }
-  }, [animateViewportTo, isMobileLayout, mapSize.height, mapSize.width, selectedPlace, viewport.lat, viewport.lng, viewport.zoom]);
+  }, [animateViewportTo, isMobileLayout, mapSize.height, mapSize.width, isNeighborhoodsMode, selectedPlace, selectedPlaceKey, viewport.lat, viewport.lng, viewport.zoom]);
 
   React.useEffect(() => {
     const node = mapViewportRef.current;
