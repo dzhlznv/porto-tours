@@ -279,6 +279,7 @@ function MapPage() {
   const selectionSourceRef = React.useRef('initial');
   const viewportRef = React.useRef(viewport);
   const lastManualPanRef = React.useRef(0);
+  const lastCenteredNeighborhoodRef = React.useRef(null);
 
   const placesByCategory = React.useMemo(() => {
     return mapCategories.reduce((accumulator, category) => {
@@ -417,6 +418,34 @@ function MapPage() {
     if (!selectedPlace || !mapSize.width || !mapSize.height) {
       return;
     }
+    if (isNeighborhoodsMode) {
+      if (!selectedPlace.polygon?.length || suppressSelectionRecenteringRef.current || dragStateRef.current.mode) {
+        return;
+      }
+
+      const neighborhoodCenterKey = `${selectedPlaceKey}:${mapSize.width}x${mapSize.height}:${isMobileLayout ? 'mobile' : 'desktop'}`;
+      if (lastCenteredNeighborhoodRef.current === neighborhoodCenterKey) {
+        return;
+      }
+
+      const neighborhoodBounds = computeBoundsFromPolygonAreas([selectedPlace]);
+      const nextViewport = fitBoundsToViewport(neighborhoodBounds, mapSize, {
+        paddingX: isMobileLayout ? 56 : 132,
+        paddingY: isMobileLayout ? 72 : 124,
+      });
+      const constrainedCenter = constrainViewportCenter({ lat: nextViewport.lat, lng: nextViewport.lng }, nextViewport.zoom, mapSize);
+
+      lastCenteredNeighborhoodRef.current = neighborhoodCenterKey;
+      animateViewportTo(
+        {
+          lat: constrainedCenter.lat,
+          lng: constrainedCenter.lng,
+          zoom: nextViewport.zoom,
+        },
+        320
+      );
+      return;
+    }
     if (suppressSelectionRecenteringRef.current) {
       return;
     }
@@ -453,7 +482,7 @@ function MapPage() {
         320
       );
     }
-  }, [animateViewportTo, isMobileLayout, mapSize.height, mapSize.width, selectedPlace, viewport.lat, viewport.lng, viewport.zoom]);
+  }, [animateViewportTo, isMobileLayout, isNeighborhoodsMode, mapSize, mapSize.height, mapSize.width, selectedPlace, viewport.lat, viewport.lng, viewport.zoom]);
 
   React.useEffect(() => {
     const node = mapViewportRef.current;
