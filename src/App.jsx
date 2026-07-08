@@ -59,6 +59,33 @@ function shuffleGalleryItems(items) {
   return shuffledItems;
 }
 
+function getGalleryItemKey(photo) {
+  return photo?.id || photo?.src;
+}
+
+function hasSameGalleryOrder(firstGallery, secondGallery) {
+  return (
+    firstGallery.length === secondGallery.length &&
+    firstGallery.every((photo, index) => getGalleryItemKey(photo) === getGalleryItemKey(secondGallery[index]))
+  );
+}
+
+function shuffleMobileGalleryItems(items) {
+  if (items.length < 2) {
+    return [...items];
+  }
+
+  const shuffledItems = shuffleGalleryItems(items);
+
+  const keepsSameFirstPhoto = getGalleryItemKey(items[0]) === getGalleryItemKey(shuffledItems[0]);
+
+  if (keepsSameFirstPhoto || hasSameGalleryOrder(items, shuffledItems)) {
+    return [shuffledItems[1], shuffledItems[0], ...shuffledItems.slice(2)];
+  }
+
+  return shuffledItems;
+}
+
 function normalizePathname(pathname) {
   if (!pathname) {
     return '/';
@@ -239,6 +266,12 @@ function LandingPage() {
   };
 
   const handleShufflePhotos = () => {
+    if (isMobileGallery) {
+      setDisplayGallery((currentGallery) => shuffleMobileGalleryItems(currentGallery));
+      setActiveGalleryPhoto(null);
+      return;
+    }
+
     setDisplayGallery(shuffleGalleryItems(pageContent.gallery));
     setVisibleGalleryCount(INITIAL_GALLERY_COUNT);
     setActiveGalleryPhoto(null);
