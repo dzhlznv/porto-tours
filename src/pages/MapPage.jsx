@@ -275,9 +275,9 @@ function MapPage() {
     startZoom: 0,
   });
   const animationFrameRef = React.useRef(null);
-  const suppressSelectionRecenteringRef = React.useRef(false);
   const selectionSourceRef = React.useRef('initial');
   const viewportRef = React.useRef(viewport);
+  const viewportIntentRef = React.useRef('category');
   const lastManualPanRef = React.useRef(0);
 
   const placesByCategory = React.useMemo(() => {
@@ -389,6 +389,9 @@ function MapPage() {
     if (!mapSize.width || !mapSize.height) {
       return;
     }
+    if (viewportIntentRef.current !== 'category') {
+      return;
+    }
 
     const categoryConfig = CATEGORY_VIEWPORT_CONFIG[activeCategory] ?? null;
     const neighborhoodBounds = isNeighborhoodsMode ? computeBoundsFromPolygonAreas(portoNeighborhoods) : null;
@@ -400,60 +403,9 @@ function MapPage() {
       targetZoom: isMobileLayout ? Math.min(categoryTargetZoom + 1, MAX_ZOOM - 1) : categoryConfig?.targetZoom,
     });
 
-    suppressSelectionRecenteringRef.current = true;
     animateViewportTo(nextViewport, 0);
-
-    const releaseSuppressTimer = window.setTimeout(() => {
-      suppressSelectionRecenteringRef.current = false;
-    }, 0);
-
-    return () => {
-      window.clearTimeout(releaseSuppressTimer);
-      suppressSelectionRecenteringRef.current = false;
-    };
   }, [activeCategory, animateViewportTo, isMobileLayout, isNeighborhoodsMode, mapSize.height, mapSize.width, visiblePlaces]);
 
-  React.useEffect(() => {
-    if (!selectedPlace || !mapSize.width || !mapSize.height) {
-      return;
-    }
-    if (suppressSelectionRecenteringRef.current) {
-      return;
-    }
-    if (dragStateRef.current.mode) {
-      return;
-    }
-    if (Date.now() - lastManualPanRef.current < PAN_INTERACTION_RECENTER_COOLDOWN_MS) {
-      return;
-    }
-
-    const markerWorld = project(selectedPlace.lat, selectedPlace.lng, viewport.zoom);
-    const centerWorld = project(viewport.lat, viewport.lng, viewport.zoom);
-    const selectedScreenX = markerWorld.x - centerWorld.x + mapSize.width / 2;
-    const selectedScreenY = markerWorld.y - centerWorld.y + mapSize.height / 2;
-
-    const desiredX = mapSize.width * 0.58;
-    const desiredY = mapSize.height * 0.52;
-
-    const nearEdgeX = selectedScreenX < mapSize.width * 0.18 || selectedScreenX > mapSize.width * 0.88;
-    const nearEdgeY = selectedScreenY < mapSize.height * 0.16 || selectedScreenY > mapSize.height * 0.86;
-
-    if (nearEdgeX || nearEdgeY) {
-      const nextCenterWorldX = markerWorld.x - (desiredX - mapSize.width / 2);
-      const nextCenterWorldY = markerWorld.y - (desiredY - mapSize.height / 2);
-      const nextCenter = unproject(nextCenterWorldX, nextCenterWorldY, viewport.zoom);
-      const constrainedCenter = constrainViewportCenter(nextCenter, viewport.zoom, mapSize);
-
-      animateViewportTo(
-        {
-          lat: constrainedCenter.lat,
-          lng: constrainedCenter.lng,
-          zoom: Math.max(viewport.zoom, isMobileLayout ? MOBILE_SELECTED_PLACE_ZOOM : 13),
-        },
-        320
-      );
-    }
-  }, [animateViewportTo, isMobileLayout, mapSize.height, mapSize.width, selectedPlace, viewport.lat, viewport.lng, viewport.zoom]);
 
   React.useEffect(() => {
     const node = mapViewportRef.current;
@@ -742,6 +694,44 @@ function MapPage() {
     setViewport((current) => ({ ...current, zoom: clamp(current.zoom + delta, MIN_ZOOM, MAX_ZOOM) }));
   }, []);
 
+  const centerViewportOnPlace = React.useCallback(
+    (place) => {
+      if (!place || !mapSize.width || !mapSize.height) {
+        return;
+      }
+
+      const targetZoom = Math.max(viewportRef.current.zoom, isMobileLayout ? MOBILE_SELECTED_PLACE_ZOOM : 13);
+      viewportIntentRef.current = 'place';
+
+      animateViewportTo(
+        {
+          lat: place.lat,
+          lng: place.lng,
+          zoom: targetZoom,
+        },
+        320
+      );
+    },
+    [animateViewportTo, isMobileLayout, mapSize]
+  );
+
+  const centerViewportOnNeighborhood = React.useCallback(
+    (neighborhood) => {
+      if (!neighborhood || !mapSize.width || !mapSize.height) {
+        return;
+      }
+
+      const nextViewport = fitBoundsToViewport(computeBoundsFromPolygonAreas([neighborhood]), mapSize, {
+        paddingX: isMobileLayout ? 44 : mapSize.width > 1200 ? 140 : 96,
+        paddingY: isMobileLayout ? 52 : mapSize.height > 800 ? 120 : 90,
+      });
+      viewportIntentRef.current = 'neighborhood';
+
+      animateViewportTo(nextViewport, 320);
+    },
+    [animateViewportTo, isMobileLayout, mapSize]
+  );
+
   const centerViewportOnUserLocation = React.useCallback(
     (coords) => {
       if (!coords || !mapSize.width || !mapSize.height) {
@@ -753,12 +743,12 @@ function MapPage() {
       const desiredY = mapSize.height * (isMobileLayout ? MOBILE_USER_LOCATION_CENTER_RATIO : DESKTOP_USER_LOCATION_CENTER_RATIO);
       const nextCenterWorldY = userWorld.y - (desiredY - mapSize.height / 2);
       const nextCenter = unproject(userWorld.x, nextCenterWorldY, targetZoom);
-      const constrainedCenter = constrainViewportCenter(nextCenter, targetZoom, mapSize);
+      viewportIntentRef.current = 'user-location';
 
       animateViewportTo(
         {
-          lat: constrainedCenter.lat,
-          lng: constrainedCenter.lng,
+          lat: nextCenter.lat,
+          lng: nextCenter.lng,
           zoom: targetZoom,
         },
         420
@@ -814,6 +804,7 @@ function MapPage() {
                 className={`map-category-chip ${activeCategory === category ? 'is-active' : ''}`}
                 aria-pressed={activeCategory === category}
                 onClick={() => {
+                  viewportIntentRef.current = 'category';
                   setActiveCategory(category);
                   setIsDetailsExpanded(false);
                 }}
@@ -840,6 +831,11 @@ function MapPage() {
               onClick={() => {
                 selectionSourceRef.current = 'list';
                 setSelectedPlaceKey(isNeighborhoodsMode ? getNeighborhoodSelectionKey(place) : getPlaceSelectionKey(place));
+                if (isNeighborhoodsMode) {
+                  centerViewportOnNeighborhood(place);
+                } else {
+                  centerViewportOnPlace(place);
+                }
                 setIsDetailsOpen(true);
                 setIsDetailsExpanded(false);
               }}
@@ -888,6 +884,7 @@ function MapPage() {
                     onClick={() => {
                       selectionSourceRef.current = 'marker';
                       setSelectedPlaceKey(getNeighborhoodSelectionKey(area));
+                      centerViewportOnNeighborhood(area);
                       setIsDetailsOpen(true);
                       setIsDetailsExpanded(false);
                     }}
@@ -911,6 +908,7 @@ function MapPage() {
               onClick={() => {
                 selectionSourceRef.current = 'marker';
                 setSelectedPlaceKey(getPlaceSelectionKey(marker));
+                centerViewportOnPlace(marker);
                 setIsDetailsOpen(true);
                 setIsDetailsExpanded(false);
               }}
