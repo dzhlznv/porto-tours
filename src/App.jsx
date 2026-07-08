@@ -48,6 +48,13 @@ function InstagramIcon() {
 }
 
 
+function createGalleryDisplayItems(items) {
+  return items.map((item, index) => ({
+    ...item,
+    id: `gallery-photo-${index}`,
+  }));
+}
+
 function shuffleGalleryItems(items) {
   const shuffledItems = [...items];
 
@@ -89,7 +96,7 @@ function LandingPage() {
     suppressClick: false,
   });
 
-  const [displayGallery, setDisplayGallery] = useState(pageContent.gallery);
+  const [displayGallery, setDisplayGallery] = useState(() => createGalleryDisplayItems(pageContent.gallery));
 
   const aboutImages = [
     { src: aboutImg, alt: 'Neighborhood view in Porto' },
@@ -239,7 +246,7 @@ function LandingPage() {
   };
 
   const handleShufflePhotos = () => {
-    setDisplayGallery(shuffleGalleryItems(pageContent.gallery));
+    setDisplayGallery((galleryItems) => shuffleGalleryItems(galleryItems));
     setVisibleGalleryCount(INITIAL_GALLERY_COUNT);
     setActiveGalleryPhoto(null);
   };
