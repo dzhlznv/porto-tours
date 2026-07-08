@@ -413,47 +413,33 @@ function MapPage() {
     };
   }, [activeCategory, animateViewportTo, isMobileLayout, isNeighborhoodsMode, mapSize.height, mapSize.width, visiblePlaces]);
 
-  React.useEffect(() => {
-    if (!selectedPlace || !mapSize.width || !mapSize.height) {
-      return;
-    }
-    if (suppressSelectionRecenteringRef.current) {
-      return;
-    }
-    if (dragStateRef.current.mode) {
-      return;
-    }
-    if (Date.now() - lastManualPanRef.current < PAN_INTERACTION_RECENTER_COOLDOWN_MS) {
-      return;
-    }
+  const centerViewportOnPlace = React.useCallback(
+    (place) => {
+      if (!place || !mapSize.width || !mapSize.height) {
+        return;
+      }
 
-    const markerWorld = project(selectedPlace.lat, selectedPlace.lng, viewport.zoom);
-    const centerWorld = project(viewport.lat, viewport.lng, viewport.zoom);
-    const selectedScreenX = markerWorld.x - centerWorld.x + mapSize.width / 2;
-    const selectedScreenY = markerWorld.y - centerWorld.y + mapSize.height / 2;
-
-    const desiredX = mapSize.width * 0.58;
-    const desiredY = mapSize.height * 0.52;
-
-    const nearEdgeX = selectedScreenX < mapSize.width * 0.18 || selectedScreenX > mapSize.width * 0.88;
-    const nearEdgeY = selectedScreenY < mapSize.height * 0.16 || selectedScreenY > mapSize.height * 0.86;
-
-    if (nearEdgeX || nearEdgeY) {
+      const targetZoom = Math.max(viewportRef.current.zoom, isMobileLayout ? MOBILE_SELECTED_PLACE_ZOOM : 13);
+      const markerWorld = project(place.lat, place.lng, targetZoom);
+      const desiredX = mapSize.width * 0.58;
+      const desiredY = mapSize.height * 0.52;
       const nextCenterWorldX = markerWorld.x - (desiredX - mapSize.width / 2);
       const nextCenterWorldY = markerWorld.y - (desiredY - mapSize.height / 2);
-      const nextCenter = unproject(nextCenterWorldX, nextCenterWorldY, viewport.zoom);
-      const constrainedCenter = constrainViewportCenter(nextCenter, viewport.zoom, mapSize);
+      const nextCenter = unproject(nextCenterWorldX, nextCenterWorldY, targetZoom);
+      const constrainedCenter = constrainViewportCenter(nextCenter, targetZoom, mapSize);
 
       animateViewportTo(
         {
           lat: constrainedCenter.lat,
           lng: constrainedCenter.lng,
-          zoom: Math.max(viewport.zoom, isMobileLayout ? MOBILE_SELECTED_PLACE_ZOOM : 13),
+          zoom: targetZoom,
         },
         320
       );
-    }
-  }, [animateViewportTo, isMobileLayout, mapSize.height, mapSize.width, selectedPlace, viewport.lat, viewport.lng, viewport.zoom]);
+    },
+    [animateViewportTo, isMobileLayout, mapSize]
+  );
+
 
   React.useEffect(() => {
     const node = mapViewportRef.current;
@@ -754,6 +740,7 @@ function MapPage() {
       const nextCenterWorldY = userWorld.y - (desiredY - mapSize.height / 2);
       const nextCenter = unproject(userWorld.x, nextCenterWorldY, targetZoom);
       const constrainedCenter = constrainViewportCenter(nextCenter, targetZoom, mapSize);
+      selectionSourceRef.current = 'user-location';
 
       animateViewportTo(
         {
@@ -840,6 +827,7 @@ function MapPage() {
               onClick={() => {
                 selectionSourceRef.current = 'list';
                 setSelectedPlaceKey(isNeighborhoodsMode ? getNeighborhoodSelectionKey(place) : getPlaceSelectionKey(place));
+                centerViewportOnPlace(place);
                 setIsDetailsOpen(true);
                 setIsDetailsExpanded(false);
               }}
@@ -888,6 +876,7 @@ function MapPage() {
                     onClick={() => {
                       selectionSourceRef.current = 'marker';
                       setSelectedPlaceKey(getNeighborhoodSelectionKey(area));
+                      centerViewportOnPlace(area);
                       setIsDetailsOpen(true);
                       setIsDetailsExpanded(false);
                     }}
@@ -911,6 +900,7 @@ function MapPage() {
               onClick={() => {
                 selectionSourceRef.current = 'marker';
                 setSelectedPlaceKey(getPlaceSelectionKey(marker));
+                centerViewportOnPlace(marker);
                 setIsDetailsOpen(true);
                 setIsDetailsExpanded(false);
               }}
