@@ -685,6 +685,63 @@ h1 {
   }
 }
 
+.who-layout {
+  display: grid;
+  gap: 2rem;
+}
+
+.who-intro {
+  max-width: 34rem;
+}
+
+.who-eyebrow {
+  margin-bottom: 0.85rem;
+}
+
+.who-heading {
+  margin: 0;
+  font-family: 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', serif;
+  font-size: clamp(2.35rem, 10vw, 3.35rem);
+  font-weight: 500;
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  color: var(--ink-strong);
+}
+
+.who-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.who-list-item {
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr);
+  gap: 0.9rem;
+  padding: 1.25rem 0 1.35rem;
+  border-top: 1px solid color-mix(in srgb, var(--line-strong) 72%, transparent);
+}
+
+.who-list-number {
+  padding-top: 0.18rem;
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.14em;
+}
+
+.who-list-item p {
+  max-width: 35ch;
+  margin: 0;
+  color: var(--ink-strong);
+  font-family: 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', serif;
+  font-size: clamp(1.35rem, 6vw, 1.75rem);
+  font-weight: 500;
+  line-height: 1.22;
+  letter-spacing: -0.018em;
+}
+
 .includes-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -1250,6 +1307,36 @@ h1 {
   .includes-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1.55rem 1.45rem;
+  }
+
+  .who-layout {
+    grid-template-columns: minmax(0, 0.37fr) minmax(0, 0.63fr);
+    align-items: start;
+    gap: clamp(2.4rem, 6vw, 4.5rem);
+  }
+
+  .who-intro {
+    padding-top: 1.25rem;
+  }
+
+  .who-heading {
+    font-size: clamp(3.25rem, 6vw, 4.7rem);
+  }
+
+  .who-list-item {
+    grid-template-columns: 3.15rem minmax(0, 1fr);
+    gap: 1.25rem;
+    padding: 1.22rem 0 2.35rem;
+  }
+
+  .who-list-number {
+    padding-top: 0.44rem;
+    font-size: 0.78rem;
+  }
+
+  .who-list-item p {
+    font-size: clamp(1.5rem, 2.55vw, 1.875rem);
+    line-height: 1.24;
   }
 
   .gallery-grid {
