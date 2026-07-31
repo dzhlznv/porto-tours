@@ -685,6 +685,85 @@ h1 {
   }
 }
 
+#who-its-for {
+  padding-top: clamp(3.8rem, 6.5vw, 5.5rem);
+  padding-bottom: clamp(3.8rem, 6.5vw, 5.5rem);
+}
+
+.who-section-layout {
+  display: grid;
+  gap: 2.25rem;
+}
+
+.who-section-heading-block {
+  max-width: 32rem;
+}
+
+.who-section-eyebrow {
+  margin-bottom: clamp(1.9rem, 4vw, 3rem);
+  letter-spacing: 0.28em;
+}
+
+.who-section-title {
+  margin: 0;
+  font-family: 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', serif;
+  font-size: clamp(3rem, 9.5vw, 3.5rem);
+  font-weight: 500;
+  line-height: 1.12;
+  letter-spacing: -0.04em;
+  color: var(--ink-strong);
+}
+
+.who-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid color-mix(in srgb, var(--line) 82%, transparent);
+}
+
+.who-list li {
+  display: grid;
+  grid-template-columns: 2.75rem 1fr;
+  gap: 1rem;
+  align-items: start;
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 82%, transparent);
+  padding: clamp(1.35rem, 3.2vw, 2.5rem) 0;
+}
+
+.who-list-number {
+  padding-top: 0.22em;
+  font-family: 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', serif;
+  font-size: 1rem;
+  line-height: 1.2;
+  color: var(--accent);
+}
+
+.who-list-text {
+  max-width: 39rem;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: clamp(1.5rem, 3.8vw, 1.75rem);
+  line-height: 1.55;
+  letter-spacing: -0.035em;
+  color: var(--ink-strong);
+}
+
+@media (min-width: 900px) {
+  .who-section-layout {
+    grid-template-columns: minmax(22rem, 0.4fr) minmax(0, 0.6fr);
+    gap: clamp(3rem, 5vw, 4.5rem);
+    align-items: start;
+  }
+
+  .who-section-title {
+    font-size: clamp(3rem, 4vw, 3.5rem);
+  }
+
+  .who-list li {
+    grid-template-columns: 2.7rem 1fr;
+    gap: 1.55rem;
+  }
+}
+
 .includes-grid {
   display: grid;
   grid-template-columns: 1fr;
