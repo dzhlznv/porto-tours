@@ -12,7 +12,7 @@
   --nav-overhang: 56px;
   --header-inline-padding: calc(var(--nav-overhang) / 2);
 
-  --section-gap: 72px;
+  --hero-to-first-divider: 72px;
   --divider-to-heading: 40px;
   --heading-to-content: 20px;
   --content-to-divider: 40px;
@@ -370,7 +370,7 @@ h1 {
 }
 
 .hero + .section {
-  margin-top: var(--section-gap);
+  margin-top: var(--hero-to-first-divider);
 }
 
 .section-title {
@@ -624,21 +624,18 @@ h1 {
   line-height: 1.9;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 769px) {
   :root {
-    --section-gap: 88px;
-    --divider-to-heading: 56px;
+    --hero-to-first-divider: 88px;
+    --divider-to-heading: 64px;
     --heading-to-content: 24px;
-    --content-to-divider: 56px;
+    --content-to-divider: 64px;
   }
 }
 
 @media (min-width: 1024px) {
   :root {
-    --section-gap: 104px;
-    --divider-to-heading: 64px;
-    --heading-to-content: 24px;
-    --content-to-divider: 64px;
+    --hero-to-first-divider: 104px;
   }
 }
 
