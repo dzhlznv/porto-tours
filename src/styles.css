@@ -1372,6 +1372,11 @@ h1 {
     display: inline;
   }
 
+  .mobile-map-nav-item:focus,
+  .mobile-map-nav-item:focus-visible {
+    outline: none;
+  }
+
   .site-header-cta {
     margin-left: 0.35rem;
     padding: 0.33rem 0.68rem;
