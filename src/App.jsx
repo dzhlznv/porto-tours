@@ -593,13 +593,18 @@ function LandingPage() {
           </div>
         </Section>
 
-        <Section title="Who this is for" id="who-its-for">
-          <ul className="soft-list">
-            {pageContent.whoItsFor.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        </Section>
+        <section className="section who-section" id="who-its-for">
+          <div className="who-section-inner">
+            <h2 className="section-title who-section-title">For people who<br />travel slowly.</h2>
+            <div className="section-body who-section-body">
+              <ol className="who-list">
+                {pageContent.whoItsFor.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ol>
+            </div>
+          </div>
+        </section>
 
         <Section title="Porto gallery" id="gallery">
           <div className="gallery-intro-row">
