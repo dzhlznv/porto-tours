@@ -1673,23 +1673,10 @@ h1 {
   cursor: grabbing;
 }
 
-.map-tile {
+.map-basemap {
   position: absolute;
-  width: 256px;
-  height: 256px;
-  left: 0;
-  top: 0;
-  user-select: none;
+  inset: 0;
   pointer-events: none;
-  filter: grayscale(0.8) brightness(1.07) contrast(0.88) saturate(0.74) hue-rotate(6deg);
-  will-change: transform;
-  backface-visibility: hidden;
-}
-
-.leaflet-tile {
-  filter: grayscale(0.8) brightness(1.07) contrast(0.88) saturate(0.74) hue-rotate(6deg);
-  will-change: transform;
-  backface-visibility: hidden;
 }
 
 .map-surface-wash {
