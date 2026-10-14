@@ -1,8 +1,8 @@
 import React from 'react';
+import PositronBasemap from '../components/PositronBasemap';
 import { defaultMapCategory, mapCategories, portoGuidePlaces, portoNeighborhoods } from '../data/portoGuide';
 
 const TILE_SIZE = 256;
-const TILE_PROVIDER_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 const MIN_ZOOM = 11;
 const MAX_ZOOM = 17;
 const ZOOM_BUTTON_STEP = 0.5;
@@ -449,37 +449,11 @@ function MapPage() {
 
   const tileZoom = Math.floor(viewport.zoom);
   const tileScale = 2 ** (viewport.zoom - tileZoom);
-  const scaledTileSize = TILE_SIZE * tileScale;
   const centerPixels = project(viewport.lat, viewport.lng, viewport.zoom);
 
   const centerTilePixels = project(viewport.lat, viewport.lng, tileZoom);
   const leftTileWorld = centerTilePixels.x - mapSize.width / (2 * tileScale);
   const topTileWorld = centerTilePixels.y - mapSize.height / (2 * tileScale);
-
-  const minTileX = Math.floor(leftTileWorld / TILE_SIZE);
-  const maxTileX = Math.floor((leftTileWorld + mapSize.width / tileScale) / TILE_SIZE);
-  const minTileY = Math.floor(topTileWorld / TILE_SIZE);
-  const maxTileY = Math.floor((topTileWorld + mapSize.height / tileScale) / TILE_SIZE);
-
-  const maxTileIndex = 2 ** tileZoom;
-  const tiles = [];
-
-  for (let tx = minTileX; tx <= maxTileX; tx += 1) {
-    for (let ty = minTileY; ty <= maxTileY; ty += 1) {
-      if (ty < 0 || ty >= maxTileIndex) {
-        continue;
-      }
-
-      const wrappedX = ((tx % maxTileIndex) + maxTileIndex) % maxTileIndex;
-      tiles.push({
-        key: `${tileZoom}-${tx}-${ty}`,
-        src: TILE_PROVIDER_URL.replace('{z}', tileZoom).replace('{x}', wrappedX).replace('{y}', ty),
-        x: (tx * TILE_SIZE - leftTileWorld) * tileScale,
-        y: (ty * TILE_SIZE - topTileWorld) * tileScale,
-        size: scaledTileSize,
-      });
-    }
-  }
 
   const markerTone = CATEGORY_MARKER_TONES[activeCategory] ?? 'marker-sage';
   const mapMarkers = React.useMemo(() => {
@@ -857,16 +831,7 @@ function MapPage() {
           role="application"
           aria-label="Interactive Porto map"
         >
-          {tiles.map((tile) => (
-            <img
-              key={tile.key}
-              className="map-tile"
-              src={tile.src}
-              alt=""
-              draggable="false"
-              style={{ width: `${tile.size}px`, height: `${tile.size}px`, transform: `translate3d(${tile.x}px, ${tile.y}px, 0)` }}
-            />
-          ))}
+          <PositronBasemap viewport={viewport} mapSize={mapSize} />
 
           <div className="map-surface-wash" aria-hidden="true" />
 
@@ -1063,6 +1028,9 @@ function MapPage() {
             <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">
               © OpenStreetMap contributors
             </a>
+            <a href="https://openfreemap.org/" target="_blank" rel="noreferrer">OpenFreeMap</a>
+            <a href="https://openmaptiles.org/" target="_blank" rel="noreferrer">© OpenMapTiles</a>
+            <a href="https://github.com/hyperknot/openfreemap-styles/blob/main/styles/positron/LICENSE.md" target="_blank" rel="noreferrer">Positron</a>
           </div>
         </div>
 
