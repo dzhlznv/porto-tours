@@ -1681,13 +1681,13 @@ h1 {
   top: 0;
   user-select: none;
   pointer-events: none;
-  filter: brightness(1.07) contrast(0.88) saturate(0.74) hue-rotate(6deg);
+  filter: saturate(0.08) contrast(0.45) brightness(1.45);
   will-change: transform;
   backface-visibility: hidden;
 }
 
 .leaflet-tile {
-  filter: brightness(1.07) contrast(0.88) saturate(0.74) hue-rotate(6deg);
+  filter: saturate(0.08) contrast(0.45) brightness(1.45);
   will-change: transform;
   backface-visibility: hidden;
 }
