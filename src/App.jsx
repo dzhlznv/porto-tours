@@ -88,6 +88,7 @@ function LandingPage() {
   const [isAboutDragging, setIsAboutDragging] = useState(false);
   const [aboutHoverZone, setAboutHoverZone] = useState('center');
   const aboutCarouselRef = useRef(null);
+  const galleryGridRef = useRef(null);
   const aboutDragRef = useRef({
     isMouseDown: false,
     startX: 0,
@@ -249,6 +250,10 @@ function LandingPage() {
     setDisplayGallery((galleryItems) => shuffleGalleryItems(galleryItems));
     setVisibleGalleryCount(INITIAL_GALLERY_COUNT);
     setActiveGalleryPhoto(null);
+
+    if (isMobileGallery) {
+      galleryGridRef.current?.scrollTo({ left: 0, behavior: 'auto' });
+    }
   };
 
   const openGalleryLightbox = (photo) => {
@@ -616,7 +621,10 @@ function LandingPage() {
               Surprise me ↻
             </button>
           </div>
-          <div className={`gallery-grid${visibleGalleryCount > INITIAL_GALLERY_COUNT ? ' gallery-grid--expanded' : ''}`}>
+          <div
+            className={`gallery-grid${visibleGalleryCount > INITIAL_GALLERY_COUNT ? ' gallery-grid--expanded' : ''}`}
+            ref={galleryGridRef}
+          >
             {visibleGalleryItems.map((image) => (
               <ParallaxImageCard
                 key={image.id || image.src}
