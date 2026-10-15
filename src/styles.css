@@ -341,6 +341,7 @@ h1 {
   display: flex;
   justify-content: center;
   gap: 0.38rem;
+  visibility: hidden;
 }
 
 .about-carousel-dot {
